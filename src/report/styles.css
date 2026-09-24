@@ -1553,13 +1553,19 @@ footer{position:relative;overflow:hidden}
 .ax-mult--in{fill:#fff}
 .ax-col rect{cursor:help}
 .ax-col:hover .ax-bar{filter:brightness(1.08)}
+/* столбец на каждый год: десятилетия — насыщенные и с подписями, остальные годы — светлее */
+.ax-bar.is-year.is-small{fill:#C5D1DC}
+.ax-bar.is-year.is-big{fill:#A9CB9F}
+.ax-bars .ax-bar{cursor:help}
+.ax-bars .ax-bar:hover{filter:brightness(.92)}
+.ax-x.is-mark{font-weight:800;fill:var(--blue-dark)}
+.ax-agecap{font:700 10.5px/1 'NeoSansPro',system-ui,sans-serif;fill:#9BA7B4}
 .ax-prem{stroke:#294A69;stroke-width:1.6;stroke-dasharray:7 5}
 .ax-premcap{font:800 10.5px/1 'NeoSansPro',system-ui,sans-serif;fill:#294A69;letter-spacing:.01em}
 .js-charts .ax-bar{transform-box:fill-box;transform-origin:bottom center;transform:scaleY(0);
   transition:transform .95s cubic-bezier(.2,.7,.25,1)}
 .js-charts .cmpbars.is-in .ax-bar{transform:none}
-.js-charts .ax-bar:nth-of-type(2){transition-delay:.05s}
-.js-charts .cmpbars.is-in .ax-bar{transition-delay:0s}
+
 .js-charts .ax-mult,.js-charts .ax-sum,.js-charts .ax-prem,.js-charts .ax-premcap{opacity:0;transition:opacity .45s ease .55s}
 .js-charts .cmpbars.is-in .ax-mult,.js-charts .cmpbars.is-in .ax-sum,
 .js-charts .cmpbars.is-in .ax-prem,.js-charts .cmpbars.is-in .ax-premcap{opacity:1}
@@ -1577,6 +1583,7 @@ footer{position:relative;overflow:hidden}
   .ax-mult{font-size:22px}
   .ax-sum{font-size:17px}
   .ax-premcap{font-size:15px}
+  .ax-agecap{font-size:15px}
 }
 @media(max-width:430px){
   .ax-y{font-size:21px}

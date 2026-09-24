@@ -280,10 +280,10 @@
       }).join('\n') + '\n        </div>';
     };
 
-    /* ── График «Во сколько раз вернётся перевод» ── */
+    /* ── График «Во сколько раз вернётся перевод»: столбец на каждый год, десятилетия — с подписями ── */
     B.cmpChart = function () {
-      var ages = M.cmpAges, Y0 = 340, Y1 = 86, X0 = 96, X1 = 616;
-      var vmax = M.at(ages[ages.length - 1]).cum;
+      var rows = M.rows, marks = M.cmpAges, Y0 = 340, Y1 = 86, X0 = 96, X1 = 616;
+      var vmax = rows[rows.length - 1].cum;
       var raw = vmax / 7, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), fr = raw / p;
       var step = (fr <= 1 ? 1 : fr <= 2 ? 2 : fr <= 2.5 ? 2.5 : fr <= 5 ? 5 : 10) * p;
       var top = Math.ceil(vmax * 1.02 / step) * step;
@@ -293,8 +293,8 @@
         var m = v / 1e6;
         return (m >= 10 ? String(Math.round(m)) : String(r1(m)).replace('.', ',')) + ' млн';
       };
-      var mlnT = function (v) { return String(r1(v / 1e6)).replace('.', ',').replace(/^(\d+)$/, '$1,0') + NBSP.replace('&nbsp;', ' ') + 'млн ₸'; };
-      var out = '        <svg width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Сколько получено к возрасту в сравнении с переводом ' + plain(M.premium) + ' тенге">\n' +
+      var mlnT = function (v) { return String(r1(v / 1e6)).replace('.', ',').replace(/^(\d+)$/, '$1,0') + ' млн ₸'; };
+      var out = '        <svg width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Сколько получено к каждому возрасту в сравнении с переводом ' + plain(M.premium) + ' тенге">\n' +
         '        <text class="ax-unit" x="14" y="34">сумма выплат</text>\n' +
         '        <line class="ax-prem" x1="330" y1="30" x2="366" y2="30"/>\n' +
         '        <text class="ax-premcap ax-premcap--wide" x="374" y="34">перевод ' + plain(M.premium).replace(/ /g, ' ') + ' ₸</text>\n' +
@@ -303,23 +303,31 @@
         out += '        <line class="ax-grid" x1="' + X0.toFixed(1) + '" y1="' + y(t).toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + y(t).toFixed(1) + '"/>\n' +
           '        <text class="ax-y" x="' + (X0 - 10).toFixed(1) + '" y="' + (y(t) + 4).toFixed(1) + '" text-anchor="end">' + mln(t) + '</text>\n';
       }
-      var stepX = (X1 - X0) / ages.length, bw = Math.min(62, stepX * 0.62);
-      ages.forEach(function (a, k) {
-        var r = M.at(a), cx = X0 + stepX * (k + 0.5), yy = y(r.cum), h = Math.max(Y0 - yy, 3);
-        var small = r.cum < M.premium, x = r.cum / M.premium;
-        out += '        <g class="ax-col">\n' +
-          '          <rect data-age="' + a + '" class="ax-bar ' + (small ? 'is-small' : 'is-big') + '" x="' + (cx - bw / 2).toFixed(1) + '" y="' + yy.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="7"><title>' + M.barTip(a) + '</title></rect>\n' +
-          '          <text class="ax-sum ' + (small ? 'is-small' : 'is-big') + '" x="' + cx.toFixed(1) + '" y="' + (yy - 10).toFixed(1) + '" text-anchor="middle">' + mlnT(r.cum) + '</text>\n' +
-          (h > 44
-            ? '          <text class="ax-mult ax-mult--in" x="' + cx.toFixed(1) + '" y="' + (yy + 26).toFixed(1) + '" text-anchor="middle">' + X(x) + '</text>\n'
-            : '          <text class="ax-mult ' + (small ? 'is-small' : 'is-big') + '" x="' + cx.toFixed(1) + '" y="' + (yy - 35).toFixed(1) + '" text-anchor="middle">' + X(x) + '</text>\n') +
-          '          <text class="ax-x" x="' + cx.toFixed(1) + '" y="368" text-anchor="middle">' + Y(a) + '</text>\n' +
-          '        </g>\n';
+      var n = rows.length, stepX = (X1 - X0) / n, bw = Math.max(3, Math.min(62, stepX * 0.66));
+      var cx = function (k) { return X0 + stepX * (k + 0.5); };
+      /* подписи десятилетий: если две отметки ближе 7 лет, у ранней оставляем только столбец */
+      var labelled = marks.filter(function (a, i) { return i === marks.length - 1 || marks[i + 1] - a >= 7; });
+      var bars = '', labels = '';
+      rows.forEach(function (r, k) {
+        var mark = marks.indexOf(r.age) >= 0, small = r.cum < M.premium, yy = y(r.cum), h = Math.max(Y0 - yy, 2);
+        bars += '        <rect data-age="' + r.age + '" class="ax-bar ' + (small ? 'is-small' : 'is-big') + (mark ? ' is-mark' : ' is-year') + '" x="' + (cx(k) - bw / 2).toFixed(1) +
+          '" y="' + yy.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + Math.min(4, bw / 2).toFixed(1) + '" style="transition-delay:' + Math.round(k * 14) + 'ms"><title>' + M.barTip(r.age) + '</title></rect>\n';
+        if (mark && labelled.indexOf(r.age) >= 0) {
+          labels += '        <text class="ax-mult ' + (small ? 'is-small' : 'is-big') + '" x="' + cx(k).toFixed(1) + '" y="' + (yy - 30).toFixed(1) + '" text-anchor="middle">' + X(r.cum / M.premium) + '</text>\n' +
+            '        <text class="ax-sum ' + (small ? 'is-small' : 'is-big') + '" x="' + cx(k).toFixed(1) + '" y="' + (yy - 10).toFixed(1) + '" text-anchor="middle">' + mlnT(r.cum) + '</text>\n';
+        }
+        // подписи возраста: каждые 5 лет и первый год выплат; десятилетия — крупнее
+        if (k === 0 || r.age % 5 === 0) {
+          var near = k > 0 && r.age % 5 === 0 && r.age - rows[0].age < 3;   // 55 рядом с 57 не пишем дважды
+          if (!near) labels += '        <text class="ax-x' + (mark ? ' is-mark' : '') + '" x="' + cx(k).toFixed(1) + '" y="368" text-anchor="middle">' + r.age + '</text>\n';
+        }
       });
       var yp = y(M.premium);
-      out += '        <line class="ax-prem" x1="' + X0.toFixed(1) + '" y1="' + yp.toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + yp.toFixed(1) + '"/>\n' +
+      out += '        <g class="ax-bars">\n' + bars + '        </g>\n' + labels +
+        '        <line class="ax-prem" x1="' + X0.toFixed(1) + '" y1="' + yp.toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + yp.toFixed(1) + '"/>\n' +
         '        <line class="ax-line" x1="' + X0.toFixed(1) + '" y1="' + Y0.toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + Y0.toFixed(1) + '"/>\n' +
         '        <line class="ax-line" x1="' + X0.toFixed(1) + '" y1="' + (Y1 - 16).toFixed(1) + '" x2="' + X0.toFixed(1) + '" y2="' + Y0.toFixed(1) + '"/>\n' +
+        '        <text class="ax-agecap" x="' + X1.toFixed(1) + '" y="392" text-anchor="end">возраст, лет</text>\n' +
         '        </svg>';
       return out;
     };
