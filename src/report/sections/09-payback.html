@@ -1,25 +1,26 @@
-  <!-- ══ Окупаемость ══ -->
+  <!-- ══ Окупаемость и деньги в договоре ══ -->
   <section class="section page" id="payback">
     <div class="section-head">
       <div>
         <p class="eyebrow">Окупаемость <span class="who"><i>${E(M.initials)}</i>ваш сценарий</span></p>
-        <h2>Когда выплаты вернут сумму перевода</h2>
+        <h2>Где ваши деньги — год за годом</h2>
       </div>
-      <p class="intro">Столбики — сколько получено к каждому возрасту, пунктир — сумма перевода.</p>
+      <p class="intro">Пока выплаты не вернули сумму перевода, её остаток хранится в договоре — это выкупная сумма. Когда перевод вернулся, договор просто продолжает платить, пожизненно.</p>
     </div>
 
     <div class="payback-grid">
-      <article class="card chart-card">
-        <h3>Накопленные выплаты, ${M.s0}–${M.pbTo} лет</h3>
-        <p class="chart-note">После пересечения пунктира выплаты продолжаются пожизненно.</p>
-        <div class="chart-host" id="chart-payback">${B.snapshot("payback")}</div>
+      <article class="card chart-card cf-card">
+        <h3>Получено выплатами и остаток в договоре</h3>
+        <p class="chart-note">Высота столбца — всё, что ваше к этому возрасту: деньги, которые уже пришли, и деньги, которые ещё в договоре.</p>
+${B.flow(M)}
         <div class="legend">
-          <span><i class="l-soft"></i>до возврата суммы перевода</span>
-          <span><i class="l-green"></i>после возврата</span>
+          <span><i class="l-green"></i>получено выплатами</span>
+          <span><i class="l-surr"></i>выкупная сумма — в договоре</span>
+          ${M.flow.some(function (f) { return f.lock; }) ? '<span><i class="l-lock"></i>первые 2 года расторгнуть нельзя</span>' : ''}
           <span><i class="l-line"></i>сумма перевода — ${T(M.premium)}</span>
         </div>
         <table class="minitab">
-          <thead><tr><th>Возраст</th><th>В месяц</th><th>Получено всего</th><th>Что происходит</th></tr></thead>
+          <thead><tr><th>Возраст</th><th>В месяц</th><th>Получено всего</th><th>Выкупная сумма</th><th>Что происходит</th></tr></thead>
           <tbody>
 ${B.minitab(M)}
           </tbody>
@@ -27,15 +28,5 @@ ${B.minitab(M)}
       </article>
 ${B.paybackNote(M)}
     </div>
-
-    <div class="section-head" style="margin-top:clamp(28px,3.4vw,44px)">
-      <div>
-        <p class="eyebrow">Пожизненная перспектива</p>
-        <h2>Сколько накопится к возрасту</h2>
-      </div>
-      <p class="intro">С учётом индексации ${M.indPct}% в год.</p>
-
-    </div>
-    <div id="miles">${B.miles(M)}</div>
   </section>
 

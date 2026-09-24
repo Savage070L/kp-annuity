@@ -419,7 +419,7 @@ button,input,select{font:inherit;color:inherit}
     if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта — или выберите «сегодня».' };
     if (!f.input.savings && !f.input.redemption && !f.input.contribution) return { ready: false, msg: 'Укажите накопления в ЕНПФ.' };
     var calc;
-    try { calc = ENGINE ? ENGINE.compute(f.input) : K.compute(f.input); }
+    try { calc = K.plan(f.input, ENGINE); }
     catch (e) { return { ready: false, msg: 'Калькулятор не посчитал: ' + e.message }; }
     if (calc.errors && calc.errors.length) return { ready: false, msg: calc.errors.join(' ') };
     var model = null;
@@ -464,11 +464,11 @@ button,input,select{font:inherit;color:inherit}
       var done = false;
       function grab() {
         if (done) return; done = true;
-        var out = { payback: '', growth: '' };
+        var out = { growth: '' };
         try {
           var d = f.contentDocument;
           try { f.contentWindow.dispatchEvent(new f.contentWindow.Event('beforeprint')); } catch (e) {}
-          ['payback', 'growth'].forEach(function (k) {
+          ['growth'].forEach(function (k) {
             var host = d.getElementById('chart-' + k), svg = host && host.querySelector('svg:not(.chart-fixed)');
             if (svg) out[k] = svg.outerHTML;
           });
@@ -486,7 +486,6 @@ button,input,select{font:inherit;color:inherit}
     var draft = K.render(st.calc, st.form.client, st.form.agent);
     return Promise.all([snapAt(draft, 1200), snapAt(draft, 380)]).then(function (r) {
       var snaps = {
-        payback: (r[0].payback ? cleanChart(r[0].payback, 'is-wide', 'wide') : '') + (r[1].payback ? cleanChart(r[1].payback, 'is-narrow', 'narrow') : ''),
         growth: (r[0].growth ? cleanChart(r[0].growth, 'is-wide', 'wide') : '') + (r[1].growth ? cleanChart(r[1].growth, 'is-narrow', 'narrow') : '')
       };
       return K.render(st.calc, st.form.client, st.form.agent, snaps);

@@ -24,7 +24,7 @@
         <div class="outcome__amount num"><span class="outcome__from">от</span><span class="cnt" data-count="${M.first}">${H(M.first)}</span><span class="cur">₸</span></div>
         <p class="outcome__sub">в месяц ${M.immediate ? 'сразу после оформления' : 'с ' + M.startGen} — дальше выплата растёт каждый год</p>
         <div class="outcome__facts">
-          <div><b>${M.immediate ? 'сразу' : 'с ' + M.startGen}</b><span>начинаются выплаты</span></div>
+          <div><b>${M.immediate ? 'сразу' : 'с ' + M.startGen}</b><span>${M.immediate ? 'начинаются выплаты' : 'первая выплата — ' + M.beginText}</span></div>
           <div><b class="num">до ${T(M.total.m)}</b><span>в месяц ${M.toYears(M.horizon)}</span></div>
 
         </div>

@@ -89,6 +89,16 @@
     m.minPayAtPension = near(/^мин(имальная|\.)?\s*выплата в момент выхода/i, both);
     m.paySign = near(/^выплата на дату заключения$/i, both);
     m.first = near(/^выплата в момент выхода на пенс/i, both) || row(/^выплата в момент выхода на пенс/i);
+    m.begin = named('begin') || row(/^дата начала аннуитетных выплат/i);
+    /* лист «График»: по месяцам — дата, выплата и выкупная сумма (заголовки в одной строке) */
+    m.sched = null;
+    bk.sheets.forEach(function (s, sh) {
+      if (m.sched || !/график/i.test(s.name) || /клиент/i.test(s.name)) return;
+      var hs = labels(bk, /выкупн\S* сумм/i, [sh])[0], hp = labels(bk, /ежемесячн\S* аннуитетн\S* выплат/i, [sh])[0];
+      if (!hs || !hp || hs.r !== hp.r) return;
+      var hd = labels(bk, /^дата$/i, [sh]).filter(function (h) { return h.r === hs.r; })[0];
+      if (hd) m.sched = { sh: sh, row0: hs.r + 1, cDate: hd.c, cPay: hp.c, cSurr: hs.c };
+    });
 
     var need = { date: 'Дата расчёта', sex: 'Пол', category: 'Категория', gp: 'Гарантированный период', status: 'статус расчёта',
                  x: 'возраст (имя x)', nax: 'аннуитетный фактор (имя nax)', threshold: 'Минимальная премия',
@@ -168,6 +178,7 @@
     /* какие формулы участвуют в расчёте и совпадают ли они с тем, что сохранил Excel */
     var roots = ['status', 'x', 'x0', 'x_0', 'd', 'nax', 'ax', 'vd', 'threshold', 'minPay', 'minPayAtPension', 'paySign', 'first', 'pm']
       .map(function (k) { return m[k]; }).filter(Boolean);
+    if (m.sched) roots.push(new FB.Ref(m.sched.sh, m.sched.row0, m.sched.cSurr, m.sched.row0 + 36, m.sched.cSurr));
     var list = bk.closure(roots);
     this.formulas = list.length;
     var unknown = bk.unsupported(list);
@@ -189,8 +200,25 @@
     return fallback;
   };
 
-  /* input — как у AnnuityEngine.compute */
-  Engine.prototype.compute = function (input) {
+  function isoOf(bk, v) {
+    var D = bk.ymd(v);
+    return D.y + '-' + ('0' + D.m).slice(-2) + '-' + ('0' + D.d).slice(-2);
+  }
+  /* строки «Графика» по порядку (так цепочка «выплата ← прошлая выплата» считается без глубокой рекурсии) */
+  function readSchedule(bk, S, stop) {
+    var list = [];
+    for (var r = S.row0; r < S.row0 + 1500; r++) {
+      var dt = bk.at(S.sh, r, S.cDate);
+      if (typeof dt !== 'number' || dt <= 0 || dt > stop) break;
+      var p = bk.at(S.sh, r, S.cPay);
+      list.push({ r: r, date: dt, pay: typeof p === 'number' ? p : 0 });
+    }
+    return list;
+  }
+
+  /* input — как у AnnuityEngine.compute; opts.lite — без листа «График» (для сравнений вариантов) */
+  Engine.prototype.compute = function (input, opts) {
+    opts = opts || {};
     var bk = this.book, m = this.map, P = this.params, self = this;
     var calcDate = AE.parseDate(input.calcDate), dob = AE.parseDate(input.dob), errors = [];
     if (!calcDate) errors.push('Не указана дата расчёта');
@@ -252,6 +280,42 @@
     };
     var warnings = [];
     if (P.maxGuarantee != null && gp > P.maxGuarantee) warnings.push('Гарантированный период по калькулятору — не больше ' + P.maxGuarantee + ' лет');
+
+    /* дата начала выплат (ввод!G23) и таблица по годам: выплата и выкупная сумма — из листа «График» */
+    var bv = m.begin ? bk.get(m.begin) : null;
+    var begin = typeof bv === 'number' && bv > 0 ? isoOf(bk, bv) : null;
+    var rows = null, surrBase = null, surrFrom = null, S = m.sched;
+    if (S && !opts.lite) {
+      var list = readSchedule(bk, S, bk.serial(dob.getFullYear() + T.horizon + 2, dob.getMonth() + 1, dob.getDate()));
+      var bi = -1;
+      for (var i = 0; i < list.length; i++) if (list[i].pay > 0) { bi = i; break; }
+      if (bi >= 0 && list[bi].pay === first) {
+        rows = [];
+        var cum = 0;
+        for (var a = startAgeInt, k = 0; a <= T.horizon && bi + 12 * k < list.length; a++, k++) {
+          // график калькулятора кончается раньше последнего года (101 год у инвалидности) — там выкупная уже 0
+          var mm = list[bi + 12 * k].pay, end = list[bi + 12 * k + 11] || list[list.length - 1], sv = bk.at(S.sh, end.r, S.cSurr);
+          cum += 12 * mm;
+          rows.push({ age: a, m: mm, y: 12 * mm, cum: cum, guaranteed: k < gp, surr: typeof sv === 'number' ? sv : null });
+        }
+        if (!begin) begin = isoOf(bk, list[bi].date);
+        if (bi > 0) { var sb = bk.at(S.sh, list[bi - 1].r, S.cSurr); if (typeof sb === 'number') surrBase = sb; }
+        for (var q = 0; q < list.length; q++) {
+          var e = bk.at(S.sh, list[q].r, S.cSurr);
+          if (typeof e === 'number') { surrFrom = isoOf(bk, list[q].date); if (surrBase === null && q < bi) surrBase = e; break; }
+        }
+      }
+    }
+    if (!rows || rows.length < T.horizon - startAgeInt + 1) {
+      // графика нет или он устроен иначе — считаем по тем же правилам с параметрами файла
+      rows = AE.schedule(first, P.ind, startAgeInt, gp, T.horizon);
+      var bd = AE.parseDate(begin) || calcDate;
+      var sr = AE.surrender(rows, premium, T, calcDate, bd, d === 0 ? calcDate.getDate() : dob.getDate());
+      surrFrom = sr.from; surrBase = sr.base;
+    }
+    if (surrBase === null) surrBase = xround(premium * (1 - (isFinite(P.alfa) ? P.alfa : 0)));
+    if (!surrFrom) surrFrom = AE.isoDate(AE.onDay(calcDate, 24, calcDate.getDate()));
+
     return {
       ok: status === 'ok', status: status, fundsStatus: own + contribution >= threshold ? 'ok' : 'недостаточно средств',
       excelStatus: excelStatus, warnings: warnings, errors: [], enteredPremium: own + contribution,
@@ -261,7 +325,8 @@
       minPay: num(bk.get(m.minPay)), minPayAtPension: m.minPayAtPension ? num(bk.get(m.minPayAtPension)) : null, threshold: threshold,
       savings: savings, redemption: redemption, contribution: contribution, premium: premium,
       dividendRate: rate, dividend: dividend, topup: topup, mode: mode,
-      payAtSigning: xround(pay0), first: first, rows: AE.schedule(first, P.ind, startAgeInt, gp, T.horizon)
+      payAtSigning: xround(pay0), first: first, rows: rows,
+      calcDate: AE.isoDate(calcDate), begin: begin || AE.isoDate(calcDate), surrBase: surrBase, surrFrom: surrFrom
     };
   };
 

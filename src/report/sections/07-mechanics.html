@@ -5,7 +5,7 @@
         <p class="eyebrow">Как это работает</p>
         <h2>Путь от накоплений к доходу на всю жизнь</h2>
       </div>
-      <p class="intro">Пенсионный аннуитет — договор с компанией по страхованию жизни: часть пенсионных накоплений переводится из ЕНПФ, а КСЖ принимает обязательство выплачивать деньги ежемесячно и пожизненно.</p>
+      <p class="intro">Этапы вашего договора — по возрасту и по календарю.</p>
     </div>
     <article class="card timeline-card">
       <h3>Как пойдёт договор по годам <span class="who"><i>${E(M.initials)}</i>ваш сценарий</span></h3>
@@ -27,9 +27,9 @@ ${B.timeline(M)}
         <span class="payline__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14"/><path d="m12 6 6 6-6 6"/></svg></span>
         <div class="payline__step"><span class="payline__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4v10.4"/><path d="m8.4 10.4 3.6 3.6 3.6-3.6"/><path d="M4.4 15.6v3.2a1.6 1.6 0 0 0 1.6 1.6h12a1.6 1.6 0 0 0 1.6-1.6v-3.2"/></svg></span><b>Премия переведена</b><span>ЕНПФ отправляет сумму в компанию</span></div>
         <span class="payline__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14"/><path d="m12 6 6 6-6 6"/></svg></span>
-        <div class="payline__step payline__step--key"><span class="payline__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3.2 2"/></svg></span><b>Первая выплата</b><span>не позднее 10 рабочих дней после перевода</span></div>
+        <div class="payline__step payline__step--key"><span class="payline__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3.2 2"/></svg></span><b>Первая выплата</b><span>${M.immediate ? 'не позднее 10 рабочих дней после перевода' : 'с ' + M.beginText}</span></div>
         <span class="payline__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14"/><path d="m12 6 6 6-6 6"/></svg></span>
-        <div class="payline__step"><span class="payline__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="5.2" width="16.8" height="15.2" rx="3.2"/><path d="M3.6 10h16.8M8 3.4v3.2M16 3.4v3.2"/><path d="M8.4 14h2M13.6 14h2M8.4 17.2h2M13.6 17.2h2"/></svg></span><b>Дальше каждый месяц</b><span>на банковский счёт из договора</span></div>
+        <div class="payline__step"><span class="payline__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="5.2" width="16.8" height="15.2" rx="3.2"/><path d="M3.6 10h16.8M8 3.4v3.2M16 3.4v3.2"/><path d="M8.4 14h2M13.6 14h2M8.4 17.2h2M13.6 17.2h2"/></svg></span><b>Дальше каждый месяц</b><span>на банковский счёт; ${M.beginIndexIn} выплата растёт на ${M.indPct}%</span></div>
       </div>
       <div class="payline__notes">
         <div><b>ИПН и ВОСМС</b><span>удерживаются из каждой выплаты по законодательству РК; банковские расходы компания берёт на себя</span></div>

@@ -10,26 +10,19 @@
 
     <div class="stack-grid">
       <article class="card stack-card">
-        <h3>Три части одной суммы</h3>
-        <p class="lede">Из чего состоит порог оформления.</p>
+        <h3>${M.pieParts.filter(function (p) { return p.value > 0; }).length === 3 ? 'Три части одной суммы' : M.pieParts.filter(function (p) { return p.value > 0; }).length === 2 ? 'Две части одной суммы' : 'Сумма перевода'}</h3>
+        <p class="lede">${M.free ? 'Из чего состоит сумма перевода.' : 'Из чего состоит порог оформления.'}</p>
 
         <div class="pie-wrap">
 ${B.pie(M)}
         </div>
 ${B.stackKey(M)}
 
-        <div class="note-card">
-          <span class="note-card__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16.5v-5.2M12 8.2h.01"/></svg></span>
-          <div>
-            <b>Почему порог именно такой</b>
-            <p>Выплата не может быть ниже ${M.minPayPct}% прожиточного минимума — отсюда и минимальная сумма перевода: ${T(M.threshold)}.</p>
-
-          </div>
-        </div>
       </article>
 
 ${B.metrics(M)}
     </div>
+${B.why(M)}
 
 ${B.facts(M)}
   </div></section>

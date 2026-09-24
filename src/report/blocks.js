@@ -88,7 +88,7 @@
         '          </defs>\n' +
         '          <g class="pie-ring">\n' + segs + '          </g>\n' + labels +
         '          <text class="pie-sum" x="150" y="142" text-anchor="middle">' + T(total) + '</text>\n' +
-        '          <text class="pie-cur" x="150" y="168" text-anchor="middle">' + (M.scenario === 'no-topup' ? 'сумма перевода' : 'порог оформления') + '</text>\n' +
+        '          <text class="pie-cur" x="150" y="168" text-anchor="middle">' + (M.free ? 'сумма перевода' : 'порог оформления') + '</text>\n' +
         '        </svg>';
     };
 
@@ -139,7 +139,8 @@
         return '        <span class="' + t.cls + '" style="--x:' + t.x + '%"><i></i><b>' + Y(t.age) + '</b></span>';
       }).join('\n');
       var pts = M.points.map(function (p) {
-        return '        <li' + (p.now ? ' class="is-now"' : '') + '><i' + (p.inf ? ' class="ic-inf"' : '') + '>' + (p.inf ? ICONS.inf : p.age) + '</i><b>' + p.title + '</b><span>' + p.text + '</span></li>';
+        return '        <li' + (p.now ? ' class="is-now"' : '') + '><i' + (p.inf ? ' class="ic-inf"' : '') + '>' + (p.inf ? ICONS.inf : p.age) + '</i>' +
+          (p.year ? '<em class="tl-year">' + p.year + '</em>' : '') + '<b>' + p.title + '</b><span>' + p.text + '</span></li>';
       }).join('\n');
       return '      <div class="tl-bar">\n        ' + segs.join('\n        ') + '\n      </div>\n' +
         '      <div class="tl-scale" aria-hidden="true">\n        <span class="tl-line"></span>\n' + scale +
@@ -235,23 +236,25 @@
           '            <div><b class="num">' + H(M.first) + ' → ' + T(M.guarLast.m) + '</b><span>так растёт выплата за ' + Y(M.gp) + ' гарантии</span></div>\n' +
           '          </div>\n        </div>\n      </article>');
       }
+      // рядом с гарантией — её варианты (при отсутствии гарантии карточка вариантов одна)
+      var alts = B.alts();
+      if (alts && M.gp > 0) cards[cards.length - 1] = '    <div class="compare__pair">\n' + cards[cards.length - 1] + '\n' + alts + '\n    </div>';
+      else if (alts) cards.push(alts);
       return cards.length ? '    <div class="compare">\n' + cards.join('\n\n') + '\n    </div>' : '';
     };
 
     /* ── Окупаемость ── */
+    function surrCell(v) { return v === null || v === undefined ? 'пока недоступна' : v > 0 ? T(v) : '—'; }
     B.minitab = function () {
       return M.minitab.map(function (r) {
-        return '            <tr' + (r.key ? ' class="is-key"' : '') + '><td>' + r.age + '</td><td class="num">' + T(r.m) + '</td><td class="num">' + T(r.cum) + '</td><td>' + r.what + '</td></tr>';
+        return '            <tr' + (r.key ? ' class="is-key"' : '') + '><td>' + r.age + '</td><td class="num">' + T(r.m) + '</td><td class="num">' + T(r.cum) + '</td>' +
+          '<td class="num">' + surrCell(M.at(r.age).surr) + '</td><td>' + r.what + '</td></tr>';
       }).join('\n');
     };
     B.paybackNote = function () {
       var n = M.payback.age - M.s0 + 1, on = Math.max(1, Math.round(n / 3));
       var cells = '';
       for (var k = 0; k < n; k++) cells += '<i' + (k >= n - on ? ' class="on"' : '') + ' style="--k:' + k + '"></i>';
-      var max = Math.max.apply(null, M.mults.map(function (m) { return m.x; }));
-      var mults = M.mults.map(function (m) {
-        return '          <div class="mult"><span class="mult__age">' + M.toYears(m.age) + '</span><span class="mult__track"><i style="width:' + Math.max(4, Math.round(m.x / max * 100)) + '%"></i></span><b class="mult__x">' + X(m.x) + '</b></div>';
-      }).join('\n');
       return '      <aside class="payback-note">\n' +
         '        <p class="eyebrow">Точка окупаемости</p>\n' +
         '        <div class="pbnote__big"><b>' + M.payback.age + '</b><span>' + M.yearsWord(M.payback.age) + '</span></div>\n' +
@@ -262,21 +265,14 @@
         '          <div><b class="num">' + T(M.payback.cum) + '</b><span>получено ' + M.toYears(M.payback.age) + '</span></div>\n' +
         '          <div><b class="num">100%</b><span>суммы перевода вернулось</span></div>\n' +
         '        </div>\n' +
-        (M.mults.length ? '        <div class="pbnote__mult">\n          <p class="pbnote__mtitle">Сколько раз вернётся перевод</p>\n' + mults + '\n' +
-          '          <p class="pbnote__mfoot">сумма выплат к возрасту — к переводу ' + T(M.premium) + '</p>\n        </div>\n' : '') +
+        '        <div class="pbnote__surr">\n' +
+        '          <p class="pbnote__mtitle">Деньги в договоре</p>\n' +
+        '          <b class="num">' + T(M.surrFirst) + '</b>\n' +
+        '          <span>выкупная сумма с ' + M.surrFromText + ' — ' + M.pctNum(Math.round(M.surrFirst / M.premium * 1000) / 1000) + '% перевода. С каждой выплатой она уменьшается' +
+        (M.zeroRow ? ' и ' + M.toYears(M.zeroRow.age) + ' становится нулём: деньги уже вернулись выплатами' : '') + '.</span>\n' +
+        '        </div>\n' +
         '      </aside>';
     };
-    B.miles = function () {
-      var maxCum = M.total.cum;
-      return M.mileAges.map(function (a) {
-        var r = M.at(a), w = r1(r.cum / maxCum * 100);
-        return '<button type="button" class="tile" data-age="' + a + '"><span class="tile__age">до ' + a + ' лет</span>' +
-          '<span class="tile__sum num">' + nb(r.cum) + NBSP + '₸</span><span class="tile__x">' + X(r.cum / M.premium) + ' к сумме перевода</span>' +
-          '<span class="tile__track"><span class="tile__bar" data-w="' + w + '" style="width: ' + w + '%;"></span></span>' +
-          '<span class="tile__note">выплата ' + nb(r.m) + NBSP + '₸ в месяц</span></button>';
-      }).join('');
-    };
-
     /* ── Что вносите ── */
     B.inoutParts = function () {
       return '        <div class="inout__parts">\n' + M.pieParts.filter(function (p) { return p.value > 0; }).map(function (p) {
@@ -345,6 +341,102 @@
       return '      <div class="decades">\n' + rows + '\n      </div>';
     };
 
+    /* ── Пока клиент ждёт старта: выплата индексируется (выплата на дату договора → первая выплата) ── */
+    B.stairs = function () {
+      if (!M.stairs.length) return '';
+      var top = M.stairs[M.stairs.length - 1].v, many = M.stairs.length > 9;
+      var bars = M.stairs.map(function (st, k) {
+        var last = k === M.stairs.length - 1;
+        return '          <div class="stair' + (last ? ' is-last' : '') + (k === 0 ? ' is-first' : '') + '" style="--h:' + r1(st.v / top * 100) + '%;--k:' + k + '">' +
+          '<b class="num">' + nb(st.v) + '</b><i></i><span>' + st.age + '</span></div>';
+      }).join('\n');
+      return '    <article class="card wait-card">\n' +
+        '      <div class="wait-card__head">\n        <div>\n' +
+        '          <p class="eyebrow">Пока вы ждёте старта</p>\n' +
+        '          <h3>Выплата растёт ещё до первой выплаты: +' + Math.round(M.waitGrowth * 100) + '%</h3>\n' +
+        '          <p class="chart-note">Индексация +' + M.indPct + '% начисляется каждый год и в период ожидания. По калькулятору выплата на дату договора — ' + T(M.payNow) +
+        ', а первая выплата ' + M.beginText + ' — уже ' + T(M.first) + '.</p>\n' +
+        '        </div>\n' +
+        '        <div class="wait-pair">\n' +
+        '          <div><span>на дату договора</span><b class="num">' + T(M.payNow) + '</b></div>\n' +
+        '          <i aria-hidden="true">' + ARROW + '</i>\n' +
+        '          <div class="is-hi"><span>первая выплата · ' + M.beginMonth + '</span><b class="num">' + T(M.first) + '</b></div>\n' +
+        '        </div>\n      </div>\n' +
+        '      <div class="stairs' + (many ? ' stairs--many' : '') + '" role="img" aria-label="Выплата с индексацией: ' + plain(M.payNow) + ' тенге на дату договора, ' + plain(M.first) + ' тенге к первой выплате">\n' +
+        bars + '\n      </div>\n' +
+        '      <p class="stairs__cap">возраст · размер выплаты с учётом индексации, ₸ в месяц</p>\n' +
+        '    </article>';
+    };
+
+    /* ── Почему порог именно такой: ПМ → минимальная выплата → порог ── */
+    var INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16.5v-5.2M12 8.2h.01"/></svg>';
+    B.why = function () {
+      var nax = String(Math.round(M.nax * 10) / 10).replace('.', ',');
+      return '        <div class="why">\n' +
+        '          <p class="why__t"><span class="why__ic">' + INFO + '</span>Почему порог именно такой</p>\n' +
+        '          <div class="why__flow">\n' +
+        '            <div class="why__node"><span>Прожиточный минимум' + (M.pmYear ? ' ' + M.pmYear : '') + '</span><b class="num">' + T(M.pm) + '</b><small>в месяц, по закону</small></div>\n' +
+        '            <span class="why__op">×' + NBSP + M.minPayPct + '%</span>\n' +
+        '            <div class="why__node"><span>Минимальная выплата</span><b class="num">' + T(M.minPay) + '</b><small>в месяц — ниже нельзя</small></div>\n' +
+        '            <span class="why__op">×' + NBSP + nax + '</span>\n' +
+        '            <div class="why__node why__node--hi"><span>Порог оформления</span><b class="num">' + T(M.threshold) + '</b><small>столько стоит такая выплата пожизненно</small></div>\n' +
+        '          </div>\n' +
+        '          <p class="why__foot">' + nax + ' — аннуитетный фактор калькулятора: цена 1' + NBSP + '₸ ежемесячной выплаты пожизненно' +
+        (M.gp > 0 ? ', с индексацией и гарантией ' + Y(M.gp) : ', с индексацией') + '.</p>\n' +
+        '        </div>';
+    };
+
+    /* ── Где деньги год за годом: получено выплатами + выкупная сумма (остаток в договоре) ── */
+    B.flow = function () {
+      var F = M.flow, top = M.flowMax * 1.06, n = F.length;
+      var pct = function (v) { return r1(Math.max(0, v) / top * 100); };
+      var cols = F.map(function (f, k) {
+        var cls = f.age < M.s0 ? 'is-pre' : f.recv >= M.premium ? 'is-back' : 'is-recv';
+        if (f.lock) cls += ' is-lock';
+        if (f.age === M.payback.age) cls += ' is-key';
+        var sv = Math.max(0, f.lock ? f.would : f.surr), sum = sv + f.recv;
+        // столбец = выкупная сумма (сверху) + получено (снизу); доли — внутри столбца
+        return '          <div class="cf__col ' + cls + '" style="--k:' + k + '" data-age="' + f.age + '" data-year="' + f.year + '" data-recv="' + f.recv +
+          '" data-surr="' + (f.lock ? '' : f.surr) + '" data-m="' + f.m + '"><span class="cf__bar" style="height:' + pct(sum) + '%">' +
+          (sv > 0 ? '<i class="cf__s" style="flex:' + r1(sv / sum * 100) + ' 1 0"></i>' : '') +
+          (f.recv > 0 ? '<i class="cf__r" style="flex:' + r1(f.recv / sum * 100) + ' 1 0"></i>' : '') + '</span></div>';
+      }).join('\n');
+      var axis = F.map(function (f, k) {
+        var key = f.age === M.payback.age, start = f.age === M.s0 && !M.immediate;
+        var minor = !key && !start && k % 2 === 1 && k !== n - 1;
+        return '<span class="' + (key ? 'is-key' : start ? 'is-start' : minor ? 'is-minor' : '') + '">' + f.age +
+          (key ? '<small>окупаемость</small>' : start ? '<small>старт</small>' : '') + '</span>';
+      }).join('');
+      return '        <div class="cf" style="--n:' + n + ';--prem:' + pct(M.premium) + '%" role="img" aria-label="Сумма перевода ' + plain(M.premium) +
+        ' тенге: выкупная сумма ' + plain(M.surrBase) + ' тенге с ' + M.surrFromText + ', выплаты возвращают перевод ' + M.toYears(M.payback.age) + '">\n' +
+        '          <div class="cf__plot">\n' +
+        '          <span class="cf__prem"><em>сумма перевода · ' + T(M.premium) + '</em></span>\n' + cols + '\n          </div>\n' +
+        '          <div class="cf__axis">' + axis + '</div>\n' +
+        '        </div>';
+    };
+
+    /* ── Варианты гарантийного периода ── */
+    B.alts = function () {
+      var A = M.alts;
+      if (!A || A.length < 2) return '';
+      var cur = A.filter(function (a) { return a.cur; })[0] || A[A.length - 1];
+      var opts = A.map(function (a) {
+        var dv = a.value - cur.value, pc = cur.value ? dv / cur.value * 100 : 0;
+        var delta = a.cur ? '<em class="alt__me">в вашем расчёте</em>'
+          : '<em class="alt__d ' + ((M.free ? dv > 0 : dv < 0) ? 'is-good' : 'is-less') + '">' + (dv > 0 ? '+' : '−') + nb(Math.abs(dv)) + NBSP + '₸ · ' +
+            (dv > 0 ? '+' : '−') + String(Math.abs(Math.round(pc * 10) / 10)).replace('.', ',') + '%</em>';
+        return '          <div class="alt' + (a.cur ? ' is-cur' : '') + '"><span class="alt__gp">' + (a.gp ? 'гарантия ' + Y(a.gp) : 'без гарантии') + '</span>' +
+          '<b class="num">' + T(a.value) + '</b><span class="alt__u">' + (M.free ? 'первая выплата в месяц' : 'порог оформления') + '</span>' + delta + '</div>';
+      }).join('\n');
+      return '      <article class="card cmp alts">\n' +
+        '        <p class="eyebrow">Варианты гарантии</p>\n' +
+        '        <h3>' + (M.free ? 'Как гарантия меняет выплату' : 'Как гарантия меняет порог') + '</h3>\n' +
+        '        <p>' + (M.free ? 'Та же сумма перевода — первая выплата при разном гарантийном периоде.' : 'Та же минимальная выплата — сколько нужно для оформления при разном гарантийном периоде.') +
+        ' Чем длиннее гарантия, тем больше выплат гарантировано близким.</p>\n' +
+        '        <div class="alts__row' + (A.length > 3 ? ' alts__row--4' : '') + '">\n' + opts + '\n        </div>\n' +
+        '      </article>';
+    };
+
     /* ── WhatsApp: главная кнопка и быстрые вопросы рядом с агентом ── */
     function waIcon(cls) { return '<img class="' + cls + '" src="' + ICONS.wa + '" alt="" width="24" height="24">'; }
     var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 6 6 6-6 6"/></svg>';
@@ -369,16 +461,16 @@
         var cls = (guar ? 'is-guaranteed ' : '') + (d.age === M.payback.age ? 'is-payback' : '');
         var tag = M.gp > 0 && d.age === M.afterGuar ? '<span class="tag tag--b">гарантия завершена</span>'
           : guar ? '<span class="tag tag--g">гарантийный период</span>' : '<span class="tag tag--n">' + (M.gp > 0 ? 'после гарантии' : 'пожизненно') + '</span>';
-        var left = d.cum >= M.premium
-          ? (d.age === M.payback.age ? '<span class="tag tag--l">сумма перевода вернулась</span>' : '<span class="tag tag--n">выплаты пожизненно</span>')
-          : nb(M.premium - d.cum) + NBSP + '₸';
+        var left = d.surr === null ? '<span class="tag tag--n">пока недоступна</span>'
+          : d.surr > 0 ? nb(d.surr) + NBSP + '₸'
+          : d.age === M.payback.age ? '<span class="tag tag--l">сумма перевода вернулась</span>' : '<span class="sched-dash">—</span>';
         return '<tr class="' + cls.trim() + '" data-age="' + d.age + '" data-group="' + (guar ? 'guaranteed' : 'after') + '">' +
-          '<td data-label="Возраст">' + d.age + '<i> ' + M.yearsWord(d.age) + '</i></td>' +
+          '<td data-label="Возраст">' + d.age + '<i> ' + M.yearsWord(d.age) + '</i><small class="yr">' + M.yearOf(d.age) + '</small></td>' +
           '<td data-label="Период">' + tag + '</td>' +
           '<td data-label="В месяц, ₸">' + nb(d.m) + '</td>' +
           '<td data-label="За год, ₸">' + nb(d.y) + '</td>' +
           '<td data-label="Получено всего, ₸">' + nb(d.cum) + '</td>' +
-          '<td data-label="До суммы перевода">' + left + '</td></tr>';
+          '<td data-label="Выкупная сумма">' + left + '</td></tr>';
       }).join('');
     };
 

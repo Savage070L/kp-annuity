@@ -13,12 +13,12 @@
   });
 
   /* данные клиента подставляет генератор КП */
-  var CFG = /*@CFG*/{"data":[],"transfer":0,"payback":0,"guarLast":0,"start":55,"end":100,"pbTo":70,"keyAges":[]}/*@END*/;
+  var CFG = /*@CFG*/{"data":[],"transfer":0,"payback":0,"guarLast":0,"start":55,"end":100,"keyAges":[]}/*@END*/;
   var DATA = CFG.data;
   var TRANSFER = CFG.transfer;       // сумма перевода = премия
   var PAYBACK_AGE = CFG.payback;     // год, в котором накопленные выплаты её возвращают
   var GUAR_LAST = CFG.guarLast;      // последний возрастной год гарантийного периода (< START — гарантии нет)
-  var START = CFG.start, END = CFG.end, PB_TO = CFG.pbTo;
+  var START = CFG.start, END = CFG.end;
   var NBSP = ' ';
   var byAge = {};
   DATA.forEach(function (d) { byAge[d.age] = d; });
@@ -154,90 +154,6 @@
   }
   function frag(host) { while (host.firstChild) host.removeChild(host.firstChild); }
 
-  /* ── График 1: окупаемость (START–PB_TO) ────────────────── */
-  var pbHost = document.getElementById('chart-payback');
-  var pbBars = {};
-  function drawPayback() {
-    var W = pbHost.clientWidth || 640;
-    var H = Math.max(240, Math.min(330, Math.round(W * 0.46)));
-    var L = 46, R = 12, T = 18, B = 28;
-    var ages = [], a;
-    for (a = START; a <= PB_TO; a++) ages.push(a);
-    var pbScale = niceScale(Math.max(byAge[PB_TO].cum, TRANSFER));
-    var yMax = pbScale.max;
-    var iw = W - L - R, ih = H - T - B;
-    var band = iw / ages.length;
-    var bw = Math.max(5, Math.min(band - 5, 30));
-    var y = function (v) { return T + ih - (v / yMax) * ih; };
-
-    var s = el('svg', { viewBox: '0 0 ' + W + ' ' + H, width: W, height: H, role: 'img',
-      'aria-label': 'Накопленные выплаты с ' + START + ' до ' + PB_TO + ' лет; сумма перевода возвращается к ' + PAYBACK_AGE + ' годам' });
-    var defs = el('defs', {});
-    var g1 = el('linearGradient', { id: 'pbG', x1: 0, y1: 0, x2: 0, y2: 1 });
-    g1.appendChild(el('stop', { offset: 0, 'stop-color': '#6FA85F' }));
-    g1.appendChild(el('stop', { offset: 1, 'stop-color': '#37742E' }));
-    defs.appendChild(g1);
-    s.appendChild(defs);
-
-    // сетка и подписи оси
-    pbScale.ticks.forEach(function (v) {
-      s.appendChild(el('line', { x1: L, y1: y(v), x2: W - R, y2: y(v), stroke: v ? '#F1F4F7' : '#DDE4EA', 'stroke-width': 1 }));
-      var t = el('text', { x: L - 8, y: y(v) + 3.5, 'text-anchor': 'end', fill: '#9BA7B4', 'font-size': W < 560 ? 8.5 : 10, 'font-weight': 700 });
-      t.textContent = v ? mln(v) : '0';
-      s.appendChild(t);
-    });
-
-    pbBars = {};
-    ages.forEach(function (age, i) {
-      var d = byAge[age];
-      var cx = L + band * i + band / 2;
-      var h = Math.max(2, (d.cum / yMax) * ih);
-      var r = el('rect', {
-        x: cx - bw / 2, y: T + ih - h, width: bw, height: h, rx: 4,
-        fill: age < PAYBACK_AGE ? '#A9CB9F' : 'url(#pbG)', class: 'pb-bar'
-      });
-      r.style.transitionDelay = (i * 42) + 'ms';
-      s.appendChild(r);
-      pbBars[age] = r;
-      var t = el('text', { x: cx, y: H - 9, 'text-anchor': 'middle',
-        fill: age === PAYBACK_AGE ? '#37742E' : '#9BA7B4',
-        'font-size': W < 560 ? 8.5 : 10.5, 'font-weight': age === PAYBACK_AGE ? 800 : 700 });
-      t.textContent = age;
-      s.appendChild(t);
-    });
-
-    // линия суммы перевода
-    var ry = y(TRANSFER);
-    s.appendChild(el('line', { x1: L, y1: ry, x2: W - R, y2: ry, stroke: '#4A709A', 'stroke-width': 2, 'stroke-dasharray': '7 5' }));
-    var lbl = el('text', { x: L + 4, y: ry - 8, 'text-anchor': 'start', fill: '#294A69', 'font-size': 11.5, 'font-weight': 800,
-      stroke: '#fff', 'stroke-width': 3.5, 'paint-order': 'stroke fill', 'stroke-linejoin': 'round' });
-    lbl.textContent = W < 560 ? 'сумма перевода' : 'сумма перевода · ' + money(TRANSFER);
-    s.appendChild(lbl);
-
-    // отметка окупаемости
-    var pbx = L + band * (PAYBACK_AGE - START) + band / 2;
-    s.appendChild(el('line', { x1: pbx, y1: y(byAge[PAYBACK_AGE].cum) - 6, x2: pbx, y2: T + 2, stroke: '#BBD034', 'stroke-width': 2, 'stroke-dasharray': '3 4' }));
-    var flag = el('g', {});
-    var ftxt = el('text', { x: pbx, y: T + 12, 'text-anchor': 'middle', fill: '#6C7C1E', 'font-size': 11, 'font-weight': 800 });
-    ftxt.textContent = 'окупаемость';
-    flag.appendChild(ftxt);
-    s.appendChild(flag);
-
-    // зоны наведения
-    ages.forEach(function (age, i) {
-      var hit = el('rect', { x: L + band * i, y: T, width: band, height: ih, fill: 'transparent', style: 'cursor:pointer' });
-      hit.addEventListener('pointerenter', function (e) { hoverAge(age, e); });
-      hit.addEventListener('pointermove', function (e) { hoverAge(age, e); });
-      hit.addEventListener('pointerleave', tipHide);
-      hit.addEventListener('click', function () { setAge(age, 'chart'); });
-      s.appendChild(hit);
-    });
-
-    frag(pbHost);
-    pbHost.appendChild(s);
-    if (pbHost.classList.contains('is-drawn')) requestAnimationFrame(function () { pbHost.classList.add('is-drawn'); });
-    markPayback(state.age);
-  }
   function hoverAge(age, e) {
     var d = byAge[age];
     var done = d.cum >= TRANSFER;
@@ -250,12 +166,29 @@
         : '<div class="row"><span>До суммы перевода</span><i>' + money(TRANSFER - d.cum) + '</i></div>'),
       e.clientX, e.clientY - 6, 20);
   }
-  function markPayback(age) {
-    for (var a in pbBars) pbBars[a].setAttribute('stroke', 'none');
-    if (pbBars[age]) {
-      pbBars[age].setAttribute('stroke', '#BBD034');
-      pbBars[age].setAttribute('stroke-width', '2.5');
+  /* ── «Где ваши деньги»: подсказка и выбор возраста по столбцу ── */
+  var flowCols = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.cf__col[data-age]'), function (c) {
+    var age = +c.getAttribute('data-age');
+    flowCols[age] = c;
+    function show(e) {
+      var recv = +c.getAttribute('data-recv'), surr = c.getAttribute('data-surr'), m = +c.getAttribute('data-m');
+      var html = '<b>' + age + ' ' + yearsWord(age) + ' · ' + c.getAttribute('data-year') + '</b>' +
+        (m ? '<div class="row"><span>Выплата в месяц</span><i>' + money(m) + '</i></div>' : '') +
+        '<div class="row"><span>Получено выплатами</span><i>' + money(recv) + '</i></div>' +
+        '<div class="row"><span>Выкупная сумма</span><i>' + (surr === '' ? 'пока недоступна' : money(+surr)) + '</i></div>' +
+        (recv >= TRANSFER ? '<em>сумма перевода вернулась · выплаты продолжаются пожизненно</em>'
+          : !recv ? '<em>выплаты ещё не начались — деньги в договоре</em>' : '');
+      var r = c.getBoundingClientRect();
+      tipShow(html, r.left + r.width / 2, e && e.clientY ? e.clientY - 6 : r.top, 20);
     }
+    c.addEventListener('pointerenter', show);
+    c.addEventListener('pointermove', show);
+    c.addEventListener('pointerleave', tipHide);
+    c.addEventListener('click', function () { if (age >= START) setAge(age, 'chart'); });
+  });
+  function markPayback(age) {
+    for (var a in flowCols) flowCols[a].classList.toggle('is-current', +a === age);
   }
 
   /* ── График 2: рост ежемесячной выплаты (START–END) ─────── */
@@ -374,55 +307,15 @@
     grCur.dot.setAttribute('cy', grGeom.y(d.m));
   }
 
-  /* ── Пожизненная перспектива ────────────────────────────── */
-  var miles = document.getElementById('miles');
-  miles.innerHTML = '';   // убираем статическую копию
-  var MAX_CUM = byAge[END].cum;
-  [70, 80, 90, 100].filter(function (a) { return a > START && byAge[a]; }).forEach(function (age) {
-    var d = byAge[age];
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'tile';
-    b.setAttribute('data-age', age);
-    b.innerHTML =
-      '<span class="tile__age">до ' + age + ' лет</span>' +
-      '<span class="tile__sum num">' + money(d.cum) + '</span>' +
-      '<span class="tile__x">×' + ratio(d.cum) + ' к сумме перевода</span>' +
-      '<span class="tile__track"><span class="tile__bar" data-w="' + (d.cum / MAX_CUM * 100).toFixed(1) + '"></span></span>' +
-      '<span class="tile__note">выплата ' + money(d.m) + ' в месяц</span>';
-    b.addEventListener('click', function () { setAge(age, 'mile'); });
-    miles.appendChild(b);
-  });
-
   /* ── Таблица ────────────────────────────────────────────── */
   var tbody = document.getElementById('sched-body');
   var scroll = document.getElementById('sched-scroll');
   var rows = {};
-  tbody.innerHTML = '';   // убираем статическую копию строк
-  DATA.forEach(function (d) {
-    var guar = d.age <= GUAR_LAST;
-    var tr = document.createElement('tr');
-    tr.className = (guar ? 'is-guaranteed ' : '') + (d.age === PAYBACK_AGE ? 'is-payback' : '');
-    tr.setAttribute('data-age', d.age);
-    tr.setAttribute('data-group', guar ? 'guaranteed' : 'after');
-    tr.innerHTML =
-      '<td data-label="Возраст">' + d.age + '<i> лет</i></td>' +
-      '<td data-label="Период">' + (d.age === GUAR_LAST + 1
-        ? '<span class="tag tag--b">гарантия завершена</span>'
-        : guar ? '<span class="tag tag--g">гарантийный период</span>' : '<span class="tag tag--n">после гарантии</span>') + '</td>' +
-      '<td data-label="В месяц, ₸">' + fmt(d.m) + '</td>' +
-      '<td data-label="За год, ₸">' + fmt(d.y) + '</td>' +
-      '<td data-label="Получено всего, ₸">' + fmt(d.cum) + '</td>' +
-      '<td data-label="До суммы перевода">' + (d.cum >= TRANSFER
-        ? (d.age === PAYBACK_AGE
-          ? '<span class="tag tag--l">сумма перевода вернулась</span>'
-          : '<span class="tag tag--n">выплаты пожизненно</span>')
-        : fmt(TRANSFER - d.cum) + NBSP + '₸') + '</td>';
-    tr.addEventListener('click', function () { setAge(d.age, 'table'); });
-    tbody.appendChild(tr);
-    rows[d.age] = tr;
+  Array.prototype.forEach.call(tbody.querySelectorAll('tr[data-age]'), function (tr) {
+    var age = +tr.getAttribute('data-age');
+    tr.addEventListener('click', function () { setAge(age, 'table'); });
+    rows[age] = tr;
   });
-
 
   /* ── Синхронизация выбранного возраста ──────────────────── */
   var range = document.getElementById('age-range');
@@ -462,9 +355,6 @@
     moveCursor(age);
     markPayback(age);
 
-    Array.prototype.forEach.call(miles.children, function (b) {
-      b.classList.toggle('is-active', +b.getAttribute('data-age') === age);
-    });
     Array.prototype.forEach.call(ageRadios, function (r) {
       if (+r.value === age && !r.checked) r.checked = true;
     });
@@ -505,7 +395,7 @@
     ['.outcome', ''],
     ['.section-head', 'reveal--left'],
     ['.card,.client-bar,.contact,.ksj,.family,.payback-note', ''],
-    ['.pcard,.src3,.payout,.perk,.level,.level-arrow,.cfact,.fact,.tile,.abbr,.srcard,.acc,.step,.mile,.tl-points li,.chain>div,.metric,.decade,.mflow__node', 'reveal--pop'],
+    ['.pcard,.src3,.payout,.perk,.level,.level-arrow,.cfact,.fact,.tile,.abbr,.srcard,.acc,.step,.mile,.tl-points li,.chain>div,.metric,.decade,.mflow__node,.alt,.cparam,.why__node,.wait-pair>div,.phase', 'reveal--pop'],
     ['.tl-bar,.waffle,.pbnote__scale,.inout__side,.cmp-side', '']
   ];
 
@@ -599,10 +489,10 @@
     });
 
     // собственная анимация: круговая диаграмма, сетка выплат, полосы, графики
-    Array.prototype.forEach.call(document.querySelectorAll('.pie,.waffle,.tl-bar,.pbnote__scale'), function (el) {
+    Array.prototype.forEach.call(document.querySelectorAll('.pie,.waffle,.tl-bar,.pbnote__scale,.cf,.stairs'), function (el) {
       addWatch(el, function () { el.classList.add('is-in'); });
     });
-    [pbHost, grHost].forEach(function (host) {
+    [grHost].forEach(function (host) {
       if (!host) return;
       addWatch(host, function () {
         host.classList.add('is-drawn');
@@ -617,12 +507,12 @@
   }
 
   function markDrawn() {
-    [pbHost, grHost].forEach(function (h) { if (h) h.classList.add('is-drawn'); });
+    if (grHost) grHost.classList.add('is-drawn');
     if (grHost && grHost._line) grHost._line.style.strokeDashoffset = 0;
   }
 
   function showEverything() {           // печать: ничего не должно остаться скрытым
-    Array.prototype.forEach.call(document.querySelectorAll('.pie,.waffle,.tl-bar,.pbnote__scale'), function (el) {
+    Array.prototype.forEach.call(document.querySelectorAll('.pie,.waffle,.tl-bar,.pbnote__scale,.cf,.stairs'), function (el) {
       el.classList.add('is-in');
     });
     Array.prototype.forEach.call(document.querySelectorAll('.reveal'), function (el) {
@@ -683,7 +573,7 @@
   document.getElementById('btn-print').addEventListener('click', function () { window.print(); });
 
   /* ── Отрисовка и адаптив ────────────────────────────────── */
-  function drawAll() { drawPayback(); drawGrowth(); }
+  function drawAll() { drawGrowth(); }
   drawAll();
   document.documentElement.classList.add('js-charts');
   setAge(PAYBACK_AGE, 'init');

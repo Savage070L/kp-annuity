@@ -1754,3 +1754,170 @@ footer{position:relative;overflow:hidden}
   .sched-scroll thead th{padding:5px 8px;font-size:8.5px}
   .sched-scroll tbody tr.is-payback td{font-weight:800!important;color:var(--green-dark)!important}
 }
+
+/* ════════════════════════════════════════════════════════════
+   Данные калькулятора: ожидание, цепочка порога, где деньги,
+   варианты гарантии, параметры расчёта, этапы
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Пока вы ждёте старта: лесенка индексации ── */
+.wait-card{margin-top:16px;padding:clamp(20px,2.4vw,30px)}
+.wait-card__head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 28px;align-items:center}
+.wait-card h3{font-size:clamp(18px,1.9vw,21px);line-height:1.2}
+.wait-pair{display:flex;align-items:center;gap:10px}
+.wait-pair>div{min-width:150px;padding:12px 15px;border:1px solid var(--frame);border-radius:14px;background:#F8FAFC}
+.wait-pair>div.is-hi{background:linear-gradient(135deg,#F2F8F0,#fff);border-color:#CFE3CB}
+.wait-pair span{display:block;color:var(--muted);font-size:11.5px;font-weight:700;line-height:1.3}
+.wait-pair b{display:block;margin-top:3px;color:var(--blue-dark);font-size:19px;letter-spacing:-.03em}
+.wait-pair .is-hi b{color:var(--green-dark)}
+.wait-pair>i{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#EDF5EB;color:var(--green)}
+.wait-pair>i svg{width:16px;height:16px}
+.stairs{display:flex;align-items:flex-end;gap:clamp(4px,1vw,10px);height:200px;margin-top:24px;padding:0 2px;border-bottom:2px solid #DDE4EA}
+.stair{position:relative;flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.stair i{display:block;width:100%;max-width:58px;height:var(--h);border-radius:9px 9px 3px 3px;
+  background:linear-gradient(180deg,#9AB1C8,#5F7F9F);transform-origin:bottom;
+  transition:transform .7s cubic-bezier(.2,.7,.3,1);transition-delay:calc(var(--k) * 70ms)}
+.stair.is-last i{background:linear-gradient(180deg,#6FA85F,#37742E);box-shadow:0 8px 18px rgba(71,144,60,.25)}
+.stair b{order:-1;margin-bottom:6px;color:#5E7288;font-size:11.5px;letter-spacing:-.02em;white-space:nowrap}
+.stair.is-last b{color:var(--green-dark);font-size:13px}
+.stair span{position:absolute;top:100%;margin-top:7px;color:#8B98A6;font-size:11.5px;font-weight:800}
+.stair.is-last span{color:var(--green-dark)}
+.stairs__cap{margin:32px 0 0;color:var(--muted);font-size:12px}
+.js-charts .stairs:not(.is-in) .stair i{transform:scaleY(0)}
+@media(max-width:1000px){.stairs--many .stair:not(.is-first):not(.is-last) b{display:none}}
+@media(max-width:760px){
+  .wait-card__head{grid-template-columns:1fr}
+  .wait-pair>div{flex:1;min-width:0}
+  .stairs{height:160px}
+  .stair:not(.is-first):not(.is-last) b{display:none}
+  .stairs--many .stair:nth-child(even):not(.is-last) span{visibility:hidden}
+}
+
+/* ── Почему порог именно такой: ПМ → минимальная выплата → порог ── */
+.why{margin-top:16px;padding:18px 20px;border:1px solid var(--frame);border-radius:var(--r-l);background:#fff;box-shadow:var(--shadow-s)}
+.why__t{display:flex;align-items:center;gap:10px;margin:0 0 12px;color:var(--blue-dark);font-size:15px;font-weight:800}
+.why__ic{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:10px;background:#fff;color:var(--blue);box-shadow:var(--shadow-s)}
+.why__ic svg{width:18px;height:18px}
+.why__flow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1.15fr);gap:8px;align-items:stretch}
+.why__node{display:flex;flex-direction:column;justify-content:center;padding:12px 14px;border:1px solid var(--frame);border-radius:13px;background:#F8FAFC}
+.why__node span{color:var(--muted);font-size:11px;font-weight:700;line-height:1.3}
+.why__node b{margin-top:4px;color:var(--blue-dark);font-size:16px;letter-spacing:-.03em}
+.why__node small{margin-top:3px;color:var(--muted);font-size:10.8px;line-height:1.3}
+.why__node--hi{background:linear-gradient(135deg,#F2F8F0,#fff);border-color:#CFE3CB}
+.why__node--hi b{color:var(--green-dark)}
+.why__op{align-self:center;padding:5px 9px;border-radius:999px;background:#E8EEF5;color:var(--blue);font-size:12px;font-weight:800;white-space:nowrap}
+.why__foot{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+@media(max-width:700px){.why__flow{grid-template-columns:1fr}.why__op{justify-self:center}}
+
+/* ── Где ваши деньги: получено выплатами + выкупная сумма ── */
+.cf{margin-top:20px}
+.cf__plot{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:clamp(2px,.6vw,6px);
+  align-items:end;height:280px;padding-top:30px;border-bottom:2px solid #DDE4EA}
+.cf__col{position:relative;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
+.cf__bar{display:flex;flex-direction:column;overflow:hidden;border-radius:6px 6px 2px 2px;transform-origin:bottom;
+  transition:transform .7s cubic-bezier(.2,.7,.3,1),box-shadow .18s;transition-delay:calc(var(--k) * 45ms),0s}
+.cf__bar i{display:block;min-height:0}
+.cf__s{background:linear-gradient(180deg,#8FA9C5,#5E7FA2)}
+.cf__r{background:#A9CB9F}
+.cf__col.is-back .cf__r{background:linear-gradient(180deg,#6FA85F,#37742E)}
+.cf__col.is-lock .cf__s{background:repeating-linear-gradient(135deg,#C9D6E3 0 5px,#E8EEF4 5px 10px)}
+.cf__col.is-key .cf__bar{box-shadow:0 0 0 2px var(--lime)}
+.cf__col.is-current .cf__bar{box-shadow:0 0 0 2px var(--blue)}
+.js-charts .cf__col{cursor:pointer}
+.cf__prem{position:absolute;left:0;right:0;bottom:var(--prem);z-index:2;border-top:2px dashed var(--blue-light);pointer-events:none}
+.cf__prem em{position:absolute;left:4px;bottom:4px;padding:1px 7px;border-radius:6px;background:rgba(255,255,255,.92);
+  color:var(--blue);font-size:11.5px;font-weight:800;font-style:normal;white-space:nowrap}
+.cf__axis{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:clamp(2px,.6vw,6px);margin-top:8px}
+.cf__axis span{min-width:0;color:#8B98A6;font-size:11px;font-weight:800;line-height:1.15;text-align:center;white-space:nowrap}
+.cf__axis small{display:block;font-size:9.5px;font-weight:700}
+.cf__axis .is-key{color:var(--green-dark)}
+.cf__axis .is-start{color:var(--blue)}
+.js-charts .cf:not(.is-in) .cf__bar{transform:scaleY(0)}
+.legend i.l-surr{background:linear-gradient(180deg,#8FA9C5,#5E7FA2)}
+.legend i.l-lock{background:repeating-linear-gradient(135deg,#C9D6E3 0 3px,#E8EEF4 3px 6px);border:1px solid #C3D0DE}
+.cf-card .minitab{margin-top:18px}
+.pbnote__surr{margin-top:18px;padding-top:16px;border-top:1px solid #D6E7D1}
+.pbnote__surr b{display:block;margin-top:4px;color:var(--blue-dark);font-size:21px;letter-spacing:-.03em}
+.pbnote__surr span{display:block;margin-top:5px;color:#5A6B7C;font-size:12.6px;line-height:1.45}
+@media(max-width:760px){
+  .cf__plot{height:220px}
+  .cf__axis .is-minor{visibility:hidden}
+  .cf__axis small{font-size:8.5px}
+  .cf__prem em{font-size:10.5px}
+}
+
+/* ── Варианты гарантии ── */
+.compare__pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.compare__pair .donut-facts{grid-template-columns:1fr}
+.compare__pair .donut-facts div{border-left:0;border-top:1px solid var(--frame);padding:9px 0}
+.compare__pair .donut-facts div:first-child{border-top:0;padding-top:0}
+.alts__row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}
+.alt{display:flex;flex-direction:column;padding:14px 15px;border:1px solid var(--frame);border-radius:14px;background:#fff}
+.alt.is-cur{background:linear-gradient(135deg,#F2F8F0,#fff);border-color:#9CC58F;box-shadow:0 0 0 3px rgba(71,144,60,.1)}
+.alt__gp{color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.alt b{margin-top:6px;color:var(--blue-dark);font-size:18px;letter-spacing:-.03em}
+.alt.is-cur b{color:var(--green-dark)}
+.alt__u{color:var(--muted);font-size:11px;line-height:1.3}
+.alt em{margin-top:8px;font-size:11.5px;font-style:normal;font-weight:800}
+.alt__me{color:var(--green-dark)}
+.alt__d.is-good{color:var(--green-dark)}
+.alt__d.is-less{color:#8A6D1E}
+@media(max-width:980px){.compare__pair{grid-template-columns:1fr}}
+@media(max-width:560px){
+  .alts__row{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .alts__row--4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .alt{padding:10px 9px}
+  .alt__gp{font-size:9.5px;letter-spacing:.02em}
+  .alt b{font-size:15px}
+  .alt__u{display:none}
+  .alt em{margin-top:6px;font-size:10.5px;line-height:1.3}
+}
+
+/* ── Хронология: календарный год; на телефоне — две колонки ── */
+@media(max-width:700px){
+  .tl-points{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .tl-points li{padding:13px 12px}
+  .tl-points li:last-child:nth-child(odd){grid-column:1/-1}
+  .tl-points .tl-year{top:13px;right:11px;font-size:10px}
+}
+.tl-points .tl-year{position:absolute;top:16px;right:14px;padding:2px 8px;border-radius:999px;background:#EEF3F8;
+  color:var(--blue);font-size:11px;font-weight:800;font-style:normal}
+.tl-points li.is-now .tl-year{background:#EDF5EB;color:var(--green-dark)}
+
+/* ── Таблица: год под возрастом, прочерк вместо выкупной суммы ── */
+.sched-scroll td .yr{display:block;color:var(--muted);font-size:11px;font-weight:700}
+.sched-dash{color:#B7C1CB}
+@media(max-width:760px){.sched-scroll td:first-child .yr{display:inline;margin-left:7px;font-size:12px}}
+
+/* ── Параметры калькулятора ── */
+.cparams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.cparam{padding:16px 18px;border:1px solid var(--frame);border-radius:var(--r-m);background:#fff}
+.cparam span{display:block;color:var(--muted);font-size:11.5px;font-weight:700}
+.cparam b{display:block;margin-top:5px;color:var(--blue-dark);font-size:clamp(17px,1.8vw,21px);letter-spacing:-.03em;line-height:1.1}
+.cparam small{display:block;margin-top:4px;color:var(--muted);font-size:11.8px;line-height:1.35}
+@media(max-width:860px){.cparams{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:380px){.cparam{padding:13px 13px}.cparam b{font-size:16px}}
+
+/* ── Этапы: решение → оформление → выплаты ── */
+.phases{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;align-items:start}
+.phase{padding:16px;border:1px solid var(--frame);border-radius:var(--r-l);background:#fff;box-shadow:var(--shadow-s)}
+.phase__t{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.phase__n{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:10px;background:var(--blue-grad);color:#fff;font-weight:800}
+.phase--pay .phase__n{background:var(--green-grad)}
+.phase__t b{color:var(--blue-dark);font-size:16px}
+.phase__t small{margin-left:auto;color:var(--muted);font-size:11.5px;font-weight:700;text-align:right}
+.phase .steps{max-width:none;gap:8px}
+.phase .steps .step::before{display:none}
+.phase__pay{margin-top:12px;padding:14px;border:1px solid #CFE3CB;border-radius:14px;background:linear-gradient(135deg,#F2F8F0,#fff)}
+.phase__pay b{display:block;color:var(--green-dark);font-size:20px;letter-spacing:-.03em}
+.phase__pay span{display:block;margin-top:3px;color:#5A6B7C;font-size:12px;line-height:1.4}
+@media(max-width:980px){.phases{grid-template-columns:1fr}}
+
+@media print{
+  .js-charts .stairs .stair i,.js-charts .cf .cf__bar{transform:none!important}
+  .wait-card,.why,.alt,.cparam,.phase,.cf,.stairs,.pbnote__surr,.compare__pair>.card{break-inside:avoid}
+  /* «где деньги» и карточка окупаемости — одним куском, без пустых рамок внизу листа */
+  .payback-grid{break-inside:avoid!important}
+  .cf-card .minitab th:last-child,.cf-card .minitab td:last-child{display:none}
+  .cf__plot{height:230px}
+}

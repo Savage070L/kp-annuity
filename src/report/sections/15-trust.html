@@ -57,11 +57,11 @@
       <article class="card cmp">
         <p class="eyebrow">Время имеет значение</p>
         <h3>Порог растёт вместе с прожиточным минимумом</h3>
-        <p>Порог растёт вместе с прожиточным минимумом — примерно на 10% в год.</p>
+        <p>Порог привязан к прожиточному минимуму, а его пересматривают каждый год. Через год — с учётом вашего возраста по калькулятору и роста ПМ примерно на 10%.</p>
         <div class="th-bars">
           <div class="th-row">
             <span>Сегодня</span>
-            <div class="th-track"><i data-w="90.9" style="width:90.9%"></i></div>
+            <div class="th-track"><i data-w="${Math.round(M.threshold / M.thresholdNext * 1000) / 10}" style="width:${Math.round(M.threshold / M.thresholdNext * 1000) / 10}%"></i></div>
             <b class="num">${T(M.threshold)}</b>
           </div>
           <div class="th-row">
@@ -71,7 +71,7 @@
           </div>
         </div>
         <div class="th-delta"><b class="num">+${T(M.thresholdNext - M.threshold)}</b>
-<span>ориентировочный рост порога за год — примерно 10%</span></div>
+<span>ориентировочный рост порога за год — ${M.pctNum(Math.round((M.thresholdNext / M.threshold - 1) * 1000) / 1000)}%</span></div>
       </article>
 
       <article class="card cmp">

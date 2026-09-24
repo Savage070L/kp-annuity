@@ -60,6 +60,14 @@
     if (!m) return '';
     return (+m[3]) + ' ' + MONTHS_GEN[+m[2] - 1] + ' ' + m[1];
   }
+  var MONTHS_NOM = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  var MONTHS_PREP = ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', 'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
+  function ymdOf(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? { y: +m[1], m: +m[2], d: +m[3] } : null; }
+  function monthsWord(n) {
+    var t = n % 100, o = n % 10;
+    if (t > 10 && t < 20) return 'месяцев';
+    return o === 1 ? 'месяц' : (o >= 2 && o <= 4 ? 'месяца' : 'месяцев');
+  }
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -165,7 +173,6 @@
     var late = s0 < 80 ? 80 : Math.min(90, total100.age);
     var hasGuar = gp > 0;
     var guarLastAge = hasGuar ? guarLast.age : s0 - 1;
-    var pbTo = Math.min(total100.age, Math.max((payback ? payback.age : s0) + 3, hasGuar ? afterGuar : 0, s0 + 10));
 
     /* родительный падеж возраста: «после 61 года», «после 63 лет» */
     function genYears(n) { return n + ' ' + ((n % 10 === 1 && n % 100 !== 11) ? 'года' : 'лет'); }
@@ -205,7 +212,7 @@
     var growthAge = s0 < 80 ? 80 : total100.age;
     var facts = [
       immediate ? { big: 'сразу', text: 'выплаты начинаются после оформления' }
-                : { big: years(calc.deferral), text: 'ждать до первой выплаты: вам ' + calc.ageInt + ', старт в ' + startNum },
+                : { big: years(calc.deferral), text: 'до первой выплаты: вам ' + calc.ageInt + ', выплаты с ' + dateRu(calc.begin) },
       { big: years(payback.age), text: 'возраст, когда выплаты вернут сумму перевода' },
       { big: 'от ' + tenge(first), num: true, text: 'первая выплата в месяц, дальше растёт' },
       { big: times(at(growthAge).m / first), text: 'во столько раз вырастет выплата ' + toYears(growthAge) },
@@ -215,14 +222,16 @@
                      : { big: tenge(premium), num: true, accent: true, text: 'сумма перевода в компанию' }
     ];
 
+    var cD0 = ymdOf(calc.calcDate || client.calcDate), bD0 = ymdOf(calc.begin) || cD0;
+    var yearAt = function (a) { return a >= s0 ? bD0.y + (a - s0) : cD0.y + (a - calc.ageInt); };
     var points = [];
-    if (immediate) points.push({ age: calc.ageInt, now: true, title: 'Сегодня — первая выплата', text: 'от ' + tenge(first) + ' в месяц сразу после оформления' });
+    if (immediate) points.push({ age: calc.ageInt, year: cD0.y, now: true, title: 'Сегодня — первая выплата', text: 'от ' + tenge(first) + ' в месяц сразу после оформления' });
     else {
-      points.push({ age: calc.ageInt, now: true, title: 'Сегодня — вы здесь', text: 'расчёт подготовлен, выплат ещё нет' });
-      points.push({ age: s0, title: 'Первая выплата', text: 'от ' + tenge(first) + ' в месяц, дальше +' + pct(ind) + ' каждый год' });
+      points.push({ age: calc.ageInt, year: cD0.y, now: true, title: 'Сегодня — вы здесь', text: 'расчёт подготовлен, выплат ещё нет' });
+      points.push({ age: s0, year: bD0.y, title: 'Первая выплата', text: dateRu(calc.begin) + ' — от ' + tenge(first) + ' в месяц' });
     }
-    points.push({ age: payback.age, title: 'Сумма перевода вернулась', text: 'получено ' + tenge(payback.cum) + ' — больше, чем переведено' });
-    if (hasGuar) points.push({ age: afterGuar, title: 'Гарантия завершена', text: tenge(at(afterGuar).m) + ' в месяц, выплаты продолжаются' });
+    points.push({ age: payback.age, year: yearAt(payback.age), title: 'Сумма перевода вернулась', text: 'получено ' + tenge(payback.cum) + ' — больше, чем переведено' });
+    if (hasGuar) points.push({ age: afterGuar, year: yearAt(afterGuar), title: 'Гарантия завершена', text: tenge(at(afterGuar).m) + ' в месяц, выплаты продолжаются' });
     points.sort(function (a, b) { return a.age - b.age; });
     points.push({ inf: true, title: 'Пожизненно', text: 'КСЖ платит, пока действует договор' });
 
@@ -246,9 +255,6 @@
     else if (payback.age + 5 <= total100.age) mt.push({ age: payback.age + 5, what: 'выплаты продолжаются' });
     var minitab = mt.map(function (r) { var d = at(r.age); return { age: r.age, m: d.m, cum: d.cum, what: r.what, key: r.key }; });
 
-    var multAges = [70, 80, 90, 100].filter(function (a) { return a > payback.age && a <= total100.age; }).slice(0, 3);
-    var mults = multAges.map(function (a) { return { age: a, x: at(a).cum / premium }; });
-    var mileAges = [70, 80, 90, 100].filter(function (a) { return a > s0 && a <= total100.age; });
     var cmpAges = [60, 70, 80, 90, 100].filter(function (a) { return a > s0 && a <= total100.age; });
     if (cmpAges.length < 3) cmpAges = [s0 + 2, s0 + 5].concat(cmpAges).filter(function (a, i, arr) { return a <= total100.age && arr.indexOf(a) === i; });
 
@@ -287,6 +293,45 @@
       .filter(function (a, i, arr) { return a >= s0 && a <= total100.age && arr.indexOf(a) === i; });
     var last = decades[decades.length - 1];
 
+    /* ── из калькулятора: даты, ожидание, выкупная сумма, варианты гарантии ── */
+    var calcD = ymdOf(calc.calcDate || client.calcDate), beginD = ymdOf(calc.begin) || calcD;
+    var monthYear = function (D) { return D ? MONTHS_NOM[D.m - 1] + ' ' + D.y : ''; };      // «март 2034»
+    var inMonth = function (D) { return D ? 'в ' + MONTHS_PREP[D.m - 1] + ' ' + D.y : ''; }; // «в марте 2034»
+    var waitMonths = calcD && beginD ? Math.max(0, (beginD.y - calcD.y) * 12 + (beginD.m - calcD.m) - (beginD.d < calcD.d ? 1 : 0)) : 0;
+    var wy = Math.floor(waitMonths / 12), wm = waitMonths % 12;
+    var waitText = (wy ? years(wy) : '') + (wy && wm ? ' ' : '') + (wm ? wm + ' ' + monthsWord(wm) : '');
+    /* календарный год строки: у выплат — год начала этого года выплат, до старта — год возраста */
+    function yearOf(a) { return a >= s0 ? beginD.y + (a - s0) : calcD.y + (a - calc.ageInt); }
+
+    /* пока клиент ждёт старта, выплата индексируется: на дату заключения → к первой выплате */
+    var payNow = calc.payAtSigning || 0, stairs = [];
+    if (!immediate && payNow > 0 && calc.deferral > 0)
+      for (var sk = 0; sk <= calc.deferral; sk++)
+        stairs.push({ age: calc.ageInt + sk, year: calcD.y + sk, v: sk === calc.deferral ? first : Math.round(payNow * Math.pow(1 + ind, sk)) });
+    var waitGrowth = payNow > 0 ? first / payNow - 1 : 0;
+
+    /* где деньги год за годом: получено выплатами и выкупная сумма (остаток в договоре) */
+    var gamma = calc.tariff && isFinite(calc.tariff.gamma) ? calc.tariff.gamma : 0.03;
+    var surrBase = calc.surrBase || 0, zeroRow = null;
+    for (var zr = 0; zr < R.length; zr++) if (R[zr].surr === 0) { zeroRow = R[zr]; break; }
+    var moneyTo = Math.min(total100.age, Math.max(payback.age + 2, zeroRow ? zeroRow.age + 1 : 0, s0 + 2));
+    var moneyFrom = Math.max(calc.ageInt, moneyTo - 25);
+    var flow = [];
+    for (var ma = moneyFrom; ma <= moneyTo; ma++) {
+      var pre = ma < s0, mr = pre ? null : at(ma);
+      var recv = pre ? 0 : mr.cum;
+      var sv = pre ? (ma - calc.ageInt >= 2 ? surrBase : null) : mr.surr;
+      flow.push({ age: ma, year: yearOf(ma), recv: recv, surr: sv, lock: sv === null, m: pre ? 0 : mr.m,
+                   would: sv !== null ? sv : Math.max(0, Math.round(surrBase - (1 + gamma) * recv)) });
+    }
+    var flowMax = Math.max(premium, flow[flow.length - 1].recv, surrBase);
+    /* первая доступная выкупная сумма: до старта выплат — вся (перевод минус расходы), иначе уже за вычетом выплат */
+    var sfD = ymdOf(calc.surrFrom), surrFirst = surrBase;
+    if (!sfD || !beginD || (sfD.y * 10000 + sfD.m * 100 + sfD.d) >= (beginD.y * 10000 + beginD.m * 100 + beginD.d))
+      for (var sr = 0; sr < R.length; sr++) if (R[sr].surr !== null && R[sr].surr !== undefined) { surrFirst = R[sr].surr; break; }
+
+    /* варианты гарантийного периода: при своей сумме меняется выплата, при оформлении по порогу — порог */
+    var alts = (calc.alts || []).map(function (a) { return { gp: a.gp, value: free ? a.first : a.threshold, cur: a.gp === gp }; });
     var digits = function (v) { return String(v || '').replace(/\D/g, ''); };
     var waDigits = digits(agent.whatsapp || agent.phone);
     if (waDigits.length === 11 && waDigits.charAt(0) === '8') waDigits = '7' + waDigits.slice(1);
@@ -297,9 +342,9 @@
       calc: calc, client: client, agent: agent,
       headline: headline, immediate: immediate, startLabel: startLabel, startGen: startGen, startNum: startNum,
       startFrom: immediate ? 'сразу после оформления' : 'с ' + startGen,
-      mid: mid, late: late, pbTo: pbTo, resultIntro: resultIntro, pieParts: pieParts, metrics: metrics,
-      facts: facts, points: points, perks: perks, earlyTitle: earlyTitle, minitab: minitab, mults: mults,
-      mileAges: mileAges, cmpAges: cmpAges, slotAges: slotAges, scaleAges: scaleAges,
+      mid: mid, late: late, resultIntro: resultIntro, pieParts: pieParts, metrics: metrics,
+      facts: facts, points: points, perks: perks, earlyTitle: earlyTitle, minitab: minitab,
+      cmpAges: cmpAges, slotAges: slotAges, scaleAges: scaleAges,
       slotTitle: slotTitle, ageHint: ageHint, barTip: barTip, genYears: genYears,
       rowsWord: function (n) { var t = n % 100, o = n % 10; return (t > 10 && t < 20) ? 'строк' : o === 1 ? 'строка' : (o >= 2 && o <= 4) ? 'строки' : 'строк'; },
       lastDecadeAvg: Math.round(last.sum / last.count), lastDecadeLabel: 'в ' + last.from + '–' + last.to + ' лет',
@@ -315,7 +360,7 @@
       ],
       cfg: { data: R.map(function (r) { return { age: r.age, m: r.m, y: r.y, cum: r.cum }; }),
              transfer: premium, payback: payback.age, guarLast: guarLastAge, start: s0,
-             end: total100.age, pbTo: pbTo, keyAges: keyAges },
+             end: total100.age, keyAges: keyAges },
       /* форматтеры — нужны шаблону */
       money: money, moneyH: moneyH, tenge: tenge, times: times, pct: pct,
       years: years, yearsWord: yearsWord, toYears: toYears, ageLabel: ageLabel, ageNum: ageNum, esc: esc,
@@ -335,7 +380,18 @@
       guarLast: guarLast, afterGuar: afterGuar, enpf: enpf, earlyYears: earlyYears, early: early,
       decades: decades, total: total100, horizon: total100.age,
       growth80: at(80).m / first,
-      thresholdNext: Math.round(calc.threshold * 1.1)
+      /* порог через год: возраст — по калькулятору, ПМ — ориентир +10% */
+      thresholdNext: Math.round((calc.next ? calc.next.threshold : calc.threshold) * 1.1),
+      /* данные калькулятора */
+      calcVersion: calc.tariff && calc.tariff.version || '', pm: calc.tariff && calc.tariff.pm, minPay: calc.minPay,
+      nax: calc.nax, pmYear: calcD ? calcD.y : '', free: free,
+      beginText: dateRu(calc.begin), beginMonth: monthYear(beginD), beginIn: inMonth(beginD), beginYear: beginD ? beginD.y : '',
+      calcYear: calcD ? calcD.y : '', waitText: waitText, yearOf: yearOf,
+      payNow: payNow, waitGrowth: waitGrowth, stairs: stairs,
+      surrBase: surrBase, surrFirst: surrFirst, surrFromText: dateRu(calc.surrFrom),
+      beginIndexIn: beginD ? 'каждый год в ' + MONTHS_PREP[beginD.m - 1] : 'каждый год', surrFromMonth: monthYear(ymdOf(calc.surrFrom)),
+      zeroRow: zeroRow, flow: flow, flowMax: flowMax, alts: alts,
+      pctNum: pctNum, monthsWord: monthsWord
     };
   }
 

@@ -59,6 +59,24 @@
     return rows;
   }
 
+  /* Лист «График»: выкупная сумма = MAX(премия·(1−α) − Σ выплат·(1+γ); 0), появляется через 24 месяца
+     после даты расчёта. Для строк таблицы — на конец каждого года выплат (после 12-й выплаты года).
+     Даты выплат идут по числу дня рождения, у немедленного аннуитета — по дате расчёта. */
+  function surrender(rows, premium, T, calcDate, begin, day) {
+    rows.forEach(function (r, n) {
+      var end = onDay(begin, 12 * n + 11, day);
+      r.surr = monthsBetween(calcDate, end) >= 24 ? Math.max(0, xround(premium * (1 - T.alfa) - r.cum * (1 + T.gamma))) : null;
+    });
+    // первая строка «Графика» — дата расчёта (или начало выплат, если до него не больше месяца),
+    // дальше по месяцам; выкупная сумма появляется в первой строке, где прошло 24 месяца
+    var a6 = monthsBetween(calcDate, begin) <= 1 ? begin : calcDate, from = null;
+    for (var k = 0; k < 40 && !from; k++) {
+      var dt = k === 0 ? a6 : onDay(a6, k, day);
+      if (monthsBetween(calcDate, dt) >= 24) from = dt;
+    }
+    return { base: xround(premium * (1 - T.alfa)), from: isoDate(from) };
+  }
+
   function parseDate(s) {
     if (s instanceof Date) return new Date(s.getFullYear(), s.getMonth(), s.getDate());
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
@@ -79,6 +97,12 @@
     var y = d.getFullYear(), m = d.getMonth() + k;
     var last = new Date(y, m + 1, 0).getDate();
     return new Date(y, m, Math.min(d.getDate(), last));
+  }
+  function isoDate(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  /* дата через k месяцев на заданном числе (в коротком месяце — последний день), как столбец дат «Графика» */
+  function onDay(d, k, day) {
+    var y = d.getFullYear(), m = d.getMonth() + k;
+    return new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
   }
   function daysBetween(a, b) {
     return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5);
@@ -197,6 +221,7 @@
     if (gp > T.maxGuarantee) warnings.push('Гарантированный период по калькулятору — не больше ' + T.maxGuarantee + ' лет');
 
     var rows = schedule(first, T.ind, x0Int, gp, T.horizon);
+    var sv = surrender(rows, premium, T, calcDate, begin, begin === calcDate ? calcDate.getDate() : dob.getDate());
 
     return {
       ok: status === 'ok', status: status, fundsStatus: fundsStatus,
@@ -208,11 +233,13 @@
       minPay: minPay, minPayAtPension: minPayAtPension, threshold: threshold,
       savings: savings, redemption: redemption, contribution: contribution,
       premium: premium, dividendRate: dividendRate, dividend: dividend, topup: topup, mode: mode,
-      payAtSigning: xround(pay0), first: first, rows: rows
+      payAtSigning: xround(pay0), first: first, rows: rows,
+      calcDate: isoDate(calcDate), begin: isoDate(begin), surrBase: sv.base, surrFrom: sv.from
     };
   }
 
-  var api = { TARIFF: TARIFF, CATEGORIES: CATEGORIES, compute: compute, schedule: schedule,
+  var api = { TARIFF: TARIFF, CATEGORIES: CATEGORIES, compute: compute, schedule: schedule, surrender: surrender,
+              isoDate: isoDate, onDay: onDay, edate: edate,
               monthsBetween: monthsBetween, parseDate: parseDate, xround: xround };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AnnuityEngine = api;

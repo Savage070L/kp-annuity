@@ -8,8 +8,8 @@ var agent = { name: 'Тимур Агентов', phone: '+7 700 000 00 00', emai
 var bad = 0;
 cases.forEach(function (c) {
   // вносим ровно столько, сколько нужно, либо оставляем как в профиле
-  var calc = K.compute({ calcDate: c.calc, dob: c.dob, sex: c.sex, category: c.cat, oppv: c.oppv, guarantee: c.gp,
-                         savings: c.sav, redemption: c.red, contribution: c.con });
+  var calc = K.plan({ calcDate: c.calc, dob: c.dob, sex: c.sex, category: c.cat, oppv: c.oppv, guarantee: c.gp,
+                      savings: c.sav, redemption: c.red, contribution: c.con });
   var client = { name: names[c.id], sex: c.sex, city: 'Алматы', calcDate: c.calc };
   var html, err = null;
   try { html = K.render(calc, client, agent); } catch (e) { err = e; }

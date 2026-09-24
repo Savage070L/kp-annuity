@@ -52,12 +52,20 @@ K.loadCalculator(new Uint8Array(fs.readFileSync(file)), path.basename(file), inf
                   redemption: rnd() < 0.2 ? Math.floor(rnd() * 3e6) : 0, contribution: rnd() < 0.3 ? Math.floor(rnd() * 5e6) : 0, dividendRate: 0.11 };
     var a = E.compute(input), b = K.compute(input);
     var keys = ['status', 'excelStatus', 'fundsStatus', 'mode', 'threshold', 'premium', 'topup', 'dividend', 'first', 'payAtSigning',
-                'startAge', 'startAgeInt', 'deferral', 'ageInt', 'nax', 'minPay', 'minPayAtPension'];
+                'startAge', 'startAgeInt', 'deferral', 'ageInt', 'nax', 'minPay', 'minPayAtPension', 'begin', 'surrBase', 'surrFrom'];
     var f2 = keys.filter(function (q) { return !near(a[q], b[q]); });
-    if (a.rows.length !== b.rows.length || a.rows.some(function (r, i) { return r.m !== b.rows[i].m || r.cum !== b.rows[i].cum || r.age !== b.rows[i].age; })) f2.push('rows');
+    // выплаты и выкупная сумма по годам: в файле — прямо с листа «График»
+    if (a.rows.length !== b.rows.length || a.rows.some(function (r, i) {
+      var o = b.rows[i];
+      return r.m !== o.m || r.cum !== o.cum || r.age !== o.age || r.surr !== o.surr;
+    })) f2.push('rows');
     if (f2.length) {
       diffs++;
-      if (diffs <= 5) console.log('✗ ' + JSON.stringify(input) + '\n    ' + f2.map(function (q) { return q + ': файл ' + JSON.stringify(a[q]) + ' ≠ встроенный ' + JSON.stringify(b[q]); }).join('\n    '));
+      if (diffs <= 5) console.log('✗ ' + JSON.stringify(input) + '\n    ' + f2.map(function (q) {
+        if (q !== 'rows') return q + ': файл ' + JSON.stringify(a[q]) + ' ≠ встроенный ' + JSON.stringify(b[q]);
+        var i = a.rows.findIndex(function (r, k) { var o = b.rows[k] || {}; return r.m !== o.m || r.cum !== o.cum || r.surr !== o.surr; });
+        return 'rows[' + i + ']: файл ' + JSON.stringify(a.rows[i]) + ' ≠ встроенный ' + JSON.stringify(b.rows[i]) + ' (строк ' + a.rows.length + '/' + b.rows.length + ')';
+      }).join('\n    '));
     }
   }
   bad += diffs;
