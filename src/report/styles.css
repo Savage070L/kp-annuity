@@ -1553,13 +1553,7 @@ footer{position:relative;overflow:hidden}
 .ax-mult--in{fill:#fff}
 .ax-col rect{cursor:help}
 .ax-col:hover .ax-bar{filter:brightness(1.08)}
-/* столбец на каждый год: десятилетия — насыщенные и с подписями, остальные годы — светлее */
-.ax-bar.is-year.is-small{fill:#C5D1DC}
-.ax-bar.is-year.is-big{fill:#A9CB9F}
-.ax-bars .ax-bar{cursor:help}
-.ax-bars .ax-bar:hover{filter:brightness(.92)}
-.ax-x.is-mark{font-weight:800;fill:var(--blue-dark)}
-.ax-agecap{font:700 10.5px/1 'NeoSansPro',system-ui,sans-serif;fill:#9BA7B4}
+
 .ax-prem{stroke:#294A69;stroke-width:1.6;stroke-dasharray:7 5}
 .ax-premcap{font:800 10.5px/1 'NeoSansPro',system-ui,sans-serif;fill:#294A69;letter-spacing:.01em}
 .js-charts .ax-bar{transform-box:fill-box;transform-origin:bottom center;transform:scaleY(0);
@@ -1583,7 +1577,6 @@ footer{position:relative;overflow:hidden}
   .ax-mult{font-size:22px}
   .ax-sum{font-size:17px}
   .ax-premcap{font-size:15px}
-  .ax-agecap{font-size:15px}
 }
 @media(max-width:430px){
   .ax-y{font-size:21px}
@@ -1956,12 +1949,16 @@ footer{position:relative;overflow:hidden}
 }
 
 /* ── Ранний старт: в ячейках — суммы выплат, в шапке — сумма за период ── */
-.cmp-split--sums{grid-template-columns:minmax(0,.66fr) minmax(0,1.34fr);align-items:stretch}
+/* обе сетки одного размера — друг под другом на всю ширину */
+.cmp-split--sums{grid-template-columns:1fr}
 .cmp-split--sums .cmp-side__big{font-size:clamp(28px,3.1vw,38px)}
 .waffle--sums{gap:5px}
 .waffle--sums .waffle__row,.waffle--sums .waffle__head{grid-template-columns:24px repeat(12,minmax(0,1fr)) 92px;gap:4px}
 .waffle--sums .waffle__year{font-size:11px}
-.waffle--sums i{display:grid;place-items:center;height:30px;border-radius:7px;font-style:normal;overflow:hidden}
+.waffle--sums i{display:grid;place-items:center;height:30px;border-radius:7px;font-style:normal;overflow:hidden;background:#43883A;color:#fff}
+.waffle--zero i{background:#A3B0BC;color:#fff}
+.waffle--zero .waffle__sum{color:#8E9CA9!important}
+.waffle--zero i:hover{transform:none!important;background:#95A3B0}
 .waffle--sums i b{font-size:10.5px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
 .waffle--sums i:hover{transform:scale(1.07)!important}
 .waffle--sums .waffle__sum{min-width:0;color:#2F5A29;font-size:11px;font-weight:800}
@@ -1970,11 +1967,7 @@ footer{position:relative;overflow:hidden}
   border:1px solid #CFE3CB;border-radius:var(--r-m);background:linear-gradient(135deg,#F2F8F0,#fff)}
 .cmp-next b{color:var(--green-dark);font-size:clamp(19px,2vw,23px);letter-spacing:-.03em}
 .cmp-next span{color:#5A6B7C;font-size:12.8px;line-height:1.4}
-@media(max-width:1180px){
-  .cmp-split--sums{grid-template-columns:1fr}
-  /* половины друг под другом: пустая сетка ЕНПФ из одних нулей не нужна — хватает «0 ₸» */
-  .cmp-split--sums .cmp-side:not(.cmp-side--ann) .waffle{display:none}
-}
+
 @media(max-width:620px){
   /* на телефоне год — две строки по 6 месяцев, название месяца внутри ячейки */
   .waffle--sums .waffle__head{display:none}
@@ -1997,8 +1990,27 @@ footer{position:relative;overflow:hidden}
   .waffle--sums i{height:19px!important;border-radius:4px!important}
   .waffle--sums i b{font-size:8.5px}
   .cmp--wide .waffle--sums .waffle__head{display:grid!important}
-  .cmp-split--sums .cmp-side:not(.cmp-side--ann) .waffle{display:none}
   .cmp-next,.cmp-split--sums .cmp-side{break-inside:avoid}
   /* гарантия и её варианты — рядом, на всю ширину листа */
   .compare__pair{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* ── По годам: отдельный график, широкий и узкий варианты ── */
+.cmpbars--years{margin-top:14px}
+.cmpchart--years{margin-top:10px}
+.cmpchart--years .yc{display:block;width:100%;height:auto;overflow:visible}
+.cmpchart--years .yc--wide{aspect-ratio:1000/360}
+.cmpchart--years .yc--narrow{display:none;aspect-ratio:420/300}
+.cmpchart--years .ax-bar{cursor:help}
+.cmpchart--years .ax-bar:hover{filter:brightness(.9)}
+.cmpchart--years .ax-bar.is-small{fill:#AEBBC7}
+.yc-y,.yc-x{font:700 12px/1 'NeoSansPro',system-ui,sans-serif;fill:var(--muted)}
+.yc-x{fill:#5A6B7C}
+.yc-unit{font:700 11px/1 'NeoSansPro',system-ui,sans-serif;fill:#9BA7B4}
+.yc-cap{font:800 12px/1 'NeoSansPro',system-ui,sans-serif;fill:#294A69;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.yc-pb{stroke:var(--lime);stroke-width:2;stroke-dasharray:3 4}
+.yc-pbcap{font:800 12.5px/1 'NeoSansPro',system-ui,sans-serif;fill:#6C7C1E}
+.yc--narrow .yc-y,.yc--narrow .yc-x,.yc--narrow .yc-unit{font-size:11.5px}
+.yc--narrow .yc-cap,.yc--narrow .yc-pbcap{font-size:12px}
+@media(max-width:640px){.cmpchart--years .yc--wide{display:none}.cmpchart--years .yc--narrow{display:block}}
+@media print{.cmpbars--years{break-inside:avoid}.cmpchart--years .yc--wide{max-height:250px}}

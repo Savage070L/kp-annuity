@@ -140,7 +140,7 @@
       }).join('\n');
       var pts = M.points.map(function (p) {
         return '        <li' + (p.now ? ' class="is-now"' : '') + '><i' + (p.inf ? ' class="ic-inf"' : '') + '>' + (p.inf ? ICONS.inf : p.age) + '</i>' +
-          (p.year ? '<em class="tl-year">' + p.year + '</em>' : '') + '<b>' + p.title + '</b><span>' + p.text + '</span></li>';
+          (p.year ? '<em class="tl-year">' + p.year + NBSP + 'г.</em>' : '') + '<b>' + p.title + '</b><span>' + p.text + '</span></li>';
       }).join('\n');
       return '      <div class="tl-bar">\n        ' + segs.join('\n        ') + '\n      </div>\n' +
         '      <div class="tl-scale" aria-hidden="true">\n        <span class="tl-line"></span>\n' + scale +
@@ -161,23 +161,6 @@
     };
 
     /* ── «Ранний старт» и «Гарантия в деньгах» ── */
-    var SHADES = ['#BDD6B2', '#AFCDA3', '#A0C493', '#8FBB82', '#7DB170', '#6AA65D', '#55994A', '#3F8B35'];
-    function shade(i, n) {
-      if (n <= 1) return SHADES[SHADES.length - 1];
-      if (n === SHADES.length) return SHADES[i];
-      var k = i / (n - 1) * (SHADES.length - 1), a = Math.floor(k), f = k - a;
-      if (a >= SHADES.length - 1) return SHADES[SHADES.length - 1];
-      var c1 = parseInt(SHADES[a].slice(1), 16), c2 = parseInt(SHADES[a + 1].slice(1), 16), out = '#';
-      [16, 8, 0].forEach(function (s) {
-        var v = Math.round(((c1 >> s) & 255) * (1 - f) + ((c2 >> s) & 255) * f);
-        out += ('0' + v.toString(16)).slice(-2).toUpperCase();
-      });
-      return out;
-    }
-    function ink(hex) {
-      var c = parseInt(hex.slice(1), 16), r = (c >> 16) & 255, g = (c >> 8) & 255, b = c & 255;
-      return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.6 ? '#fff' : '#1E4A19';
-    }
     /* сумма в ячейке: до миллиона — полностью, дальше «1,05 млн», чтобы влезало в ячейку */
     function cellSum(v) { return v < 1e6 ? nb(v) : String(Math.round(v / 1e4) / 100).replace('.', ',') + NBSP + 'млн'; }
     function waffleHead(sumLabel) {
@@ -189,14 +172,14 @@
       var cards = [];
       if (M.earlyYears > 0) {
         var rows = [], empty = [];
-        for (var a = M.s0, i = 0; a < M.enpf; a++, i++) {
-          var r = M.at(a), col = shade(i, M.earlyYears);
+        for (var a = M.s0; a < M.enpf; a++) {
+          var r = M.at(a);
           var e = '', f = '';
           for (var k = 0; k < 12; k++) {
-            e += '<i title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · в ЕНПФ выплат нет" data-age="' + a + '" data-mon="' + MON[k] + '" data-none="1"></i>';
-            f += '<i style="background:' + col + ';color:' + ink(col) + '" title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · ' + plain(r.m) + ' ₸" data-age="' + a + '" data-mon="' + MON[k] + '" data-m3="' + MON3[k] + '" data-sum="' + plain(r.m) + ' ₸" data-year="' + plain(r.y) + ' ₸"><b>' + cellSum(r.m) + '</b></i>';
+            e += '<i title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · в ЕНПФ выплат нет" data-age="' + a + '" data-mon="' + MON[k] + '" data-m3="' + MON3[k] + '" data-none="1"><b>0</b></i>';
+            f += '<i title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · ' + plain(r.m) + ' ₸" data-age="' + a + '" data-mon="' + MON[k] + '" data-m3="' + MON3[k] + '" data-sum="' + plain(r.m) + ' ₸" data-year="' + plain(r.y) + ' ₸"><b>' + cellSum(r.m) + '</b></i>';
           }
-          empty.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + e + '<span class="waffle__sum waffle__sum--zero">0&#160;₸</span></div>');
+          empty.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + e + '<span class="waffle__sum">0' + NBSP + '₸</span></div>');
           rows.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + f + '<span class="waffle__sum">' + nb(r.y) + NBSP + '₸</span></div>');
         }
         var n = M.earlyYears * 12, after = M.at(M.enpf);
@@ -208,7 +191,7 @@
           '        <div class="cmp-split cmp-split--sums">\n          <div class="cmp-side">\n            <div class="cmp-side__head">\n' +
           '              <span class="cmp-side__tag">Если оставить в ЕНПФ</span>\n              <b class="cmp-side__big num">0' + NBSP + '₸</b>\n' +
           '              <span class="cmp-side__note">за ' + Y(M.earlyYears) + ' — с ' + M.s0 + ' до ' + M.enpf + ' лет выплат нет</span>\n            </div>\n' +
-          '            <div class="waffle waffle--empty">\n' + waffleHead('') + empty.join('\n') + '\n            </div>\n          </div>\n' +
+          '            <div class="waffle waffle--sums waffle--zero">\n' + waffleHead('за год') + empty.join('\n') + '\n            </div>\n          </div>\n' +
           '          <div class="cmp-side cmp-side--ann">\n            <div class="cmp-side__head">\n' +
           '              <span class="cmp-side__tag">По вашему аннуитету</span>\n' +
           '              <b class="cmp-side__big num"><span class="cnt" data-count="' + M.early.cum + '">' + H(M.early.cum) + '</span>' + NBSP + '₸</b>\n' +
@@ -285,10 +268,10 @@
       }).join('\n') + '\n        </div>';
     };
 
-    /* ── График «Во сколько раз вернётся перевод»: столбец на каждый год, десятилетия — с подписями ── */
+    /* ── График «Во сколько раз вернётся перевод» ── */
     B.cmpChart = function () {
-      var rows = M.rows, marks = M.cmpAges, Y0 = 340, Y1 = 86, X0 = 96, X1 = 616;
-      var vmax = rows[rows.length - 1].cum;
+      var ages = M.cmpAges, Y0 = 340, Y1 = 86, X0 = 96, X1 = 616;
+      var vmax = M.at(ages[ages.length - 1]).cum;
       var raw = vmax / 7, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), fr = raw / p;
       var step = (fr <= 1 ? 1 : fr <= 2 ? 2 : fr <= 2.5 ? 2.5 : fr <= 5 ? 5 : 10) * p;
       var top = Math.ceil(vmax * 1.02 / step) * step;
@@ -298,8 +281,8 @@
         var m = v / 1e6;
         return (m >= 10 ? String(Math.round(m)) : String(r1(m)).replace('.', ',')) + ' млн';
       };
-      var mlnT = function (v) { return String(r1(v / 1e6)).replace('.', ',').replace(/^(\d+)$/, '$1,0') + ' млн ₸'; };
-      var out = '        <svg width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Сколько получено к каждому возрасту в сравнении с переводом ' + plain(M.premium) + ' тенге">\n' +
+      var mlnT = function (v) { return String(r1(v / 1e6)).replace('.', ',').replace(/^(\d+)$/, '$1,0') + NBSP.replace('&nbsp;', ' ') + 'млн ₸'; };
+      var out = '        <svg width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Сколько получено к возрасту в сравнении с переводом ' + plain(M.premium) + ' тенге">\n' +
         '        <text class="ax-unit" x="14" y="34">сумма выплат</text>\n' +
         '        <line class="ax-prem" x1="330" y1="30" x2="366" y2="30"/>\n' +
         '        <text class="ax-premcap ax-premcap--wide" x="374" y="34">перевод ' + plain(M.premium).replace(/ /g, ' ') + ' ₸</text>\n' +
@@ -308,34 +291,68 @@
         out += '        <line class="ax-grid" x1="' + X0.toFixed(1) + '" y1="' + y(t).toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + y(t).toFixed(1) + '"/>\n' +
           '        <text class="ax-y" x="' + (X0 - 10).toFixed(1) + '" y="' + (y(t) + 4).toFixed(1) + '" text-anchor="end">' + mln(t) + '</text>\n';
       }
-      var n = rows.length, stepX = (X1 - X0) / n, bw = Math.max(3, Math.min(62, stepX * 0.66));
-      var cx = function (k) { return X0 + stepX * (k + 0.5); };
-      /* подписи десятилетий: если две отметки ближе 7 лет, у ранней оставляем только столбец */
-      var labelled = marks.filter(function (a, i) { return i === marks.length - 1 || marks[i + 1] - a >= 7; });
-      var bars = '', labels = '';
-      rows.forEach(function (r, k) {
-        var mark = marks.indexOf(r.age) >= 0, small = r.cum < M.premium, yy = y(r.cum), h = Math.max(Y0 - yy, 2);
-        bars += '        <rect data-age="' + r.age + '" class="ax-bar ' + (small ? 'is-small' : 'is-big') + (mark ? ' is-mark' : ' is-year') + '" x="' + (cx(k) - bw / 2).toFixed(1) +
-          '" y="' + yy.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + Math.min(4, bw / 2).toFixed(1) + '" style="transition-delay:' + Math.round(k * 14) + 'ms"><title>' + M.barTip(r.age) + '</title></rect>\n';
-        if (mark && labelled.indexOf(r.age) >= 0) {
-          labels += '        <text class="ax-mult ' + (small ? 'is-small' : 'is-big') + '" x="' + cx(k).toFixed(1) + '" y="' + (yy - 30).toFixed(1) + '" text-anchor="middle">' + X(r.cum / M.premium) + '</text>\n' +
-            '        <text class="ax-sum ' + (small ? 'is-small' : 'is-big') + '" x="' + cx(k).toFixed(1) + '" y="' + (yy - 10).toFixed(1) + '" text-anchor="middle">' + mlnT(r.cum) + '</text>\n';
-        }
-        // подписи возраста: каждые 5 лет и первый год выплат; десятилетия — крупнее
-        if (k === 0 || r.age % 5 === 0) {
-          var near = k > 0 && r.age % 5 === 0 && r.age - rows[0].age < 3;   // 55 рядом с 57 не пишем дважды
-          if (!near) labels += '        <text class="ax-x' + (mark ? ' is-mark' : '') + '" x="' + cx(k).toFixed(1) + '" y="368" text-anchor="middle">' + r.age + '</text>\n';
-        }
+      var stepX = (X1 - X0) / ages.length, bw = Math.min(62, stepX * 0.62);
+      ages.forEach(function (a, k) {
+        var r = M.at(a), cx = X0 + stepX * (k + 0.5), yy = y(r.cum), h = Math.max(Y0 - yy, 3);
+        var small = r.cum < M.premium, x = r.cum / M.premium;
+        out += '        <g class="ax-col">\n' +
+          '          <rect data-age="' + a + '" class="ax-bar ' + (small ? 'is-small' : 'is-big') + '" x="' + (cx - bw / 2).toFixed(1) + '" y="' + yy.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="7"><title>' + M.barTip(a) + '</title></rect>\n' +
+          '          <text class="ax-sum ' + (small ? 'is-small' : 'is-big') + '" x="' + cx.toFixed(1) + '" y="' + (yy - 10).toFixed(1) + '" text-anchor="middle">' + mlnT(r.cum) + '</text>\n' +
+          (h > 44
+            ? '          <text class="ax-mult ax-mult--in" x="' + cx.toFixed(1) + '" y="' + (yy + 26).toFixed(1) + '" text-anchor="middle">' + X(x) + '</text>\n'
+            : '          <text class="ax-mult ' + (small ? 'is-small' : 'is-big') + '" x="' + cx.toFixed(1) + '" y="' + (yy - 35).toFixed(1) + '" text-anchor="middle">' + X(x) + '</text>\n') +
+          '          <text class="ax-x" x="' + cx.toFixed(1) + '" y="368" text-anchor="middle">' + Y(a) + '</text>\n' +
+          '        </g>\n';
       });
       var yp = y(M.premium);
-      out += '        <g class="ax-bars">\n' + bars + '        </g>\n' + labels +
-        '        <line class="ax-prem" x1="' + X0.toFixed(1) + '" y1="' + yp.toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + yp.toFixed(1) + '"/>\n' +
+      out += '        <line class="ax-prem" x1="' + X0.toFixed(1) + '" y1="' + yp.toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + yp.toFixed(1) + '"/>\n' +
         '        <line class="ax-line" x1="' + X0.toFixed(1) + '" y1="' + Y0.toFixed(1) + '" x2="' + X1.toFixed(1) + '" y2="' + Y0.toFixed(1) + '"/>\n' +
         '        <line class="ax-line" x1="' + X0.toFixed(1) + '" y1="' + (Y1 - 16).toFixed(1) + '" x2="' + X0.toFixed(1) + '" y2="' + Y0.toFixed(1) + '"/>\n' +
-        '        <text class="ax-agecap" x="' + X1.toFixed(1) + '" y="392" text-anchor="end">возраст, лет</text>\n' +
         '        </svg>';
       return out;
     };
+
+    /* ── По годам: сколько получено к каждому возрасту (отдельно от графика по десятилетиям) ──
+       Два варианта рисунка: широкий и узкий для телефона — подписи читаются на любом экране. */
+    function yearSvg(W, H, narrow) {
+      var rows = M.rows, X0 = narrow ? 46 : 78, X1 = W - (narrow ? 8 : 14), Y1 = narrow ? 50 : 58, Y0 = H - (narrow ? 34 : 40);
+      var vmax = rows[rows.length - 1].cum;
+      var raw = vmax / 5, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), fr = raw / p;
+      var step = (fr <= 1 ? 1 : fr <= 2 ? 2 : fr <= 2.5 ? 2.5 : fr <= 5 ? 5 : 10) * p;
+      var top = Math.ceil(vmax * 1.04 / step) * step;
+      var y = function (v) { return Y0 - v / top * (Y0 - Y1); };
+      var mln = function (v) { if (!v) return '0'; var m = v / 1e6; return (m >= 10 ? String(Math.round(m)) : String(r1(m)).replace('.', ',')) + ' млн'; };
+      var n = rows.length, stepX = (X1 - X0) / n, bw = Math.max(2.5, Math.min(22, stepX * 0.7));
+      var cx = function (k) { return X0 + stepX * (k + 0.5); };
+      var out = '        <svg class="yc ' + (narrow ? 'yc--narrow' : 'yc--wide') + '" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Сколько получено к каждому возрасту с ' + rows[0].age + ' до ' + rows[n - 1].age + ' лет; сумма перевода ' + plain(M.premium) + ' тенге возвращается ' + M.toYears(M.payback.age) + '">\n';
+      for (var t = 0; t <= top + step / 2; t += step) {
+        out += '        <line class="ax-grid" x1="' + X0 + '" y1="' + y(t).toFixed(1) + '" x2="' + X1 + '" y2="' + y(t).toFixed(1) + '"/>\n' +
+          '        <text class="yc-y" x="' + (X0 - 8) + '" y="' + (y(t) + 4).toFixed(1) + '" text-anchor="end">' + mln(t) + '</text>\n';
+      }
+      var pk = -1;
+      rows.forEach(function (r, k) {
+        var small = r.cum < M.premium, yy = y(r.cum), h = Math.max(Y0 - yy, 1.5);
+        if (r.age === M.payback.age) pk = k;
+        out += '        <rect data-age="' + r.age + '" class="ax-bar ' + (small ? 'is-small' : 'is-big') + '" x="' + (cx(k) - bw / 2).toFixed(1) + '" y="' + yy.toFixed(1) +
+          '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + Math.min(4, bw / 2).toFixed(1) + '" style="transition-delay:' + Math.round(k * 14) + 'ms"><title>' + M.barTip(r.age) + '</title></rect>\n';
+        var every = narrow ? 10 : 5;
+        if (k === 0 || (r.age % every === 0 && r.age - rows[0].age >= (narrow ? 4 : 3)) || k === n - 1 && r.age % every === 0)
+          out += '        <text class="yc-x" x="' + cx(k).toFixed(1) + '" y="' + (Y0 + 18) + '" text-anchor="middle">' + r.age + '</text>\n';
+      });
+      var yp = y(M.premium);
+      out += '        <line class="ax-prem" x1="' + X0 + '" y1="' + yp.toFixed(1) + '" x2="' + X1 + '" y2="' + yp.toFixed(1) + '"/>\n' +
+        '        <text class="yc-cap" x="' + (X0 + 6) + '" y="' + (yp - 8).toFixed(1) + '">перевод ' + (narrow ? mln(M.premium).replace(' млн', NBSP + 'млн') : plain(M.premium)) + ' ₸</text>\n';
+      if (pk >= 0) {
+        var px = cx(pk), lx = Math.max(X0 + 40, Math.min(X1 - 40, px));
+        out += '        <line class="yc-pb" x1="' + px.toFixed(1) + '" y1="' + (Y0 - 2) + '" x2="' + px.toFixed(1) + '" y2="' + (Y1 - 20) + '"/>\n' +
+          '        <text class="yc-pbcap" x="' + lx.toFixed(1) + '" y="' + (Y1 - 26) + '" text-anchor="middle">окупаемость · ' + Y(M.payback.age) + '</text>\n';
+      }
+      out += '        <line class="ax-line" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X1 + '" y2="' + Y0 + '"/>\n' +
+        '        <text class="yc-unit" x="' + X1 + '" y="' + (H - 4) + '" text-anchor="end">возраст, лет</text>\n' +
+        '        </svg>';
+      return out;
+    }
+    B.yearChart = function () { return yearSvg(1000, 360, false) + '\n' + yearSvg(420, 300, true); };
 
     /* ── Десятилетия ── */
     var ORD = ['первые', 'второе', 'третье', 'четвёртое', 'пятое', 'шестое', 'седьмое'];
@@ -388,7 +405,7 @@
       return '        <div class="why">\n' +
         '          <p class="why__t"><span class="why__ic">' + INFO + '</span>Почему порог именно такой</p>\n' +
         '          <div class="why__flow">\n' +
-        '            <div class="why__node"><span>Прожиточный минимум' + (M.pmYear ? ' ' + M.pmYear : '') + '</span><b class="num">' + T(M.pm) + '</b><small>в месяц, по закону</small></div>\n' +
+        '            <div class="why__node"><span>Прожиточный минимум' + (M.pmYear ? ' ' + M.pmYear + NBSP + 'г.' : '') + '</span><b class="num">' + T(M.pm) + '</b><small>в месяц, по закону</small></div>\n' +
         '            <span class="why__op">×' + NBSP + M.minPayPct + '%</span>\n' +
         '            <div class="why__node"><span>Минимальная выплата</span><b class="num">' + T(M.minPay) + '</b><small>в месяц — ниже нельзя</small></div>\n' +
         '            <span class="why__op">×' + NBSP + nax + '</span>\n' +
@@ -478,7 +495,7 @@
           : d.surr > 0 ? nb(d.surr) + NBSP + '₸'
           : d.age === M.payback.age ? '<span class="tag tag--l">сумма перевода вернулась</span>' : '<span class="sched-dash">—</span>';
         return '<tr class="' + cls.trim() + '" data-age="' + d.age + '" data-group="' + (guar ? 'guaranteed' : 'after') + '">' +
-          '<td data-label="Возраст">' + d.age + '<i> ' + M.yearsWord(d.age) + '</i><small class="yr">' + M.yearOf(d.age) + '</small></td>' +
+          '<td data-label="Возраст">' + d.age + '<i> ' + M.yearsWord(d.age) + '</i><small class="yr">' + M.yearOf(d.age) + NBSP + 'г.</small></td>' +
           '<td data-label="Период">' + tag + '</td>' +
           '<td data-label="В месяц, ₸">' + nb(d.m) + '</td>' +
           '<td data-label="За год, ₸">' + nb(d.y) + '</td>' +

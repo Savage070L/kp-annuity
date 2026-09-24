@@ -32,7 +32,7 @@ ${B.inoutParts(M)}
     <article class="card cmpbars">
       <div class="cmpbars__head">
         <b>Во сколько раз вернётся перевод</b>
-        <span>столбец — сколько получено к каждому возрасту; с подписью — каждые 10 лет. Наведите, чтобы увидеть разбивку</span>
+        <span>столбец — сколько получено к возрасту; наведите, чтобы увидеть разбивку по годам</span>
       </div>
       <div class="cmpbars__grid">
       <div class="cmpchart">
@@ -42,6 +42,16 @@ ${B.cmpChart(M)}
           <b>${X(M.total.cum / M.premium).replace('×', '&#215;')}</b>
           <span>во столько раз сумма выплат превышает перевод</span>
         </div>
+      </div>
+    </article>
+
+    <article class="card cmpbars cmpbars--years">
+      <div class="cmpbars__head">
+        <b>По годам: сколько получено к каждому возрасту</b>
+        <span>столбец — сумма всех выплат к этому возрасту; серые — пока выплаты не вернули перевод. Наведите, чтобы увидеть сумму</span>
+      </div>
+      <div class="cmpchart cmpchart--years">
+${B.yearChart(M)}
       </div>
     </article>
 

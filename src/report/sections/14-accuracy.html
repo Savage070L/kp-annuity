@@ -8,7 +8,7 @@
       <p class="intro">Расчёт выполнен по калькулятору КСЖ «Standard Life»${M.calcVersion ? ' от ' + M.calcVersion : ''}: его тариф, таблицы смертности и правила. Окончательные цифры компания фиксирует в договоре.</p>
     </div>
     <div class="cparams">
-      <div class="cparam"><span>Прожиточный минимум${M.pmYear ? ' ' + M.pmYear : ''}</span><b class="num">${T(M.pm)}</b><small>основа для минимальной выплаты</small></div>
+      <div class="cparam"><span>Прожиточный минимум${M.pmYear ? ' ' + M.pmYear + '&#160;г.' : ''}</span><b class="num">${T(M.pm)}</b><small>основа для минимальной выплаты</small></div>
       <div class="cparam"><span>Минимальная выплата</span><b class="num">${T(M.minPay)}</b><small>${M.minPayPct}% прожиточного минимума</small></div>
       <div class="cparam"><span>Индексация</span><b>+${M.indPct}% в год</b><small>${M.beginIndexIn}</small></div>
       <div class="cparam"><span>Начало выплат</span><b>${M.immediate ? 'сразу' : M.beginText}</b><small>${M.immediate ? 'немедленный аннуитет' : 'через ' + M.waitText}</small></div>

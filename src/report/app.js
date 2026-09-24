@@ -173,7 +173,7 @@
     flowCols[age] = c;
     function show(e) {
       var recv = +c.getAttribute('data-recv'), surr = c.getAttribute('data-surr'), m = +c.getAttribute('data-m');
-      var html = '<b>' + age + ' ' + yearsWord(age) + ' · ' + c.getAttribute('data-year') + '</b>' +
+      var html = '<b>' + age + ' ' + yearsWord(age) + ' · ' + c.getAttribute('data-year') + ' г.</b>' +
         (m ? '<div class="row"><span>Выплата в месяц</span><i>' + money(m) + '</i></div>' : '') +
         '<div class="row"><span>Получено выплатами</span><i>' + money(recv) + '</i></div>' +
         '<div class="row"><span>Выкупная сумма</span><i>' + (surr === '' ? 'пока недоступна' : money(+surr)) + '</i></div>' +
@@ -631,9 +631,7 @@
   })();
 
   /* ── Подсказка на столбцах «во сколько раз вернётся перевод» ─ */
-  (function () {
-    var svg = document.querySelector('.cmpchart svg');
-    if (!svg) return;
+  Array.prototype.forEach.call(document.querySelectorAll('.cmpchart svg'), function (svg) {
     svg.addEventListener('pointermove', function (e) {
       var bar = e.target.closest ? e.target.closest('.ax-bar') : null;
       if (!bar) { tipHide(); return; }
@@ -655,7 +653,7 @@
       tipShow(html, r.left + r.width / 2, r.top, 0);
     });
     svg.addEventListener('pointerleave', tipHide);
-  })();
+  });
 
   // печать и сохранение в PDF: раскрываем аккордеоны, чтобы ответы попали в документ
   var reopened = [];

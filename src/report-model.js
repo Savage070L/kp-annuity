@@ -58,7 +58,7 @@
   function dateRu(s) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
     if (!m) return '';
-    return (+m[3]) + ' ' + MONTHS_GEN[+m[2] - 1] + ' ' + m[1];
+    return (+m[3]) + ' ' + MONTHS_GEN[+m[2] - 1] + ' ' + m[1] + ' г.';
   }
   var MONTHS_NOM = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
   var MONTHS_PREP = ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', 'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
@@ -295,8 +295,8 @@
 
     /* ── из калькулятора: даты, ожидание, выкупная сумма, варианты гарантии ── */
     var calcD = ymdOf(calc.calcDate || client.calcDate), beginD = ymdOf(calc.begin) || calcD;
-    var monthYear = function (D) { return D ? MONTHS_NOM[D.m - 1] + ' ' + D.y : ''; };      // «март 2034»
-    var inMonth = function (D) { return D ? 'в ' + MONTHS_PREP[D.m - 1] + ' ' + D.y : ''; }; // «в марте 2034»
+    var monthYear = function (D) { return D ? MONTHS_NOM[D.m - 1] + ' ' + D.y + ' г.' : ''; };      // «март 2034 г.»
+    var inMonth = function (D) { return D ? 'в ' + MONTHS_PREP[D.m - 1] + ' ' + D.y + ' г.' : ''; }; // «в марте 2034 г.»
     var waitMonths = calcD && beginD ? Math.max(0, (beginD.y - calcD.y) * 12 + (beginD.m - calcD.m) - (beginD.d < calcD.d ? 1 : 0)) : 0;
     var wy = Math.floor(waitMonths / 12), wm = waitMonths % 12;
     var waitText = (wy ? years(wy) : '') + (wy && wm ? ' ' : '') + (wm ? wm + ' ' + monthsWord(wm) : '');
