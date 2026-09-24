@@ -1855,7 +1855,7 @@ footer{position:relative;overflow:hidden}
 }
 
 /* ── Варианты гарантии ── */
-.compare__pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.compare__pair{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 .compare__pair .donut-facts{grid-template-columns:1fr}
 .compare__pair .donut-facts div{border-left:0;border-top:1px solid var(--frame);padding:9px 0}
 .compare__pair .donut-facts div:first-child{border-top:0;padding-top:0}
@@ -1924,8 +1924,81 @@ footer{position:relative;overflow:hidden}
 @media print{
   .js-charts .stairs .stair i,.js-charts .cf .cf__bar{transform:none!important}
   .wait-card,.why,.alt,.cparam,.phase,.cf,.stairs,.pbnote__surr,.compare__pair>.card{break-inside:avoid}
-  /* «где деньги» и карточка окупаемости — одним куском, без пустых рамок внизу листа */
-  .payback-grid{break-inside:avoid!important}
+  /* «где деньги» и карточка окупаемости — друг под другом: график встаёт на свободное место листа,
+     карточка — ниже, в три колонки; сами карточки не рвутся, пустых рамок внизу листа нет */
+  .payback-grid{grid-template-columns:1fr!important;break-inside:auto!important}
+  .cf-card,.payback-note{break-inside:avoid!important}
+  /* лесенка ожидания и параметры калькулятора — плотнее, чтобы не оставлять полстраницы пустой */
+  .wait-card .chart-note{display:none}
+  .wait-card{padding:14px 16px!important}
+  .wait-card .stairs{height:110px!important;margin-top:30px!important}
+  .wait-card .stairs__cap{margin-top:24px}
+  .wait-pair>div{padding:8px 12px}
+  .cparams{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+  .phases{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+  .phase{padding:11px}
+  .phase .steps label{padding:9px 10px;gap:8px}
+  .cparam{padding:11px 13px}
+  /* в печати «где деньги» компактнее, чтобы вставал на лист после «Преимуществ» */
+  .cf-card .chart-note{display:none}
+  .cf-card .cf__plot{height:165px!important;margin-top:24px}
+  .cf-card .cf__axis{margin-top:5px}
+  .cf-card .legend{margin-top:8px;gap:3px 14px;font-size:10.5px}
+  .cf-card .minitab{margin-top:8px!important}
+  .cf-card .minitab th{padding:5px 8px}
+  .cf-card .minitab td{padding:6px 8px}
+  .payback-note{display:grid!important;grid-template-columns:minmax(0,1.05fr) minmax(0,.9fr) minmax(0,1.2fr);gap:4px 24px;align-items:start}
+  .payback-note>.eyebrow,.payback-note .pbnote__big,.payback-note .pbnote__lead,.payback-note .pbnote__scale,.payback-note .pbnote__axis{grid-column:1}
+  .payback-note .pbnote__facts{grid-column:2;grid-row:1/span 5;margin-top:0}
+  .payback-note .pbnote__surr{grid-column:3;grid-row:1/span 5;margin-top:0;padding-top:0;border-top:0}
   .cf-card .minitab th:last-child,.cf-card .minitab td:last-child{display:none}
   .cf__plot{height:210px}
+}
+
+/* ── Ранний старт: в ячейках — суммы выплат, в шапке — сумма за период ── */
+.cmp-split--sums{grid-template-columns:minmax(0,.66fr) minmax(0,1.34fr);align-items:stretch}
+.cmp-split--sums .cmp-side__big{font-size:clamp(28px,3.1vw,38px)}
+.waffle--sums{gap:5px}
+.waffle--sums .waffle__row,.waffle--sums .waffle__head{grid-template-columns:24px repeat(12,minmax(0,1fr)) 92px;gap:4px}
+.waffle--sums .waffle__year{font-size:11px}
+.waffle--sums i{display:grid;place-items:center;height:30px;border-radius:7px;font-style:normal;overflow:hidden}
+.waffle--sums i b{font-size:10.5px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.waffle--sums i:hover{transform:scale(1.07)!important}
+.waffle--sums .waffle__sum{min-width:0;color:#2F5A29;font-size:11px;font-weight:800}
+.waffle--sums .waffle__head .waffle__sum{color:#AEBAC6;font-size:9.5px}
+.cmp-next{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-top:14px;padding:14px 18px;
+  border:1px solid #CFE3CB;border-radius:var(--r-m);background:linear-gradient(135deg,#F2F8F0,#fff)}
+.cmp-next b{color:var(--green-dark);font-size:clamp(19px,2vw,23px);letter-spacing:-.03em}
+.cmp-next span{color:#5A6B7C;font-size:12.8px;line-height:1.4}
+@media(max-width:1180px){
+  .cmp-split--sums{grid-template-columns:1fr}
+  /* половины друг под другом: пустая сетка ЕНПФ из одних нулей не нужна — хватает «0 ₸» */
+  .cmp-split--sums .cmp-side:not(.cmp-side--ann) .waffle{display:none}
+}
+@media(max-width:620px){
+  /* на телефоне год — две строки по 6 месяцев, название месяца внутри ячейки */
+  .waffle--sums .waffle__head{display:none}
+  .waffle--sums .waffle__row{grid-template-columns:22px repeat(6,minmax(0,1fr));row-gap:4px}
+  .waffle--sums .waffle__year{grid-row:span 2;align-self:center}
+  .waffle--sums .waffle__sum{display:block;grid-column:2/-1;margin:0 0 7px;text-align:right;font-size:11px}
+  .waffle--sums i{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;height:36px}
+  .waffle--sums i::before{content:attr(data-m3);font-size:8.5px;font-weight:700;opacity:.72;line-height:1}
+  .waffle--sums i b{font-size:10px;letter-spacing:-.045em}
+}
+@media(max-width:380px){
+  .cmp--wide{padding:18px 12px}
+  .cmp-split--sums .cmp-side{padding:14px 9px 16px}
+  .waffle--sums .waffle__row{grid-template-columns:17px repeat(6,minmax(0,1fr));gap:3px}
+  .waffle--sums .waffle__year{font-size:10px}
+  .waffle--sums i b{font-size:9.5px;letter-spacing:-.05em}
+}
+@media print{
+  .cmp-split--sums{grid-template-columns:1fr!important}
+  .waffle--sums i{height:19px!important;border-radius:4px!important}
+  .waffle--sums i b{font-size:8.5px}
+  .cmp--wide .waffle--sums .waffle__head{display:grid!important}
+  .cmp-split--sums .cmp-side:not(.cmp-side--ann) .waffle{display:none}
+  .cmp-next,.cmp-split--sums .cmp-side{break-inside:avoid}
+  /* гарантия и её варианты — рядом, на всю ширину листа */
+  .compare__pair{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }

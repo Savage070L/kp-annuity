@@ -174,6 +174,12 @@
       });
       return out;
     }
+    function ink(hex) {
+      var c = parseInt(hex.slice(1), 16), r = (c >> 16) & 255, g = (c >> 8) & 255, b = c & 255;
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.6 ? '#fff' : '#1E4A19';
+    }
+    /* сумма в ячейке: до миллиона — полностью, дальше «1,05 млн», чтобы влезало в ячейку */
+    function cellSum(v) { return v < 1e6 ? nb(v) : String(Math.round(v / 1e4) / 100).replace('.', ',') + NBSP + 'млн'; }
     function waffleHead(sumLabel) {
       return '          <div class="waffle__head"><span class="waffle__year"></span>' +
         MON3.map(function (m) { return '<span class="waffle__mon">' + m + '</span>'; }).join('') +
@@ -188,32 +194,31 @@
           var e = '', f = '';
           for (var k = 0; k < 12; k++) {
             e += '<i title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · в ЕНПФ выплат нет" data-age="' + a + '" data-mon="' + MON[k] + '" data-none="1"></i>';
-            f += '<i style="background:' + col + '" title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · ' + plain(r.m) + ' ₸" data-age="' + a + '" data-mon="' + MON[k] + '" data-sum="' + plain(r.m) + ' ₸" data-year="' + plain(r.y) + ' ₸"></i>';
+            f += '<i style="background:' + col + ';color:' + ink(col) + '" title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · ' + plain(r.m) + ' ₸" data-age="' + a + '" data-mon="' + MON[k] + '" data-m3="' + MON3[k] + '" data-sum="' + plain(r.m) + ' ₸" data-year="' + plain(r.y) + ' ₸"><b>' + cellSum(r.m) + '</b></i>';
           }
           empty.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + e + '<span class="waffle__sum waffle__sum--zero">0&#160;₸</span></div>');
           rows.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + f + '<span class="waffle__sum">' + nb(r.y) + NBSP + '₸</span></div>');
         }
-        var n = M.earlyYears * 12;
+        var n = M.earlyYears * 12, after = M.at(M.enpf);
         cards.push('      <article class="card cmp cmp--wide">\n' +
           '        <p class="eyebrow">Ранний старт</p>\n' +
           '        <h3>' + M.earlyTitle + '</h3>\n' +
           '        <p>В ЕНПФ деньги ждут ' + M.genYears(M.enpf) + '. По аннуитету они приходят каждый месяц ' + (M.immediate ? 'сразу' : 'уже с ' + M.startNum) + '.</p>\n' +
-          '        <p class="waffle-legend"><span class="waffle-legend__key"><i></i>квадрат — одна выплата</span><span>строка — год, колонка — месяц</span><span class="js-only">наведите, чтобы увидеть сумму</span></p>\n\n' +
-          '        <div class="cmp-split">\n          <div class="cmp-side">\n            <div class="cmp-side__head">\n' +
-          '              <span class="cmp-side__tag">Если оставить в ЕНПФ</span>\n              <b class="cmp-side__big">0</b>\n' +
-          '              <span class="cmp-side__note">выплат с ' + M.s0 + ' до ' + M.enpf + ' лет</span>\n            </div>\n' +
+          '        <p class="waffle-legend"><span class="waffle-legend__key"><i></i>в ячейке — выплата за месяц, ₸</span><span>строка — год, колонка — месяц</span><span>справа — сумма за год</span></p>\n\n' +
+          '        <div class="cmp-split cmp-split--sums">\n          <div class="cmp-side">\n            <div class="cmp-side__head">\n' +
+          '              <span class="cmp-side__tag">Если оставить в ЕНПФ</span>\n              <b class="cmp-side__big num">0' + NBSP + '₸</b>\n' +
+          '              <span class="cmp-side__note">за ' + Y(M.earlyYears) + ' — с ' + M.s0 + ' до ' + M.enpf + ' лет выплат нет</span>\n            </div>\n' +
           '            <div class="waffle waffle--empty">\n' + waffleHead('') + empty.join('\n') + '\n            </div>\n          </div>\n' +
           '          <div class="cmp-side cmp-side--ann">\n            <div class="cmp-side__head">\n' +
-          '              <span class="cmp-side__tag">По вашему аннуитету</span>\n              <b class="cmp-side__big">' + n + '</b>\n' +
-          '              <span class="cmp-side__note">' + word(n, 'ежемесячная выплата', 'ежемесячные выплаты', 'ежемесячных выплат') + ' за те же ' + Y(M.earlyYears) + '</span>\n            </div>\n' +
-          '            <div class="waffle">\n' + waffleHead('за год') + rows.join('\n') + '\n            </div>\n          </div>\n        </div>\n\n' +
-          '        <div class="cmp-foot">\n          <div class="cmp-foot__sum">\n' +
-          '            <b class="num"><span class="cnt" data-count="' + M.early.cum + '">' + H(M.early.cum) + '</span>&#160;₸</b>\n' +
-          '            <span>придёт за ' + Y(M.earlyYears) + ' до ' + M.enpf + ' — и выплаты на этом не заканчиваются</span>\n          </div>\n' +
-          '          <div class="cmp-foot__scale">\n' +
-          '            <span><i class="lo"></i>' + T(M.first) + ' — первая выплата, дальше растёт</span>\n' +
-          (M.earlyYears > 1 ? '            <span><i class="hi"></i>' + T(M.early.m) + ' — выплата в ' + Y(M.early.age) + ', перед ' + M.enpf + '-летием</span>\n' : '') +
-          '          </div>\n        </div>\n      </article>');
+          '              <span class="cmp-side__tag">По вашему аннуитету</span>\n' +
+          '              <b class="cmp-side__big num"><span class="cnt" data-count="' + M.early.cum + '">' + H(M.early.cum) + '</span>' + NBSP + '₸</b>\n' +
+          '              <span class="cmp-side__note">придёт за те же ' + Y(M.earlyYears) + ' — ' + n + ' ' + word(n, 'ежемесячная выплата', 'ежемесячные выплаты', 'ежемесячных выплат') + '</span>\n            </div>\n' +
+          '            <div class="waffle waffle--sums">\n' + waffleHead('за год') + rows.join('\n') + '\n            </div>\n          </div>\n        </div>\n\n' +
+          (after && after.age >= M.enpf
+            ? '        <div class="cmp-next">\n          <b class="num">от ' + T(after.m) + '</b>\n' +
+              '          <span>в месяц с ' + M.genYears(M.enpf) + ' — и дальше выплаты продолжаются пожизненно, каждый год +' + M.indPct + '%</span>\n        </div>\n'
+            : '') +
+          '      </article>');
       }
       if (M.gp > 0) {
         var ratio = M.guarLast.cum / M.premium, arc = 339.3;
