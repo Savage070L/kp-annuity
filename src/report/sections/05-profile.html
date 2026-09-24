@@ -18,7 +18,7 @@
       <div class="client-bar__facts">
         <div><span>Накопления в ЕНПФ</span><b class="num"><span class="cnt" data-count="${M.savings}">${H(M.savings)}</span>&#160;₸</b></div>
         <div><span>Первая выплата</span><b class="num">от <span class="cnt" data-count="${M.first}">${H(M.first)}</span>&#160;₸</b></div>
-        <div><span>Старт выплат</span><b>${M.immediate ? 'сразу' : 'с ' + M.startLabel}</b></div>
+        <div><span>Старт выплат</span><b>${M.immediate ? 'сразу' : 'с ' + M.startGen}</b></div>
       </div>
     </div>
 
@@ -33,7 +33,7 @@
       </div>
       <div class="pcard">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2.1"/></svg></span>
-        <div><span>Начало выплат</span><b>${M.immediate ? 'Сразу' : 'С ' + M.startLabel}</b><small>${M.immediate ? 'немедленный аннуитет: выплаты начинаются после оформления' : 'отложенный аннуитет: до старта остаётся ' + Y(M.deferral)}</small></div>
+        <div><span>Начало выплат</span><b>${M.immediate ? 'Сразу' : 'С ' + M.startGen}</b><small>${M.immediate ? 'немедленный аннуитет: выплаты начинаются после оформления' : 'отложенный аннуитет: до старта остаётся ' + Y(M.deferral)}</small></div>
       </div>
       <div class="pcard">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.8c4.5-1.7 7.3-5.4 7.3-9.6V6.4L12 3.4 4.7 6.4v4.8c0 4.2 2.8 7.9 7.3 9.6Z"/><path d="m9.1 11.9 2.2 2.2 4.1-4.3"/></svg></span>

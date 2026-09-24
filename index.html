@@ -87,6 +87,33 @@ button,input,select{font:inherit;color:inherit}
 .gbusy.on{display:grid}
 .gbusy div{padding:16px 20px;border-radius:14px;background:#fff;box-shadow:0 12px 34px rgba(20,42,82,.18);font-weight:700}
 
+.gfield input.is-bad{border-color:var(--bad);box-shadow:0 0 0 3px rgba(179,38,30,.12);background:#fff}
+.gcalc .gcard__ic{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--green-soft);color:var(--green-dark)}
+.gcalc .gcard__ic svg{width:15px;height:15px}
+.gcalc__row{display:flex;align-items:center;gap:10px}
+.gcalc__name{flex:1;min-width:0}
+.gcalc__name b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+.gcalc__name span{display:block;color:var(--muted);font-size:12px}
+.gcalc__chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.gcalc__chips span{padding:3px 9px;border-radius:999px;background:#EEF3F8;color:var(--blue-dark);font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gcalc__msg{display:flex;flex-direction:column;gap:3px;margin-top:10px;padding:9px 11px;border-radius:var(--r-s);font-size:12.3px;line-height:1.4}
+.gcalc__msg[hidden]{display:none}
+.gcalc__msg.ok{background:var(--green-soft);color:var(--green-dark)}
+.gcalc__msg.info{background:#EEF3F8;color:var(--blue-dark)}
+.gcalc__msg.warn{background:var(--warn-soft);color:var(--warn)}
+.gcalc__msg.bad{background:var(--bad-soft);color:var(--bad)}
+.gfile{position:relative;flex:none;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue-dark);font-size:12.5px;font-weight:800;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.gfile:hover,.gfile:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(71,144,60,.14)}
+.gfile svg{width:15px;height:15px}
+.gfile input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.glink{flex:none;padding:0;border:0;background:none;color:var(--muted);font-size:12px;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.glink[hidden]{display:none}
+.gdrop{position:fixed;inset:0;z-index:30;display:none;place-items:center;background:rgba(20,42,82,.6);backdrop-filter:blur(2px)}
+.gdrop.on{display:grid}
+.gdrop div{padding:22px 28px;border:2px dashed rgba(255,255,255,.7);border-radius:18px;color:#fff;font-size:17px;font-weight:800;text-align:center}
+.gdrop small{display:block;margin-top:4px;color:#DCE8F4;font-size:12.5px;font-weight:400}
+@media(max-width:420px){.gcalc__row{flex-wrap:wrap}.gcalc__name{flex-basis:100%}.gfile{flex:1;justify-content:center}}
+
 @media(max-width:980px){
   .gwrap{grid-template-columns:1fr;padding:12px}
   .gpreview{position:static;height:78vh}
@@ -105,6 +132,21 @@ button,input,select{font:inherit;color:inherit}
 
 <main class="gwrap">
   <form class="gform" id="form" autocomplete="off" onsubmit="return false">
+
+    <section class="gcard gcalc" id="calcCard">
+      <h2><span class="gcard__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15h.01M8.5 18h.01M12 18h3.5"/></svg></span>Калькулятор</h2>
+      <div class="gcalc__row">
+        <div class="gcalc__name"><b id="calcName">Встроенный</b><span id="calcMeta"></span></div>
+        <label class="gfile" title="Файл калькулятора компании в формате .xlsx">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>
+          <span id="calcBtn">Загрузить .xlsx</span>
+          <input type="file" id="calcFile" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </label>
+      </div>
+      <div class="gcalc__chips" id="calcChips"></div>
+      <div class="gcalc__msg" id="calcMsg" hidden></div>
+      <div class="gcalc__row" style="margin-top:8px"><button type="button" class="glink" id="calcReset" hidden>Вернуть встроенный калькулятор</button></div>
+    </section>
 
     <section class="gcard">
       <h2><i>1</i>Агент</h2>
@@ -132,7 +174,7 @@ button,input,select{font:inherit;color:inherit}
       <div class="grow">
         <div class="gfield"><label>Пол</label>
           <div class="gseg"><input type="radio" name="sex" id="s-m" value="мужской" checked><label for="s-m">мужской</label><input type="radio" name="sex" id="s-f" value="женский"><label for="s-f">женский</label></div></div>
-        <div class="gfield"><label for="dob">Дата рождения</label><input id="dob" type="date"></div>
+        <div class="gfield"><label for="dob">Дата рождения</label><input id="dob" class="gdate" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" maxlength="10"></div>
       </div>
       <div class="grow">
         <div class="gfield"><label for="clientCity">Город клиента</label><select id="clientCity" data-cities></select>
@@ -140,7 +182,7 @@ button,input,select{font:inherit;color:inherit}
         <div class="gfield"><label>Дата расчёта</label>
           <div class="gseg"><input type="radio" name="dateMode" id="dm-today" value="today" checked><label for="dm-today">сегодня</label><input type="radio" name="dateMode" id="dm-custom" value="custom"><label for="dm-custom">указать</label></div>
           <span class="hint" id="todayHint"></span>
-          <input id="calcDate" class="gextra" type="date" hidden></div>
+          <input id="calcDate" class="gextra gdate" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" maxlength="10" hidden></div>
       </div>
     </section>
 
@@ -148,13 +190,7 @@ button,input,select{font:inherit;color:inherit}
       <h2><i>3</i>Параметры договора</h2>
       <div class="grow">
         <div class="gfield"><label for="category">Категория</label>
-          <select id="category">
-            <option>Стандартный</option>
-            <option>ОППВ 60 мес</option>
-            <option>Инвалидность 3гр (30-59%) бессрочно</option>
-            <option>Инвалидность 2гр (60-89%) бессрочно</option>
-            <option>Инвалидность 1гр (90-100%) бессрочно</option>
-          </select></div>
+          <select id="category"></select></div>
         <div class="gfield"><label>ОППВ более 60 мес.</label>
           <div class="gseg"><input type="radio" name="oppv" id="o-n" value="Нет" checked><label for="o-n">нет</label><input type="radio" name="oppv" id="o-y" value="Да"><label for="o-y">да</label></div></div>
       </div>
@@ -195,6 +231,7 @@ button,input,select{font:inherit;color:inherit}
   </section>
 </main>
 <div class="gbusy" id="busy"><div>Готовлю файл…</div></div>
+<div class="gdrop" id="drop"><div>Отпустите файл калькулятора<small>.xlsx — генератор будет считать по его формулам</small></div></div>
 
 <script>/* Генератор КП «Пенсионный аннуитет» — собрано tools/build.js, руками не править */
 /*
@@ -204,7 +241,8 @@ button,input,select{font:inherit;color:inherit}
  * Соответствие Excel:
  *   ввод!H6   x      = DATEDIF(дата рождения; дата расчёта; "m") / 12
  *   возраст!E21 x0   = возраст начала выплат (по полу, дате рождения, категории)
- *   calc!B5   d      = INT(x0) − INT(x)            — срок отсрочки
+ *   ввод!H23  x_0    = возраст на дату начала выплат (29 февраля — дни/365)
+ *   calc!B5   d      = INT(x_0) − INT(x)           — срок отсрочки
  *   calc!G8   äx     = ((ΣPV − 11/24)·(1+γ)/(1−α))·12
  *   calc!G7   v^d    = ((1+ind)/(1+i))^d
  *   calc!G6   n|äx   = äx · v^d
@@ -240,9 +278,22 @@ button,input,select{font:inherit;color:inherit}
     'Инвалидность 1гр (90-100%) бессрочно': ['m_90_100', 'f_90_100']
   };
 
-  /* Excel ROUND: половина — от нуля */
-  function xround(v) { return v < 0 ? -Math.round(-v) : Math.floor(v + 0.5); }
-  function xroundup(v) { return v < 0 ? -Math.ceil(-v) : Math.ceil(v); }
+  /* Excel ROUND: половина — от нуля, число сначала приводим к 15 значащим цифрам, как Excel */
+  function snap(v) { return v === 0 || !isFinite(v) ? v : +v.toPrecision(15); }
+  function xround(v) { v = snap(v); return v < 0 ? -Math.floor(-v + 0.5) : Math.floor(v + 0.5); }
+  function xroundup(v) { v = snap(v); return v < 0 ? -Math.ceil(-v) : Math.ceil(v); }
+
+  /* Выплаты по возрастным годам — как лист «График» калькулятора: раз в год
+     ROUND(прошлая выплата · (1+ind)), за год — 12 одинаковых выплат */
+  function schedule(first, ind, fromAge, gp, horizon) {
+    var rows = [], m = first, cum = 0;
+    for (var age = fromAge, n = 0; age <= horizon; age++, n++) {
+      if (n > 0) m = xround(m * (1 + ind));
+      cum += 12 * m;
+      rows.push({ age: age, m: m, y: 12 * m, cum: cum, guaranteed: n < gp });
+    }
+    return rows;
+  }
 
   function parseDate(s) {
     if (s instanceof Date) return new Date(s.getFullYear(), s.getMonth(), s.getDate());
@@ -258,6 +309,16 @@ button,input,select{font:inherit;color:inherit}
   }
 
   function ymd(d) { return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+
+  /* EDATE(дата; месяцев) — тот же день через k месяцев, в коротком месяце — последний день */
+  function edate(d, k) {
+    var y = d.getFullYear(), m = d.getMonth() + k;
+    var last = new Date(y, m + 1, 0).getDate();
+    return new Date(y, m, Math.min(d.getDate(), last));
+  }
+  function daysBetween(a, b) {
+    return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5);
+  }
 
   /* возраст!E2:E20 — для женщин возраст начала выплат зависит от даты рождения */
   function womanStartAge(dob) {
@@ -308,7 +369,11 @@ button,input,select{font:inherit;color:inherit}
     var months = monthsBetween(dob, calcDate);
     var x = months / 12;
     var x0 = startAge(input, dob, x);
-    var xInt = Math.floor(x), x0Int = Math.floor(x0);
+    /* ввод!G23, H23: дата начала выплат и возраст на неё. У родившихся 29 февраля калькулятор
+       считает этот возраст как дни/365 — повторяем, иначе отсрочка разойдётся на год */
+    var begin = x === x0 ? calcDate : edate(dob, Math.trunc(x0 * 12));
+    var xStart = dob.getMonth() === 1 && dob.getDate() === 29 ? daysBetween(dob, begin) / 365 : monthsBetween(dob, begin) / 12;
+    var xInt = Math.floor(x), x0Int = Math.floor(xStart);   // calc!A10 = INT(x_0)
     var d = x0Int - xInt;
 
     /* calc!A10:G75 — приведённая стоимость выплат */
@@ -367,14 +432,7 @@ button,input,select{font:inherit;color:inherit}
     var fundsStatus = enteredPremium >= threshold ? 'ok' : 'недостаточно средств';
     if (gp > T.maxGuarantee) warnings.push('Гарантированный период по калькулятору — не больше ' + T.maxGuarantee + ' лет');
 
-    /* Таблица выплат по возрастным годам: месячная растёт на ind каждый год */
-    var rows = [], cumExact = 0;
-    for (var age = x0Int, n = 0; age <= T.horizon; age++, n++) {
-      var exact = first * Math.pow(1 + T.ind, n);
-      cumExact += 12 * exact;
-      rows.push({ age: age, m: xround(exact), y: xround(12 * exact), cum: xround(cumExact),
-                  guaranteed: n < gp });
-    }
+    var rows = schedule(first, T.ind, x0Int, gp, T.horizon);
 
     return {
       ok: status === 'ok', status: status, fundsStatus: fundsStatus,
@@ -390,10 +448,1577 @@ button,input,select{font:inherit;color:inherit}
     };
   }
 
-  var api = { TARIFF: TARIFF, CATEGORIES: CATEGORIES, compute: compute,
+  var api = { TARIFF: TARIFF, CATEGORIES: CATEGORIES, compute: compute, schedule: schedule,
               monthsBetween: monthsBetween, parseDate: parseDate, xround: xround };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AnnuityEngine = api;
+})(this);
+
+/*
+ * Чтение .xlsx без библиотек: zip → XML → листы, ячейки, формулы, имена, списки проверки ввода.
+ * Распаковку делает inflateRaw среды: в браузере — DecompressionStream, в node — zlib.
+ * Ячейки листа разбираются при первом обращении: большие служебные листы калькулятора не трогаем.
+ */
+(function (root) {
+  'use strict';
+
+  var COLS = 16385; // ключ ячейки: r * COLS + c (строки и столбцы — с единицы)
+
+  function u16(b, o) { return b[o] | (b[o + 1] << 8); }
+  function u32(b, o) { return (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16)) + b[o + 3] * 16777216; }
+
+  /* zip: центральный каталог → { имя: { method, data } } */
+  function unzip(bytes) {
+    var end = -1, min = Math.max(0, bytes.length - 65557);
+    for (var p = bytes.length - 22; p >= min; p--) if (u32(bytes, p) === 0x06054b50) { end = p; break; }
+    if (end < 0) throw new Error('Это не файл Excel (.xlsx)');
+    var count = u16(bytes, end + 10), q = u32(bytes, end + 16), out = {}, dec = new TextDecoder('utf-8');
+    for (var k = 0; k < count; k++) {
+      if (u32(bytes, q) !== 0x02014b50) throw new Error('Файл .xlsx повреждён');
+      var method = u16(bytes, q + 10), size = u32(bytes, q + 20);
+      var nl = u16(bytes, q + 28), xl = u16(bytes, q + 30), cl = u16(bytes, q + 32), off = u32(bytes, q + 42);
+      var name = dec.decode(bytes.subarray(q + 46, q + 46 + nl));
+      if (u32(bytes, off) !== 0x04034b50) throw new Error('Файл .xlsx повреждён');
+      var start = off + 30 + u16(bytes, off + 26) + u16(bytes, off + 28);
+      out[name] = { method: method, data: bytes.subarray(start, start + size) };
+      q += 46 + nl + xl + cl;
+    }
+    return out;
+  }
+
+  function browserInflate(u8) {
+    var ds;
+    try { ds = new DecompressionStream('deflate-raw'); } catch (e) {
+      return Promise.reject(new Error('Браузер не умеет открывать .xlsx — обновите его'));
+    }
+    return new Response(new Blob([u8]).stream().pipeThrough(ds)).arrayBuffer()
+      .then(function (b) { return new Uint8Array(b); });
+  }
+
+  /* ── XML ── */
+  var ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+  function unesc(s) {
+    if (s.indexOf('&') < 0) return s;
+    return s.replace(/&(#[xX][0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);/g, function (m, g) {
+      if (g.charAt(0) !== '#') return ENT[g];
+      return String.fromCodePoint(g.charAt(1) === 'x' || g.charAt(1) === 'X' ? parseInt(g.slice(2), 16) : parseInt(g.slice(1), 10));
+    });
+  }
+  /* Excel прячет управляющие символы в строках как _x000D_ */
+  function xstr(s) {
+    return s.indexOf('_x') < 0 ? s : s.replace(/_x([0-9A-Fa-f]{4})_/g, function (m, h) { return String.fromCharCode(parseInt(h, 16)); });
+  }
+  function attrs(s) {
+    var o = {}, m, re = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+    while ((m = re.exec(s))) o[m[1]] = unesc(m[2] != null ? m[2] : m[3]);
+    return o;
+  }
+  function texts(xml) {
+    var s = '', m, re = /<(?:\w+:)?t(?:\s[^>]*)?>([\s\S]*?)<\/(?:\w+:)?t>/g;
+    xml = xml.replace(/<(?:\w+:)?rPh\b[\s\S]*?<\/(?:\w+:)?rPh>/g, '');
+    while ((m = re.exec(xml))) s += m[1];
+    return xstr(unesc(s));
+  }
+
+  function colNum(letters) {
+    var n = 0;
+    for (var i = 0; i < letters.length; i++) n = n * 26 + (letters.charCodeAt(i) & 31);
+    return n;
+  }
+  function a1(ref) {
+    var m = /^\$?([A-Za-z]{1,3})\$?(\d+)$/.exec(ref);
+    return m ? { r: +m[2], c: colNum(m[1].toUpperCase()) } : null;
+  }
+
+  function sharedStrings(xml) {
+    var out = [], m, re = /<si>([\s\S]*?)<\/si>|<si\/>/g;
+    while ((m = re.exec(xml))) out.push(m[1] ? texts(m[1]) : '');
+    return out;
+  }
+
+  function isoSerial(s, date1904) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?/.exec(s);
+    if (!m) return { e: '#VALUE!' };
+    var t = Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+    var base = date1904 ? Date.UTC(1904, 0, 1) : Date.UTC(1899, 11, 30);
+    var v = (t - base) / 86400000;
+    return !date1904 && v <= 60 ? v - 1 : v;
+  }
+
+  function decode(t, raw, inner, sst, date1904) {
+    if (t === 'inlineStr') { var is = /<is>([\s\S]*?)<\/is>/.exec(inner); return is ? texts(is[1]) : ''; }
+    if (raw == null) return undefined;
+    switch (t) {
+      case 's': return sst[+raw] != null ? sst[+raw] : '';
+      case 'str': return xstr(unesc(raw));
+      case 'b': return raw === '1' || raw === 'true';
+      case 'e': return { e: unesc(raw) };
+      case 'd': return isoSerial(raw, date1904);
+      default: return raw === '' ? undefined : +raw;
+    }
+  }
+
+  var F_RE = /<f\b([^>]*?)(?:\/>|>([\s\S]*?)<\/f>)/;
+  var V_RE = /<v(?:\s[^>]*)?>([\s\S]*?)<\/v>/;
+
+  function parseValidations(xml) {
+    var out = [], m, re = /<(?:\w+:)?dataValidation\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?dataValidation>)/g;
+    while ((m = re.exec(xml))) {
+      var a = attrs(m[1]), body = m[2] || '';
+      var f1 = /<(?:\w+:)?formula1>([\s\S]*?)<\/(?:\w+:)?formula1>/.exec(body);
+      var f2 = /<(?:\w+:)?formula2>([\s\S]*?)<\/(?:\w+:)?formula2>/.exec(body);
+      var sq = a.sqref || ((/<(?:\w+:)?sqref>([^<]*)<\/(?:\w+:)?sqref>/.exec(body) || [])[1]) || '';
+      function inner(x) { if (!x) return null; var f = /<(?:\w+:)?f>([\s\S]*?)<\/(?:\w+:)?f>/.exec(x[1]); return unesc(f ? f[1] : x[1]); }
+      out.push({ type: a.type || 'any', operator: a.operator || '', formula1: inner(f1), formula2: inner(f2),
+                 sqref: sq.trim().split(/\s+/).filter(Boolean) });
+    }
+    return out;
+  }
+
+  /* лист → Map ячеек { v } — значение, { f | si, cv } — формула и сохранённый Excel результат */
+  function parseSheet(xml, sst, date1904) {
+    var cells = new Map(), masters = {}, maxR = 0, maxC = 0;
+    var s0 = xml.indexOf('<sheetData'), s1 = xml.indexOf('</sheetData>');
+    var data = s0 >= 0 && s1 > s0 ? xml.slice(s0, s1) : '';
+    var rowRe = /<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g, cellRe = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+    var rm, cm, rowNo = 0;
+    while ((rm = rowRe.exec(data))) {
+      var ra = attrs(rm[1]);
+      rowNo = ra.r ? +ra.r : rowNo + 1;
+      if (!rm[2]) continue;
+      var colNo = 0;
+      cellRe.lastIndex = 0;
+      while ((cm = cellRe.exec(rm[2]))) {
+        var ca = attrs(cm[1]), pos = ca.r ? a1(ca.r) : null;
+        var r = pos ? pos.r : rowNo, c = pos ? pos.c : colNo + 1;
+        colNo = c;
+        var inner = cm[2] || '', cell = {};
+        var fm = inner ? F_RE.exec(inner) : null, vm = inner ? V_RE.exec(inner) : null;
+        var val = decode(ca.t || 'n', vm ? vm[1] : null, inner, sst, date1904);
+        if (fm) {
+          var fa = attrs(fm[1]), text = fm[2] != null ? unesc(fm[2]) : '';
+          if (fa.t === 'shared' && fa.si != null) {
+            cell.si = +fa.si;
+            if (text) { cell.f = text; masters[cell.si] = { f: text, r: r, c: c }; }
+          } else {
+            cell.f = text;
+            if (fa.t === 'array') cell.array = fa.ref || true;
+            if (fa.t === 'dataTable') cell.dataTable = true;
+          }
+          cell.cv = val;
+        } else {
+          if (val === undefined) continue; // пустая ячейка с оформлением
+          cell.v = val;
+        }
+        cells.set(r * COLS + c, cell);
+        if (r > maxR) maxR = r;
+        if (c > maxC) maxC = c;
+      }
+    }
+    return { cells: cells, masters: masters, maxR: maxR, maxC: maxC, validations: parseValidations(xml) };
+  }
+
+  function resolvePath(target) {
+    if (!target) return '';
+    if (target.charAt(0) === '/') return target.slice(1);
+    var parts = ('xl/' + target).split('/'), out = [];
+    parts.forEach(function (p) { if (p === '..') out.pop(); else if (p && p !== '.') out.push(p); });
+    return out.join('/');
+  }
+
+  /*
+   * bytes — содержимое файла (Uint8Array); inflateRaw(u8) → Promise<Uint8Array>.
+   * → Promise<{ sheets: [{ name, state, xml }], names: [{ name, local, ref, hidden }], sst, date1904, modified }>
+   */
+  function read(bytes, inflateRaw) {
+    var inflate = inflateRaw || browserInflate;
+    var zip;
+    try { zip = unzip(bytes); } catch (e) { return Promise.reject(e); }
+    var dec = new TextDecoder('utf-8');
+    function text(name) {
+      var e = zip[name];
+      if (!e) return Promise.resolve(null);
+      if (e.method === 0) return Promise.resolve(dec.decode(e.data));
+      if (e.method !== 8) return Promise.reject(new Error('Неизвестное сжатие в .xlsx'));
+      return Promise.resolve(inflate(e.data)).then(function (u8) { return dec.decode(u8); });
+    }
+    if (!zip['xl/workbook.xml']) return Promise.reject(new Error('Это не книга Excel: нет xl/workbook.xml'));
+    return Promise.all([text('xl/workbook.xml'), text('xl/_rels/workbook.xml.rels'), text('xl/sharedStrings.xml'), text('docProps/core.xml')])
+      .then(function (r) {
+        var wb = r[0], rels = {}, m, re = /<Relationship\b([^>]*?)\/?>/g;
+        while ((m = re.exec(r[1] || ''))) { var ra = attrs(m[1]); rels[ra.Id] = ra.Target; }
+        var sheets = [], rs = /<sheet\b([^>]*?)\/?>/g;
+        while ((m = rs.exec(wb))) {
+          var a = attrs(m[1]), rid = null;
+          Object.keys(a).forEach(function (k) { if (/(^|:)id$/.test(k)) rid = a[k]; });
+          sheets.push({ name: a.name, state: a.state || 'visible', path: resolvePath(rels[rid]) });
+        }
+        var names = [], rn = /<definedName\b([^>]*?)>([\s\S]*?)<\/definedName>/g;
+        while ((m = rn.exec(wb))) {
+          var na = attrs(m[1]);
+          names.push({ name: na.name, local: na.localSheetId != null ? +na.localSheetId : -1, ref: unesc(m[2]), hidden: na.hidden === '1' });
+        }
+        var core = r[3] || '';
+        var modified = (/<dcterms:modified[^>]*>([^<]+)</.exec(core) || [])[1] || '';
+        var out = {
+          sheets: sheets, names: names, sst: sharedStrings(r[2] || ''),
+          date1904: /<workbookPr\b[^>]*\bdate1904="(1|true)"/.test(wb), modified: modified
+        };
+        return Promise.all(sheets.map(function (s) { return text(s.path); })).then(function (xmls) {
+          sheets.forEach(function (s, k) { s.xml = xmls[k] || ''; });
+          return out;
+        });
+      });
+  }
+
+  var api = { read: read, parseSheet: parseSheet, unzip: unzip, a1: a1, colNum: colNum, COLS: COLS };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.XlsxReader = api;
+})(this);
+
+/*
+ * Формулы Excel: разбор и вычисление по книге, прочитанной XlsxReader.
+ * Считаем «лениво»: ячейка вычисляется, когда её спросили, результат запоминается до следующего ввода.
+ * Функции — те, что встречаются в калькуляторах компании, и распространённые соседние;
+ * незнакомая функция даёт #NAME? и попадает в book.unknown — генератор об этом скажет.
+ */
+(function (root) {
+  'use strict';
+
+  var COLS = 16385, MAXR = 1048576, MAXC = 16384, DEPTH = 400;
+
+  /* ── значения ── */
+  function Err(code) { this.e = code; }
+  var ERR = {};
+  ['#NULL!', '#DIV/0!', '#VALUE!', '#REF!', '#NAME?', '#NUM!', '#N/A', '#CIRC!'].forEach(function (c) { ERR[c] = new Err(c); });
+  function err(code) { return ERR[code] || new Err(code); }
+  var NA = ERR['#N/A'], VALUE = ERR['#VALUE!'], REF = ERR['#REF!'], DIV0 = ERR['#DIV/0!'], NUM = ERR['#NUM!'], NAME = ERR['#NAME?'];
+  function isErr(v) { return v !== null && typeof v === 'object' && typeof v.e === 'string'; }
+  var MISSING = { missing: true };           // пропущенный аргумент: IF(a,,b)
+  var DEEP = { deep: true };                 // слишком длинная цепочка ссылок — досчитываем лист по порядку
+
+  function Ref(sh, r1, c1, r2, c2) { this.sh = sh; this.r1 = r1; this.c1 = c1; this.r2 = r2; this.c2 = c2; }
+  function Arr(rows) { this.rows = rows; }
+
+  function colNum(s) { var n = 0; s = s.toUpperCase(); for (var i = 0; i < s.length; i++) n = n * 26 + (s.charCodeAt(i) - 64); return n; }
+  function colName(c) { var s = ''; while (c > 0) { var m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = (c - m - 1) / 26; } return s; }
+
+  /* ── разбор формулы ── */
+  var ERR_RE = /^#(?:NULL!|DIV\/0!|VALUE!|REF!|NAME\?|NUM!|N\/A|GETTING_DATA|SPILL!|CALC!)/i;
+  var AFTER_REF = /[\w.( -￿]/;
+
+  function tokenize(s) {
+    var out = [], i = 0, n = s.length, m;
+    while (i < n) {
+      var ch = s.charAt(i);
+      if (ch === ' ' || ch === '\t' || ch === '\r' || ch === '\n') { i++; continue; }
+      if (ch === '"') {
+        var j = i + 1, v = '';
+        for (;;) {
+          if (j >= n) throw new Error('незакрытая строка');
+          var cj = s.charAt(j);
+          if (cj === '"') { if (s.charAt(j + 1) === '"') { v += '"'; j += 2; continue; } break; }
+          v += cj; j++;
+        }
+        out.push({ k: 'str', v: v }); i = j + 1; continue;
+      }
+      if (ch === '#') {
+        m = ERR_RE.exec(s.slice(i, i + 16));
+        if (!m) throw new Error('непонятное ' + s.slice(i, i + 8));
+        out.push({ k: 'err', v: m[0].toUpperCase() }); i += m[0].length; continue;
+      }
+      if ('(),;{}'.indexOf(ch) >= 0) { out.push({ k: ch }); i++; continue; }
+      if (ch === '<' || ch === '>') {
+        var two = s.substr(i, 2);
+        if (two === '<=' || two === '>=' || two === '<>') { out.push({ k: 'op', v: two }); i += 2; continue; }
+        out.push({ k: 'op', v: ch }); i++; continue;
+      }
+      if ('+-*/^&=%:'.indexOf(ch) >= 0) { out.push({ k: 'op', v: ch }); i++; continue; }
+
+      var rest = s.slice(i), sheet = null, ext = false, pm = null;
+      if (ch === "'") pm = /^'((?:[^']|'')+)'!/.exec(rest);
+      else if (ch === '[') pm = /^\[(\d+)\]([^!\s"'(),;:+\-*\/^&=<>{}%#]*)!/.exec(rest);
+      else pm = /^([^\s!"'(),;:+\-*\/^&=<>{}%#\[\]]+)!/.exec(rest);
+      if (pm) {
+        if (ch === '[') { ext = pm[1] !== '0'; sheet = pm[2] || null; }
+        else {
+          sheet = ch === "'" ? pm[1].replace(/''/g, "'") : pm[1];
+          var bk = /^\[(\d+)\](.*)$/.exec(sheet);
+          if (bk) { ext = bk[1] !== '0'; sheet = bk[2] || null; }
+        }
+        i += pm[0].length; rest = s.slice(i);
+        if (rest.slice(0, 5).toUpperCase() === '#REF!') { out.push({ k: 'err', v: '#REF!' }); i += 5; continue; }
+      }
+      m = /^(\$?)([A-Za-z]{1,3})(\$?)(\d+):(\$?)([A-Za-z]{1,3})(\$?)(\d+)/.exec(rest);
+      if (m && !AFTER_REF.test(rest.charAt(m[0].length))) {
+        var ac1 = colNum(m[2]), ar1 = +m[4], ac2 = colNum(m[6]), ar2 = +m[8];
+        if (ac1 <= MAXC && ac2 <= MAXC && ar1 >= 1 && ar2 >= 1 && ar1 <= MAXR && ar2 <= MAXR) {
+          out.push({ k: 'area', sh: sheet, ext: ext, r1: ar1, c1: ac1, r2: ar2, c2: ac2, ca1: !!m[1], ra1: !!m[3], ca2: !!m[5], ra2: !!m[7] });
+          i += m[0].length; continue;
+        }
+      }
+      m = /^(\$?)([A-Za-z]{1,3})(\$?)(\d+)/.exec(rest);
+      if (m && !AFTER_REF.test(rest.charAt(m[0].length))) {
+        var rc = colNum(m[2]), rr = +m[4];
+        if (rc <= MAXC && rr >= 1 && rr <= MAXR) {
+          out.push({ k: 'ref', sh: sheet, ext: ext, r: rr, c: rc, ca: !!m[1], ra: !!m[3] });
+          i += m[0].length; continue;
+        }
+      }
+      m = /^(\$?)([A-Za-z]{1,3}):(\$?)([A-Za-z]{1,3})/.exec(rest);
+      if (m && !AFTER_REF.test(rest.charAt(m[0].length))) {
+        out.push({ k: 'area', sh: sheet, ext: ext, r1: 1, c1: colNum(m[2]), r2: MAXR, c2: colNum(m[4]), ca1: !!m[1], ra1: true, ca2: !!m[3], ra2: true });
+        i += m[0].length; continue;
+      }
+      m = /^(\$?)(\d+):(\$?)(\d+)/.exec(rest);
+      if (m && !AFTER_REF.test(rest.charAt(m[0].length))) {
+        out.push({ k: 'area', sh: sheet, ext: ext, r1: +m[2], c1: 1, r2: +m[4], c2: MAXC, ca1: true, ra1: !!m[1], ca2: true, ra2: !!m[3] });
+        i += m[0].length; continue;
+      }
+      if (!pm) {
+        m = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/.exec(rest);
+        if (m) { out.push({ k: 'num', v: +m[0] }); i += m[0].length; continue; }
+      }
+      m = /^[A-Za-z_\\ -￿][\w.\\? -￿]*/.exec(rest);
+      if (m) {
+        var id = m[0], up = id.toUpperCase();
+        i += id.length;
+        if (!pm && s.charAt(i) === '(') { out.push({ k: 'fn', v: up.replace(/^(_XLFN\.|_XLWS\.)+/, '') }); continue; }
+        if (!pm && (up === 'TRUE' || up === 'FALSE')) { out.push({ k: 'bool', v: up === 'TRUE' }); continue; }
+        out.push({ k: 'name', sh: sheet, ext: ext, v: id }); continue;
+      }
+      throw new Error('непонятное «' + rest.slice(0, 12) + '»');
+    }
+    return out;
+  }
+
+  function parse(text) {
+    var t = tokenize(String(text).replace(/^=/, '')), p = 0;
+    function peek() { return t[p]; }
+    function op(v) { var k = t[p]; return k && k.k === 'op' && k.v === v; }
+    function expect(k) { var tok = t[p++]; if (!tok || tok.k !== k) throw new Error('ожидалось «' + k + '»'); return tok; }
+    function cmp() {
+      var a = cat();
+      while (peek() && peek().k === 'op' && /^(=|<>|<|>|<=|>=)$/.test(peek().v)) { var o = t[p++].v; a = { t: 'bin', op: o, a: a, b: cat() }; }
+      return a;
+    }
+    function cat() { var a = add(); while (op('&')) { p++; a = { t: 'bin', op: '&', a: a, b: add() }; } return a; }
+    function add() { var a = mul(); while (op('+') || op('-')) { var o = t[p++].v; a = { t: 'bin', op: o, a: a, b: mul() }; } return a; }
+    function mul() { var a = pow(); while (op('*') || op('/')) { var o = t[p++].v; a = { t: 'bin', op: o, a: a, b: pow() }; } return a; }
+    function pow() { var a = un(); while (op('^')) { p++; a = { t: 'bin', op: '^', a: a, b: un() }; } return a; }
+    function un() {
+      if (op('-')) { p++; return { t: 'neg', a: un() }; }
+      if (op('+')) { p++; return un(); }
+      return post();
+    }
+    function post() { var a = rng(); while (op('%')) { p++; a = { t: 'pct', a: a }; } return a; }
+    function rng() { var a = prim(); while (op(':')) { p++; a = { t: 'rng', a: a, b: prim() }; } return a; }
+    function literal() {
+      var tok = t[p++], neg = false;
+      if (tok && tok.k === 'op' && tok.v === '-') { neg = true; tok = t[p++]; }
+      if (!tok) throw new Error('формула оборвалась');
+      if (tok.k === 'num') return neg ? -tok.v : tok.v;
+      if (tok.k === 'str') return tok.v;
+      if (tok.k === 'bool') return tok.v;
+      if (tok.k === 'err') return err(tok.v);
+      throw new Error('в массиве только значения');
+    }
+    function prim() {
+      var tok = t[p++];
+      if (!tok) throw new Error('формула оборвалась');
+      switch (tok.k) {
+        case 'num': return { t: 'n', v: tok.v };
+        case 'str': return { t: 's', v: tok.v };
+        case 'bool': return { t: 'b', v: tok.v };
+        case 'err': return { t: 'e', v: tok.v };
+        case 'ref': return { t: 'ref', sh: tok.sh, ext: tok.ext, r: tok.r, c: tok.c, ra: tok.ra, ca: tok.ca };
+        case 'area': return { t: 'area', sh: tok.sh, ext: tok.ext, r1: tok.r1, c1: tok.c1, r2: tok.r2, c2: tok.c2,
+                              ra1: tok.ra1, ca1: tok.ca1, ra2: tok.ra2, ca2: tok.ca2 };
+        case 'name': return { t: 'name', sh: tok.sh, ext: tok.ext, v: tok.v };
+        case 'fn': {
+          expect('(');
+          var args = [];
+          if (peek() && peek().k === ')') { p++; return { t: 'fn', v: tok.v, args: args }; }
+          for (;;) {
+            var nx = peek();
+            if (!nx) throw new Error('не закрыта скобка');
+            args.push(nx.k === ',' || nx.k === ')' ? { t: 'miss' } : cmp());
+            var sep = t[p++];
+            if (!sep) throw new Error('не закрыта скобка');
+            if (sep.k === ')') break;
+            if (sep.k !== ',') throw new Error('ожидалась запятая');
+          }
+          return { t: 'fn', v: tok.v, args: args };
+        }
+        case '(': { var e = cmp(); expect(')'); return e; }
+        case '{': {
+          var rows = [[]];
+          for (;;) {
+            rows[rows.length - 1].push(literal());
+            var s2 = t[p++];
+            if (!s2) throw new Error('не закрыт массив');
+            if (s2.k === '}') break;
+            if (s2.k === ';') rows.push([]);
+            else if (s2.k !== ',') throw new Error('ожидалась запятая в массиве');
+          }
+          return { t: 'arr', rows: rows };
+        }
+      }
+      throw new Error('неожиданное «' + (tok.v != null ? tok.v : tok.k) + '»');
+    }
+    var ast = cmp();
+    if (p < t.length) throw new Error('лишнее в конце формулы');
+    return ast;
+  }
+
+  /* ── числа как в Excel ── */
+  function snap(v) { return v === 0 || !isFinite(v) ? v : +v.toPrecision(15); }
+  function roundX(v, d, mode) { // mode: 0 — ROUND, 1 — ROUNDUP, -1 — ROUNDDOWN
+    d = Math.trunc(d);
+    var s = v < 0 ? -1 : 1, a = Math.abs(v), y, r;
+    function go(z) { return mode === 0 ? Math.floor(z + 0.5) : mode > 0 ? Math.ceil(z) : Math.floor(z); }
+    if (d >= 0) { var p = Math.pow(10, d); y = snap(a * p); r = go(y); return s * r / p; }
+    var q = Math.pow(10, -d); y = snap(a / q); r = go(y); return s * r * q;
+  }
+  function approxEq(a, b) {
+    if (a === b) return true;
+    return Math.abs(a - b) <= Math.max(Math.abs(a), Math.abs(b)) * 3.552713678800501e-15; // 2^-48, как в LibreOffice
+  }
+  function numText(n) {
+    if (Number.isInteger(n) && Math.abs(n) < 1e15) return String(n);
+    return String(+n.toPrecision(15)).replace('e+', 'E+').replace('e-', 'E-');
+  }
+  var MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  function daysIn(y, m) { return m === 2 && isLeap(y) ? 29 : MDAYS[m - 1]; }
+  function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
+
+  function typeRank(v) { return typeof v === 'string' ? 1 : typeof v === 'boolean' ? 2 : 0; }
+  function compare(a, b) {
+    if (a === null) a = typeof b === 'string' ? '' : typeof b === 'boolean' ? false : 0;
+    if (b === null) b = typeof a === 'string' ? '' : typeof a === 'boolean' ? false : 0;
+    var ta = typeRank(a), tb = typeRank(b);
+    if (ta !== tb) return ta < tb ? -1 : 1;
+    if (ta === 0) return approxEq(a, b) ? 0 : a < b ? -1 : 1;
+    if (ta === 1) { var x = a.toLowerCase(), y = b.toLowerCase(); return x === y ? 0 : x.localeCompare(y, 'ru') < 0 ? -1 : 1; }
+    return a === b ? 0 : a ? 1 : -1;
+  }
+  /* точное совпадение для VLOOKUP/MATCH: текст без учёта регистра, * и ? — шаблоны */
+  function matcher(v) {
+    if (typeof v === 'string' && /[*?~]/.test(v)) {
+      var re = new RegExp('^' + v.replace(/~([*?~])|([*?])|([.+^${}()|[\]\\\/])/g, function (m, esc, wild, sp) {
+        return esc ? '\\' + esc : wild ? (wild === '*' ? '[\\s\\S]*' : '[\\s\\S]') : '\\' + sp;
+      }) + '$', 'i');
+      return function (x) { return typeof x === 'string' && re.test(x); };
+    }
+    return function (x) { return x !== null && typeRank(x) === typeRank(v) && compare(x, v) === 0; };
+  }
+
+  /* ── книга ── */
+  function Book(raw) {
+    this.raw = raw;
+    this.XR = root.XlsxReader || (typeof module !== 'undefined' && typeof require === 'function' ? require('./xlsx.js') : null);
+    this.date1904 = !!raw.date1904;
+    this.sheets = raw.sheets.map(function (s) { return { name: s.name, state: s.state, xml: s.xml, p: null }; });
+    this.sheetIdx = {};
+    for (var k = 0; k < this.sheets.length; k++) this.sheetIdx[this.sheets[k].name.toLowerCase()] = k;
+    this.names = {};
+    raw.names.forEach(function (n) { this.names[n.local + '|' + n.name.toLowerCase()] = { name: n.name, text: n.ref, local: n.local, ast: null }; }, this);
+    this.asts = new Map();
+    this.memo = new Map(); this.busy = new Set(); this.over = new Map();
+    this.depth = 0; this.deepAt = 0; this.unknown = {}; this.problems = []; this.today = null;
+  }
+  var B = Book.prototype;
+
+  B.sheet = function (k) {
+    var s = this.sheets[k];
+    if (!s.p) { s.p = this.XR.parseSheet(s.xml, this.raw.sst, this.date1904); s.xml = null; }
+    return s.p;
+  };
+  B.cell = function (sh, r, c) { return this.sheet(sh).cells.get(r * COLS + c); };
+  B.addr = function (sh, r, c) { return this.sheets[sh].name + '!' + colName(c) + r; };
+  function isFormula(cell) { return cell && (cell.f !== undefined || cell.si !== undefined); }
+
+  B.compile = function (sh, text, where) {
+    var ast = this.asts.get(text);
+    if (ast) return ast;
+    try { ast = parse(text); }
+    catch (e) { this.problems.push({ where: where, text: text, msg: e.message }); ast = { t: 'e', v: '#NAME?' }; }
+    this.asts.set(text, ast);
+    return ast;
+  };
+  B.code = function (sh, cell, r, c) {
+    if (cell.code) return cell.code;
+    var s = this.sheet(sh), text, dr = 0, dc = 0;
+    if (cell.f !== undefined && cell.f !== '') text = cell.f;
+    else if (cell.si !== undefined && s.masters[cell.si]) { var m = s.masters[cell.si]; text = m.f; dr = r - m.r; dc = c - m.c; }
+    if (cell.array || cell.dataTable || text === undefined) {
+      this.problems.push({ where: this.addr(sh, r, c), msg: cell.array ? 'формула массива' : cell.dataTable ? 'таблица данных' : 'нет текста формулы' });
+      return (cell.code = { ast: { t: 'e', v: '#VALUE!' }, dr: 0, dc: 0 });
+    }
+    return (cell.code = { ast: this.compile(sh, text, this.addr(sh, r, c)), dr: dr, dc: dc });
+  };
+
+  function key(sh, r, c) { return (sh * 1048577 + r) * COLS + c; }
+
+  B.value = function (sh, r, c) {
+    var k = key(sh, r, c);
+    if (this.over.size && this.over.has(k)) return this.over.get(k);
+    var cell = this.sheet(sh).cells.get(r * COLS + c);
+    if (!cell) return null;
+    if (!isFormula(cell)) return cell.v;
+    var mv = this.memo.get(k);
+    if (mv !== undefined) return mv;
+    if (this.busy.has(k)) return ERR['#CIRC!'];
+    if (this.depth >= DEPTH) { this.deepAt = sh; throw DEEP; }
+    this.busy.add(k); this.depth++;
+    var v;
+    try {
+      var code = this.code(sh, cell, r, c), x = { sh: sh, r: r, c: c, dr: code.dr, dc: code.dc };
+      v = this.scalar(this.ev(code.ast, x), x);
+      if (v === null || v === MISSING) v = 0;
+    } finally { this.busy.delete(k); this.depth--; }
+    this.memo.set(k, v);
+    return v;
+  };
+  /* верхний уровень: длинные цепочки (график на 800 строк) досчитываем по порядку строк */
+  B.at = function (sh, r, c) {
+    for (var n = 0; n < 30; n++) {
+      try { return this.value(sh, r, c); }
+      catch (e) { if (e !== DEEP) throw e; this.warm(this.deepAt); }
+    }
+    return NUM;
+  };
+  B.warm = function (sh) {
+    var cells = this.sheet(sh).cells, self = this;
+    cells.forEach(function (cell, k) {
+      if (!isFormula(cell)) return;
+      try { self.value(sh, Math.floor(k / COLS), k % COLS); } catch (e) { if (e !== DEEP) throw e; }
+    });
+  };
+
+  B.ev = function (n, x) {
+    switch (n.t) {
+      case 'n': case 's': case 'b': return n.v;
+      case 'e': return err(n.v);
+      case 'miss': return MISSING;
+      case 'ref': case 'area': return this.refOf(n, x);
+      case 'name': return this.name(n, x);
+      case 'neg': { var a = this.num(this.ev(n.a, x), x); return isErr(a) ? a : -a; }
+      case 'pct': { var b = this.num(this.ev(n.a, x), x); return isErr(b) ? b : b / 100; }
+      case 'bin': return this.bin(n, x);
+      case 'fn': { var f = FN[n.v]; if (!f) { this.unknown[n.v] = true; return NAME; } return f(n.args, x, this); }
+      case 'arr': return new Arr(n.rows);
+      case 'rng': {
+        var p = this.ev(n.a, x), q = this.ev(n.b, x);
+        if (isErr(p)) return p; if (isErr(q)) return q;
+        if (!(p instanceof Ref) || !(q instanceof Ref) || p.sh !== q.sh) return VALUE;
+        return new Ref(p.sh, Math.min(p.r1, q.r1), Math.min(p.c1, q.c1), Math.max(p.r2, q.r2), Math.max(p.c2, q.c2));
+      }
+    }
+    return VALUE;
+  };
+
+  B.sheetOf = function (name, x) {
+    if (name == null) return x ? x.sh : 0;
+    var k = this.sheetIdx[String(name).toLowerCase()];
+    return k === undefined ? -1 : k;
+  };
+  B.refOf = function (n, x) {
+    if (n.ext) return REF;
+    var sh = this.sheetOf(n.sh, x);
+    if (sh < 0) return REF;
+    if (n.t === 'ref') {
+      var r = n.ra ? n.r : n.r + x.dr, c = n.ca ? n.c : n.c + x.dc;
+      if (r < 1 || c < 1 || r > MAXR || c > MAXC) return REF;
+      return new Ref(sh, r, c, r, c);
+    }
+    var r1 = n.ra1 ? n.r1 : n.r1 + x.dr, r2 = n.ra2 ? n.r2 : n.r2 + x.dr;
+    var c1 = n.ca1 ? n.c1 : n.c1 + x.dc, c2 = n.ca2 ? n.c2 : n.c2 + x.dc;
+    if (Math.min(r1, r2) < 1 || Math.min(c1, c2) < 1 || Math.max(r1, r2) > MAXR || Math.max(c1, c2) > MAXC) return REF;
+    return new Ref(sh, Math.min(r1, r2), Math.min(c1, c2), Math.max(r1, r2), Math.max(c1, c2));
+  };
+  B.findName = function (name, sh, sheetOnly) {
+    var low = String(name).toLowerCase();
+    return (sh >= 0 && this.names[sh + '|' + low]) || (!sheetOnly && this.names['-1|' + low]) || null;
+  };
+  B.nameAst = function (def) {
+    if (!def.ast) def.ast = this.compile(-1, def.text, 'имя ' + def.name);
+    return def.ast;
+  };
+  B.name = function (n, x) {
+    if (n.ext) return REF;
+    var sh = n.sh != null ? this.sheetOf(n.sh, x) : x.sh;
+    var def = this.findName(n.v, sh, n.sh != null);
+    if (!def) return NAME;
+    return this.ev(this.nameAst(def), { sh: x.sh, r: x.r, c: x.c, dr: 0, dc: 0 });
+  };
+
+  /* ── приведение типов ── */
+  B.scalar = function (v, x) {
+    if (v instanceof Ref) {
+      if (v.r1 === v.r2 && v.c1 === v.c2) return this.value(v.sh, v.r1, v.c1);
+      if (x && v.c1 === v.c2 && x.r >= v.r1 && x.r <= v.r2) return this.value(v.sh, x.r, v.c1);
+      if (x && v.r1 === v.r2 && x.c >= v.c1 && x.c <= v.c2) return this.value(v.sh, v.r1, x.c);
+      return VALUE;
+    }
+    if (v instanceof Arr) return v.rows[0][0];
+    if (v === MISSING) return null;
+    return v;
+  };
+  B.textNum = function (s) {
+    var t = s.trim();
+    if (!t) return VALUE;
+    var pct = /%$/.test(t);
+    if (pct) t = t.slice(0, -1).trim();
+    t = t.replace(/[\s  ]/g, '');
+    if (/^[+-]?(\d+([.,]\d*)?|[.,]\d+)([eE][+-]?\d+)?$/.test(t)) { var n = +t.replace(',', '.'); return pct ? n / 100 : n; }
+    var d = /^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/.exec(t);
+    if (d) return this.serial(+d[3], +d[2], +d[1]);
+    var iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t);
+    if (iso) return this.serial(+iso[1], +iso[2], +iso[3]);
+    return VALUE;
+  };
+  B.num = function (v, x) {
+    v = this.scalar(v, x);
+    if (typeof v === 'number') return v;
+    if (v === null) return 0;
+    if (typeof v === 'boolean') return v ? 1 : 0;
+    if (typeof v === 'string') return this.textNum(v);
+    return v;
+  };
+  B.bool = function (v, x) {
+    v = this.scalar(v, x);
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'number') return v !== 0;
+    if (v === null) return false;
+    if (typeof v === 'string') {
+      var u = v.trim().toUpperCase();
+      if (u === 'TRUE' || u === 'ИСТИНА') return true;
+      if (u === 'FALSE' || u === 'ЛОЖЬ') return false;
+      return VALUE;
+    }
+    return v;
+  };
+  B.text = function (v, x) {
+    v = this.scalar(v, x);
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number') return numText(v);
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (v === null) return '';
+    return v;
+  };
+  B.bin = function (n, x) {
+    var a = this.scalar(this.ev(n.a, x), x), b = this.scalar(this.ev(n.b, x), x), o = n.op;
+    if (o === '&') {
+      a = this.text(a, x); if (isErr(a)) return a;
+      b = this.text(b, x); if (isErr(b)) return b;
+      return a + b;
+    }
+    if (o === '=' || o === '<>' || o === '<' || o === '>' || o === '<=' || o === '>=') {
+      if (isErr(a)) return a; if (isErr(b)) return b;
+      var c = compare(a, b);
+      return o === '=' ? c === 0 : o === '<>' ? c !== 0 : o === '<' ? c < 0 : o === '>' ? c > 0 : o === '<=' ? c <= 0 : c >= 0;
+    }
+    var p = this.num(a, x); if (isErr(p)) return p;
+    var q = this.num(b, x); if (isErr(q)) return q;
+    var r;
+    switch (o) {
+      case '+': r = p + q; break;
+      case '-': r = p - q; break;
+      case '*': r = p * q; break;
+      case '/': if (q === 0) return DIV0; r = p / q; break;
+      case '^': if (p === 0 && q === 0) return NUM; r = Math.pow(p, q); break;
+      default: return VALUE;
+    }
+    return isFinite(r) ? r : NUM;
+  };
+
+  /* обход аргумента: диапазон и массив — по ячейкам (inRange = true), одиночное значение — как есть */
+  B.each = function (node, x, cb) {
+    var v = this.ev(node, x);
+    if (v instanceof Ref) {
+      var s = this.sheet(v.sh), r2 = Math.min(v.r2, Math.max(s.maxR, v.r1)), c2 = Math.min(v.c2, Math.max(s.maxC, v.c1));
+      for (var r = v.r1; r <= r2; r++) for (var c = v.c1; c <= c2; c++) if (cb(this.value(v.sh, r, c), true) === false) return;
+      return;
+    }
+    if (v instanceof Arr) {
+      for (var i = 0; i < v.rows.length; i++) for (var j = 0; j < v.rows[i].length; j++) if (cb(v.rows[i][j], true) === false) return;
+      return;
+    }
+    cb(v, false);
+  };
+  /* диапазон → двумерный массив значений */
+  B.grid = function (v) {
+    if (v instanceof Arr) return v.rows;
+    if (v instanceof Ref) {
+      var out = [];
+      for (var r = v.r1; r <= v.r2; r++) { var row = []; for (var c = v.c1; c <= v.c2; c++) row.push(this.value(v.sh, r, c)); out.push(row); }
+      return out;
+    }
+    return [[v === MISSING ? null : v]];
+  };
+
+  /* ── даты: число дней, как в Excel (с «29.02.1900» в системе 1900) ── */
+  B.serial = function (y, m, d) {
+    y = Math.trunc(y); m = Math.trunc(m); d = Math.trunc(d);
+    if (y >= 0 && y < 1900) y += 1900;
+    if (y < 0 || y > 9999) return NUM;
+    var dt = new Date(0);
+    dt.setUTCFullYear(y, m - 1, d);
+    var t = dt.getTime();
+    if (this.date1904) { var s4 = Math.round((t - Date.UTC(1904, 0, 1)) / 864e5); return s4 < 0 ? NUM : s4; }
+    var s = Math.round((t - Date.UTC(1899, 11, 30)) / 864e5);
+    if (s <= 60) s -= 1;
+    return s < 0 ? NUM : s;
+  };
+  B.ymd = function (s) {
+    s = Math.floor(s);
+    var t;
+    if (this.date1904) { t = new Date(Date.UTC(1904, 0, 1) + s * 864e5); }
+    else {
+      if (s === 0) return { y: 1900, m: 1, d: 0 };
+      if (s === 60) return { y: 1900, m: 2, d: 29 };
+      t = new Date(Date.UTC(1899, 11, 30) + (s < 60 ? s + 1 : s) * 864e5);
+    }
+    return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
+  };
+  B.todaySerial = function () {
+    if (this.today != null) return this.today;
+    var d = new Date();
+    return this.serial(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  };
+
+  /* ── функции ── */
+  function args(bk, a, x, kinds) { // kinds: 'n' число, 's' текст, 'b' логическое, 'v' значение
+    var out = [];
+    for (var i = 0; i < kinds.length; i++) {
+      var node = a[i], kd = kinds.charAt(i), v;
+      if (!node) { out.push(undefined); continue; }
+      var raw = bk.ev(node, x);
+      if (raw === MISSING) { out.push(undefined); continue; }
+      v = kd === 'n' ? bk.num(raw, x) : kd === 's' ? bk.text(raw, x) : kd === 'b' ? bk.bool(raw, x) : bk.scalar(raw, x);
+      if (isErr(v)) return v;
+      out.push(v);
+    }
+    return out;
+  }
+  function numFn(kinds, fn) {
+    return function (a, x, bk) { var v = args(bk, a, x, kinds); if (isErr(v)) return v; var r = fn.apply(bk, v); return typeof r === 'number' && !isFinite(r) ? NUM : r; };
+  }
+  function agg(a, x, bk, onNum, textInArgsOk) {
+    var bad = null;
+    for (var i = 0; i < a.length && !bad; i++) {
+      bk.each(a[i], x, function (v, inRange) {
+        if (isErr(v)) { bad = v; return false; }
+        if (inRange) { if (typeof v === 'number') onNum(v); return; }
+        if (v === MISSING) { onNum(0); return; }
+        var n = bk.num(v, x);
+        if (isErr(n)) { if (!textInArgsOk) { bad = n; return false; } return; }
+        onNum(n);
+      });
+    }
+    return bad;
+  }
+  function logical(a, x, bk, onBool) {
+    var bad = null, seen = false;
+    for (var i = 0; i < a.length && !bad; i++) {
+      if (a[i].t === 'miss') { seen = true; onBool(false); continue; }
+      bk.each(a[i], x, function (v, inRange) {
+        if (isErr(v)) { bad = v; return false; }
+        if (v === null || v === MISSING) return;
+        if (typeof v === 'string') { if (inRange) return; var b = bk.bool(v, x); if (isErr(b)) { bad = b; return false; } seen = true; onBool(b); return; }
+        seen = true; onBool(typeof v === 'boolean' ? v : v !== 0);
+      });
+    }
+    return bad || (seen ? null : VALUE);
+  }
+  function lookupPos(bk, want, list, type) { // list — значения; позиция с нуля или -1
+    if (type === 0) {
+      var eq = matcher(want);
+      for (var i = 0; i < list.length; i++) if (eq(list[i])) return i;
+      return -1;
+    }
+    var pos = -1;
+    for (var j = 0; j < list.length; j++) {
+      var v = list[j];
+      if (v === null || isErr(v) || typeRank(v) !== typeRank(want)) continue;
+      var c = compare(v, want);
+      if (type > 0) { if (c <= 0) pos = j; else break; }
+      else { if (c >= 0) pos = j; else break; }
+    }
+    return pos;
+  }
+  function yearFrac(bk, s, e, basis) {
+    if (s > e) { var t = s; s = e; e = t; }
+    if (s === e) return 0;
+    var A = bk.ymd(s), Bd = bk.ymd(e), days = e - s;
+    function lastFeb(D) { return D.m === 2 && D.d === daysIn(D.y, 2); }
+    switch (basis) {
+      case 0: {
+        var d1 = A.d, d2 = Bd.d;
+        if (d1 === 31 && d2 === 31) { d1 = 30; d2 = 30; }
+        else if (d1 === 31) d1 = 30;
+        else if (d1 === 30 && d2 === 31) d2 = 30;
+        else if (A.m === 2 && Bd.m === 2 && lastFeb(A) && lastFeb(Bd)) { d1 = 30; d2 = 30; }
+        else if (lastFeb(A)) d1 = 30;
+        return ((Bd.y - A.y) * 360 + (Bd.m - A.m) * 30 + (d2 - d1)) / 360;
+      }
+      case 1: {
+        var le = A.y === Bd.y || (A.y + 1 === Bd.y && (A.m > Bd.m || (A.m === Bd.m && A.d >= Bd.d)));
+        if (le) {
+          var len = 365;
+          if (A.y === Bd.y && isLeap(A.y)) len = 366;
+          else if ((Bd.m === 2 && Bd.d === 29) ||
+                   (isLeap(A.y) && s < bk.serial(A.y, 3, 1) && e >= bk.serial(A.y, 3, 1)) ||
+                   (isLeap(Bd.y) && e >= bk.serial(Bd.y, 3, 1) && s < bk.serial(Bd.y, 3, 1))) len = 366;
+          return days / len;
+        }
+        var years = Bd.y - A.y + 1, total = bk.serial(Bd.y + 1, 1, 1) - bk.serial(A.y, 1, 1);
+        return days / (total / years);
+      }
+      case 2: return days / 360;
+      case 3: return days / 365;
+      case 4: return ((Bd.y - A.y) * 360 + (Bd.m - A.m) * 30 + (Math.min(Bd.d, 30) - Math.min(A.d, 30))) / 360;
+    }
+    return NUM;
+  }
+
+  var RU_MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  function textFormat(bk, v, f) {
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (typeof v === 'string') { var nv = bk.textNum(v); if (isErr(nv)) return v; v = nv; }
+    if (v === null) v = 0;
+    var secs = [], cur = '', q = false;
+    for (var i = 0; i < f.length; i++) { var ch = f.charAt(i); if (ch === '"') q = !q; if (ch === ';' && !q) { secs.push(cur); cur = ''; } else cur += ch; }
+    secs.push(cur);
+    var sec = secs[0];
+    if (v < 0 && secs.length > 1) { sec = secs[1]; v = -v; } else if (v === 0 && secs.length > 2) sec = secs[2];
+    var bare = sec.replace(/"[^"]*"|\\./g, '');
+    if (/[ДдГгDdYy]|[МмMm]/.test(bare) && !/[0#]/.test(bare)) {
+      var D = bk.ymd(v);
+      return sec.replace(/"([^"]*)"|\\(.)|ГГГГ|гггг|YYYY|yyyy|ГГ|гг|YY|yy|ММММ|мммм|MMMM|mmmm|ММ|мм|MM|mm|М|м|M|m|ДД|дд|DD|dd|Д|д|D|d/g, function (t, lit, esc) {
+        if (lit != null) return lit;
+        if (esc != null) return esc;
+        var u = t.toUpperCase();
+        if (u === 'ГГГГ' || u === 'YYYY') return String(D.y);
+        if (u === 'ГГ' || u === 'YY') return ('0' + (D.y % 100)).slice(-2);
+        if (u === 'ММММ' || u === 'MMMM') return RU_MONTHS[D.m - 1];
+        if (u === 'ММ' || u === 'MM') return ('0' + D.m).slice(-2);
+        if (u === 'М' || u === 'M') return String(D.m);
+        if (u === 'ДД' || u === 'DD') return ('0' + D.d).slice(-2);
+        return String(D.d);
+      });
+    }
+    var pct = (bare.match(/%/g) || []).length;
+    v = v * Math.pow(100, pct);
+    var first = bare.search(/[0#?]/), last = Math.max(bare.lastIndexOf('0'), bare.lastIndexOf('#'), bare.lastIndexOf('?'));
+    if (first < 0) return sec.replace(/"([^"]*)"/g, '$1');
+    var pat = bare.slice(first, last + 1), pre = bare.slice(0, first), post = bare.slice(last + 1);
+    var ru = /[0#?][  ][0#?]/.test(pat), dec = ru ? ',' : '.', grp = ru ? /[  ]/ : /,/;
+    var dp = pat.indexOf(dec), intP = dp >= 0 ? pat.slice(0, dp) : pat, fracP = dp >= 0 ? pat.slice(dp + 1) : '';
+    var nd = (fracP.match(/[0#?]/g) || []).length, minInt = (intP.match(/0/g) || []).length;
+    var r = roundX(v, nd, 0), whole = Math.floor(Math.abs(r)), frac = Math.abs(r) - whole;
+    var ip = whole === 0 && minInt === 0 ? '' : String(whole);
+    while (ip.length < minInt) ip = '0' + ip;
+    if (grp.test(intP)) ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ru ? ' ' : ',');
+    var fp = nd ? frac.toFixed(nd).slice(2) : '';
+    if (nd) { var need = (fracP.match(/0/g) || []).length; while (fp.length > need && fp.charAt(fp.length - 1) === '0') fp = fp.slice(0, -1); }
+    return (r < 0 ? '-' : '') + pre + ip + (fp ? dec + fp : '') + post.replace(/%/g, '%');
+  }
+
+  var FN = {
+    IF: function (a, x, bk) {
+      var c = bk.bool(bk.ev(a[0], x), x);
+      if (isErr(c)) return c;
+      if (c) return a.length > 1 ? bk.ev(a[1], x) : true;
+      return a.length > 2 ? bk.ev(a[2], x) : false;
+    },
+    IFERROR: function (a, x, bk) {
+      var v = bk.ev(a[0], x), s = bk.scalar(v, x);
+      return isErr(s) ? bk.ev(a[1], x) : s;
+    },
+    IFNA: function (a, x, bk) {
+      var v = bk.ev(a[0], x), s = bk.scalar(v, x);
+      return isErr(s) && s.e === '#N/A' ? bk.ev(a[1], x) : s;
+    },
+    AND: function (a, x, bk) { var r = true, e = logical(a, x, bk, function (b) { r = r && b; }); return e || r; },
+    OR: function (a, x, bk) { var r = false, e = logical(a, x, bk, function (b) { r = r || b; }); return e || r; },
+    XOR: function (a, x, bk) { var r = false, e = logical(a, x, bk, function (b) { r = r !== b; }); return e || r; },
+    NOT: function (a, x, bk) { var b = bk.bool(bk.ev(a[0], x), x); return isErr(b) ? b : !b; },
+    TRUE: function () { return true; },
+    FALSE: function () { return false; },
+    CHOOSE: function (a, x, bk) {
+      var i = bk.num(bk.ev(a[0], x), x);
+      if (isErr(i)) return i;
+      i = Math.trunc(i);
+      return i >= 1 && i < a.length ? bk.ev(a[i], x) : VALUE;
+    },
+
+    ISBLANK: function (a, x, bk) { var v = bk.ev(a[0], x); return (v instanceof Ref ? bk.scalar(v, x) : v === MISSING ? null : v) === null; },
+    ISNUMBER: function (a, x, bk) { return typeof bk.scalar(bk.ev(a[0], x), x) === 'number'; },
+    ISTEXT: function (a, x, bk) { return typeof bk.scalar(bk.ev(a[0], x), x) === 'string'; },
+    ISLOGICAL: function (a, x, bk) { return typeof bk.scalar(bk.ev(a[0], x), x) === 'boolean'; },
+    ISERROR: function (a, x, bk) { return isErr(bk.scalar(bk.ev(a[0], x), x)); },
+    ISERR: function (a, x, bk) { var v = bk.scalar(bk.ev(a[0], x), x); return isErr(v) && v.e !== '#N/A'; },
+    ISNA: function (a, x, bk) { var v = bk.scalar(bk.ev(a[0], x), x); return isErr(v) && v.e === '#N/A'; },
+    NA: function () { return NA; },
+
+    INT: numFn('n', function (v) { return Math.floor(snap(v)); }),
+    TRUNC: numFn('nn', function (v, d) { return roundX(v, d || 0, -1); }),
+    ROUND: numFn('nn', function (v, d) { return roundX(v, d || 0, 0); }),
+    ROUNDUP: numFn('nn', function (v, d) { return roundX(v, d || 0, 1); }),
+    ROUNDDOWN: numFn('nn', function (v, d) { return roundX(v, d || 0, -1); }),
+    ABS: numFn('n', Math.abs),
+    SIGN: numFn('n', function (v) { return v > 0 ? 1 : v < 0 ? -1 : 0; }),
+    SQRT: numFn('n', function (v) { return v < 0 ? NUM : Math.sqrt(v); }),
+    EXP: numFn('n', Math.exp),
+    LN: numFn('n', function (v) { return v <= 0 ? NUM : Math.log(v); }),
+    LOG10: numFn('n', function (v) { return v <= 0 ? NUM : Math.log(v) / Math.LN10; }),
+    LOG: numFn('nn', function (v, b) { b = b === undefined ? 10 : b; return v <= 0 || b <= 0 || b === 1 ? NUM : Math.log(v) / Math.log(b); }),
+    POWER: numFn('nn', function (v, p) { return v === 0 && p === 0 ? NUM : Math.pow(v, p); }),
+    MOD: numFn('nn', function (v, d) { if (d === 0) return DIV0; var m = v - d * Math.floor(v / d); return snap(m); }),
+    PI: function () { return Math.PI; },
+    CEILING: numFn('nn', function (v, s) { if (s === undefined) s = 1; if (s === 0) return 0; return Math.ceil(snap(v / s)) * s; }),
+    FLOOR: numFn('nn', function (v, s) { if (s === undefined) s = 1; if (s === 0) return DIV0; return Math.floor(snap(v / s)) * s; }),
+
+    SUM: function (a, x, bk) { var s = 0, e = agg(a, x, bk, function (v) { s += v; }); return e || s; },
+    PRODUCT: function (a, x, bk) { var s = 1, e = agg(a, x, bk, function (v) { s *= v; }); return e || s; },
+    MAX: function (a, x, bk) { var m = -Infinity, e = agg(a, x, bk, function (v) { if (v > m) m = v; }); return e || (m === -Infinity ? 0 : m); },
+    MIN: function (a, x, bk) { var m = Infinity, e = agg(a, x, bk, function (v) { if (v < m) m = v; }); return e || (m === Infinity ? 0 : m); },
+    AVERAGE: function (a, x, bk) { var s = 0, n = 0, e = agg(a, x, bk, function (v) { s += v; n++; }); return e || (n ? s / n : DIV0); },
+    COUNT: function (a, x, bk) {
+      var n = 0;
+      a.forEach(function (node) { bk.each(node, x, function (v, inRange) { if (typeof v === 'number' || (!inRange && !isErr(bk.num(v, x)) && v !== MISSING)) n++; }); });
+      return n;
+    },
+    COUNTA: function (a, x, bk) {
+      var n = 0;
+      a.forEach(function (node) { bk.each(node, x, function (v) { if (v !== null && v !== MISSING) n++; }); });
+      return n;
+    },
+    SUMPRODUCT: function (a, x, bk) {
+      var grids = a.map(function (node) { return bk.grid(bk.ev(node, x)); }), s = 0;
+      for (var g = 0; g < grids.length; g++) {
+        if (grids[g].length !== grids[0].length || grids[g][0].length !== grids[0][0].length) return VALUE;
+      }
+      for (var i = 0; i < grids[0].length; i++) for (var j = 0; j < grids[0][0].length; j++) {
+        var p = 1;
+        for (var k = 0; k < grids.length; k++) { var v = grids[k][i][j]; if (isErr(v)) return v; p *= typeof v === 'number' ? v : 0; }
+        s += p;
+      }
+      return s;
+    },
+
+    INDEX: function (a, x, bk) {
+      var src = bk.ev(a[0], x);
+      if (isErr(src)) return src;
+      var one = a.length < 3 || a[2].t === 'miss';
+      var r = a.length > 1 ? bk.num(bk.ev(a[1], x), x) : 0, c = !one ? bk.num(bk.ev(a[2], x), x) : 0;
+      if (isErr(r)) return r; if (isErr(c)) return c;
+      r = Math.trunc(r); c = Math.trunc(c);
+      if (src instanceof Ref) {
+        var nr = src.r2 - src.r1 + 1, nc = src.c2 - src.c1 + 1;
+        if (one && a.length >= 2) { if (nr === 1) { c = r; r = 1; } else if (nc === 1) c = 1; }
+        if (r < 0 || c < 0 || r > nr || c > nc) return REF;
+        return new Ref(src.sh, r ? src.r1 + r - 1 : src.r1, c ? src.c1 + c - 1 : src.c1, r ? src.r1 + r - 1 : src.r2, c ? src.c1 + c - 1 : src.c2);
+      }
+      var g = bk.grid(src), gr = g.length, gc = g[0].length;
+      if (one && a.length >= 2) { if (gr === 1) { c = r; r = 1; } else if (gc === 1) c = 1; }
+      if (r < 0 || c < 0 || r > gr || c > gc) return REF;
+      if (r && c) return g[r - 1][c - 1];
+      if (r) return new Arr([g[r - 1]]);
+      if (c) return new Arr(g.map(function (row) { return [row[c - 1]]; }));
+      return new Arr(g);
+    },
+    MATCH: function (a, x, bk) {
+      var want = bk.scalar(bk.ev(a[0], x), x);
+      if (isErr(want)) return want;
+      var src = bk.ev(a[1], x);
+      if (isErr(src)) return src;
+      var type = a.length > 2 && a[2].t !== 'miss' ? bk.num(bk.ev(a[2], x), x) : 1;
+      if (isErr(type)) return type;
+      var g = bk.grid(src), list;
+      if (g.length === 1) list = g[0];
+      else if (g[0].length === 1) list = g.map(function (row) { return row[0]; });
+      else return NA;
+      var pos = lookupPos(bk, want === null ? 0 : want, list, type > 0 ? 1 : type < 0 ? -1 : 0);
+      return pos < 0 ? NA : pos + 1;
+    },
+    VLOOKUP: function (a, x, bk) { return lookup(a, x, bk, true); },
+    HLOOKUP: function (a, x, bk) { return lookup(a, x, bk, false); },
+    INDIRECT: function (a, x, bk) {
+      var t = bk.text(bk.ev(a[0], x), x);
+      if (isErr(t)) return t;
+      t = t.trim();
+      var a1 = true;
+      if (a.length > 1) { var f = a[1].t === 'miss' ? false : bk.bool(bk.ev(a[1], x), x); if (isErr(f)) return f; a1 = f; }
+      var nm = /^(?:(?:'((?:[^']|'')+)'|([^!]+))!)?([^!]+)$/.exec(t);
+      if (!nm) return REF;
+      var shName = nm[1] != null ? nm[1].replace(/''/g, "'") : nm[2], body = nm[3];
+      var sh = shName != null ? bk.sheetOf(shName, x) : x.sh;
+      if (sh < 0) return REF;
+      var def = bk.findName(body, sh, shName != null);
+      if (def) { var v = bk.ev(bk.nameAst(def), { sh: x.sh, r: x.r, c: x.c, dr: 0, dc: 0 }); return v instanceof Ref ? v : REF; }
+      if (a1) {
+        var m = /^\$?([A-Za-z]{1,3})\$?(\d+)(?::\$?([A-Za-z]{1,3})\$?(\d+))?$/.exec(body);
+        if (!m) return REF;
+        var c1 = colNum(m[1]), r1 = +m[2], c2 = m[3] ? colNum(m[3]) : c1, r2 = m[4] ? +m[4] : r1;
+        if (c1 > MAXC || c2 > MAXC || r1 < 1 || r2 < 1) return REF;
+        return new Ref(sh, Math.min(r1, r2), Math.min(c1, c2), Math.max(r1, r2), Math.max(c1, c2));
+      }
+      var rc = /^R(\[-?\d+\]|\d+)?C(\[-?\d+\]|\d+)?$/i.exec(body);
+      if (!rc) return REF;
+      function part(s, base) { if (!s) return base; return s.charAt(0) === '[' ? base + +s.slice(1, -1) : +s; }
+      var rr = part(rc[1], x.r), cc = part(rc[2], x.c);
+      return rr >= 1 && cc >= 1 ? new Ref(sh, rr, cc, rr, cc) : REF;
+    },
+    OFFSET: function (a, x, bk) {
+      var src = bk.ev(a[0], x);
+      if (!(src instanceof Ref)) return isErr(src) ? src : VALUE;
+      var v = args(bk, a.slice(1), x, 'nnnn');
+      if (isErr(v)) return v;
+      var r1 = src.r1 + Math.trunc(v[0] || 0), c1 = src.c1 + Math.trunc(v[1] || 0);
+      var h = v[2] === undefined ? src.r2 - src.r1 + 1 : Math.trunc(v[2]), w = v[3] === undefined ? src.c2 - src.c1 + 1 : Math.trunc(v[3]);
+      if (r1 < 1 || c1 < 1 || h < 1 || w < 1) return REF;
+      return new Ref(src.sh, r1, c1, r1 + h - 1, c1 + w - 1);
+    },
+    ROW: function (a, x, bk) { if (!a.length || a[0].t === 'miss') return x.r; var v = bk.ev(a[0], x); return v instanceof Ref ? v.r1 : VALUE; },
+    COLUMN: function (a, x, bk) { if (!a.length || a[0].t === 'miss') return x.c; var v = bk.ev(a[0], x); return v instanceof Ref ? v.c1 : VALUE; },
+    ROWS: function (a, x, bk) { var v = bk.ev(a[0], x); return v instanceof Ref ? v.r2 - v.r1 + 1 : bk.grid(v).length; },
+    COLUMNS: function (a, x, bk) { var v = bk.ev(a[0], x); return v instanceof Ref ? v.c2 - v.c1 + 1 : bk.grid(v)[0].length; },
+
+    DATE: function (a, x, bk) { var v = args(bk, a, x, 'nnn'); if (isErr(v)) return v; return bk.serial(v[0] || 0, v[1] || 0, v[2] || 0); },
+    YEAR: function (a, x, bk) { var v = args(bk, a, x, 'n'); if (isErr(v)) return v; return v[0] < 0 ? NUM : bk.ymd(v[0] || 0).y; },
+    MONTH: function (a, x, bk) { var v = args(bk, a, x, 'n'); if (isErr(v)) return v; return v[0] < 0 ? NUM : bk.ymd(v[0] || 0).m; },
+    DAY: function (a, x, bk) { var v = args(bk, a, x, 'n'); if (isErr(v)) return v; return v[0] < 0 ? NUM : bk.ymd(v[0] || 0).d; },
+    EDATE: function (a, x, bk) {
+      var v = args(bk, a, x, 'nn'); if (isErr(v)) return v;
+      if ((v[0] || 0) < 0) return NUM;
+      var D = bk.ymd(v[0] || 0), mm = D.m - 1 + Math.trunc(v[1] || 0), y = D.y + Math.floor(mm / 12), m = ((mm % 12) + 12) % 12 + 1;
+      return bk.serial(y, m, Math.min(D.d, daysIn(y, m)));
+    },
+    EOMONTH: function (a, x, bk) {
+      var v = args(bk, a, x, 'nn'); if (isErr(v)) return v;
+      if ((v[0] || 0) < 0) return NUM;
+      var D = bk.ymd(v[0] || 0);
+      return bk.serial(D.y, D.m + Math.trunc(v[1] || 0) + 1, 0);
+    },
+    DATEDIF: function (a, x, bk) {
+      var v = args(bk, a, x, 'nns'); if (isErr(v)) return v;
+      var s = Math.floor(v[0] || 0), e = Math.floor(v[1] || 0), u = String(v[2] || '').toUpperCase();
+      if (s < 0 || e < 0 || s > e) return NUM;
+      var A = bk.ymd(s), Z = bk.ymd(e), months = (Z.y - A.y) * 12 + Z.m - A.m - (Z.d < A.d ? 1 : 0);
+      switch (u) {
+        case 'D': return e - s;
+        case 'M': return months;
+        case 'Y': return Math.floor(months / 12);
+        case 'YM': return months % 12;
+        case 'MD': return Z.d >= A.d ? Z.d - A.d : daysIn(Z.m === 1 ? Z.y - 1 : Z.y, Z.m === 1 ? 12 : Z.m - 1) - A.d + Z.d;
+        case 'YD': { var t = bk.serial(Z.y, A.m, A.d); if (t > e) t = bk.serial(Z.y - 1, A.m, A.d); return e - t; }
+      }
+      return NUM;
+    },
+    YEARFRAC: function (a, x, bk) {
+      var v = args(bk, a, x, 'nnn'); if (isErr(v)) return v;
+      var basis = Math.trunc(v[2] || 0);
+      if (basis < 0 || basis > 4 || (v[0] || 0) < 0 || (v[1] || 0) < 0) return NUM;
+      return yearFrac(bk, Math.floor(v[0] || 0), Math.floor(v[1] || 0), basis);
+    },
+    DAYS: function (a, x, bk) { var v = args(bk, a, x, 'nn'); if (isErr(v)) return v; return Math.floor(v[0] || 0) - Math.floor(v[1] || 0); },
+    WEEKDAY: function (a, x, bk) {
+      var v = args(bk, a, x, 'nn'); if (isErr(v)) return v;
+      var D = bk.ymd(v[0] || 0), wd = new Date(Date.UTC(D.y, D.m - 1, D.d)).getUTCDay(), t = v[1] || 1;
+      return t === 2 ? (wd + 6) % 7 + 1 : t === 3 ? (wd + 6) % 7 : wd + 1;
+    },
+    TODAY: function (a, x, bk) { return bk.todaySerial(); },
+    NOW: function (a, x, bk) { var d = new Date(); return bk.todaySerial() + (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 86400; },
+
+    CONCATENATE: function (a, x, bk) {
+      var s = '';
+      for (var i = 0; i < a.length; i++) { var t = bk.text(bk.ev(a[i], x), x); if (isErr(t)) return t; s += t; }
+      return s;
+    },
+    CONCAT: function (a, x, bk) {
+      var s = '', bad = null;
+      for (var i = 0; i < a.length && !bad; i++) bk.each(a[i], x, function (v) { var t = bk.text(v === MISSING ? null : v, x); if (isErr(t)) { bad = t; return false; } s += t; });
+      return bad || s;
+    },
+    TEXT: function (a, x, bk) {
+      var v = bk.scalar(bk.ev(a[0], x), x), f = bk.text(bk.ev(a[1], x), x);
+      if (isErr(v)) return v; if (isErr(f)) return f;
+      return textFormat(bk, v, f);
+    },
+    LEN: function (a, x, bk) { var t = bk.text(bk.ev(a[0], x), x); return isErr(t) ? t : t.length; },
+    LEFT: function (a, x, bk) { var v = args(bk, a, x, 'sn'); if (isErr(v)) return v; return v[0].slice(0, v[1] === undefined ? 1 : Math.max(0, v[1])); },
+    RIGHT: function (a, x, bk) { var v = args(bk, a, x, 'sn'); if (isErr(v)) return v; var n = v[1] === undefined ? 1 : Math.max(0, v[1]); return n ? v[0].slice(-n) : ''; },
+    MID: function (a, x, bk) { var v = args(bk, a, x, 'snn'); if (isErr(v)) return v; if (v[1] < 1 || v[2] < 0) return VALUE; return v[0].substr(v[1] - 1, v[2]); },
+    TRIM: function (a, x, bk) { var t = bk.text(bk.ev(a[0], x), x); return isErr(t) ? t : t.replace(/ +/g, ' ').trim(); },
+    UPPER: function (a, x, bk) { var t = bk.text(bk.ev(a[0], x), x); return isErr(t) ? t : t.toUpperCase(); },
+    LOWER: function (a, x, bk) { var t = bk.text(bk.ev(a[0], x), x); return isErr(t) ? t : t.toLowerCase(); },
+    VALUE: function (a, x, bk) { var v = bk.scalar(bk.ev(a[0], x), x); return typeof v === 'string' ? bk.textNum(v) : bk.num(v, x); },
+    SINGLE: function (a, x, bk) { return bk.scalar(bk.ev(a[0], x), x); }
+  };
+  FN.CEILING_MATH = FN.CEILING;
+
+  function lookup(a, x, bk, vertical) {
+    var want = bk.scalar(bk.ev(a[0], x), x);
+    if (isErr(want)) return want;
+    var src = bk.ev(a[1], x);
+    if (isErr(src)) return src;
+    var idx = bk.num(bk.ev(a[2], x), x);
+    if (isErr(idx)) return idx;
+    idx = Math.trunc(idx);
+    var approx = a.length > 3 && a[3].t !== 'miss' ? bk.bool(bk.ev(a[3], x), x) : a.length > 3 ? false : true;
+    if (isErr(approx)) return approx;
+    var g = bk.grid(src), n = vertical ? g.length : g[0].length, width = vertical ? g[0].length : g.length;
+    if (idx < 1) return VALUE;
+    if (idx > width) return REF;
+    var keys = [];
+    for (var i = 0; i < n; i++) keys.push(vertical ? g[i][0] : g[0][i]);
+    var pos = lookupPos(bk, want === null ? 0 : want, keys, approx ? 1 : 0);
+    if (pos < 0) return NA;
+    var v = vertical ? g[pos][idx - 1] : g[idx - 1][pos];
+    return v === null ? 0 : v;
+  }
+
+  /* ── доступ снаружи ── */
+  // «ввод!G2», «calc!$AC$1:$AC$5», имя «nax» → Ref (или null)
+  B.ref = function (text, sh) {
+    var ast;
+    try { ast = parse(text); } catch (e) { return null; }
+    var v = this.ev(ast, { sh: sh || 0, r: 1, c: 1, dr: 0, dc: 0 });
+    return v instanceof Ref ? v : null;
+  };
+  B.nameRef = function (name) {
+    var def = this.findName(name, -1, false);
+    if (!def) return null;
+    var v = this.ev(this.nameAst(def), { sh: 0, r: 1, c: 1, dr: 0, dc: 0 });
+    return v instanceof Ref ? v : null;
+  };
+  B.get = function (ref) { return ref ? this.at(ref.sh, ref.r1, ref.c1) : null; };
+  B.values = function (ref) {
+    var out = [];
+    for (var r = ref.r1; r <= ref.r2; r++) for (var c = ref.c1; c <= ref.c2; c++) out.push(this.at(ref.sh, r, c));
+    return out;
+  };
+  B.set = function (ref, v) { this.over.set(key(ref.sh, ref.r1, ref.c1), v); this.memo.clear(); };
+  B.reset = function () { this.over.clear(); this.memo.clear(); };
+
+  /* ячейки с формулами, от которых зависят roots (статически; INDIRECT/OFFSET — через все имена книги) */
+  B.deps = function (sh, r, c, out) {
+    var cell = this.cell(sh, r, c), self = this;
+    if (!isFormula(cell)) return;
+    var code = this.code(sh, cell, r, c);
+    function walk(n, x) {
+      switch (n.t) {
+        case 'ref': case 'area': { var v = self.refOf(n, x); if (v instanceof Ref) out.push(v); return; }
+        case 'name': {
+          if (n.ext) return;
+          var def = self.findName(n.v, n.sh != null ? self.sheetOf(n.sh, x) : x.sh, n.sh != null);
+          if (def) walk(self.nameAst(def), { sh: x.sh, r: x.r, c: x.c, dr: 0, dc: 0 });
+          return;
+        }
+        case 'fn': if (n.v === 'INDIRECT' || n.v === 'OFFSET') out.dynamic = true; n.args.forEach(function (q) { walk(q, x); }); return;
+        case 'bin': case 'rng': walk(n.a, x); walk(n.b, x); return;
+        case 'neg': case 'pct': walk(n.a, x); return;
+      }
+    }
+    walk(code.ast, { sh: sh, r: r, c: c, dr: code.dr, dc: code.dc });
+  };
+  B.closure = function (roots) {
+    var seen = new Set(), list = [], queue = [], self = this, dyn = false, namesAdded = false;
+    function add(v) {
+      if (!v) return;
+      var s = self.sheet(v.sh), r2 = Math.min(v.r2, s.maxR), c2 = Math.min(v.c2, s.maxC);
+      for (var r = v.r1; r <= r2; r++) for (var c = v.c1; c <= c2; c++) {
+        if (!isFormula(s.cells.get(r * COLS + c))) continue;
+        var k = key(v.sh, r, c);
+        if (seen.has(k)) continue;
+        seen.add(k); queue.push([v.sh, r, c]);
+      }
+    }
+    roots.forEach(add);
+    for (;;) {
+      while (queue.length) {
+        var q = queue.shift(), out = [];
+        list.push(q);
+        this.deps(q[0], q[1], q[2], out);
+        if (out.dynamic) dyn = true;
+        out.forEach(add);
+      }
+      if (!dyn || namesAdded) break;
+      namesAdded = true;
+      Object.keys(this.names).forEach(function (k) {
+        var def = self.names[k];
+        if (/^_xlnm\./i.test(def.name) || /\[\d+\]/.test(def.text)) return; // области печати и ссылки на другие файлы
+        var v = self.ev(self.nameAst(def), { sh: Math.max(0, def.local), r: 1, c: 1, dr: 0, dc: 0 });
+        if (v instanceof Ref) add(v);
+      });
+    }
+    list.sort(function (p, q) { return p[0] - q[0] || p[1] - q[1] || p[2] - q[2]; });
+    return list;
+  };
+  /* функции, которых нет в генераторе, среди формул list */
+  B.unsupported = function (list) {
+    var miss = {}, self = this;
+    function walk(n) {
+      if (n.t === 'fn') { if (!FN[n.v]) miss[n.v] = true; n.args.forEach(walk); }
+      else if (n.t === 'bin' || n.t === 'rng') { walk(n.a); walk(n.b); }
+      else if (n.t === 'neg' || n.t === 'pct') walk(n.a);
+    }
+    list.forEach(function (q) { walk(self.code(q[0], self.cell(q[0], q[1], q[2]), q[1], q[2]).ast); });
+    return Object.keys(miss);
+  };
+  function same(v, cv) {
+    if (typeof cv === 'number') return typeof v === 'number' && Math.abs(v - cv) <= 1e-9 * Math.max(1, Math.abs(cv));
+    if (isErr(cv)) return isErr(v) && v.e === cv.e;
+    if (typeof cv === 'string') return v === cv;
+    if (typeof cv === 'boolean') return v === cv;
+    return true;
+  }
+  /* сверка с результатами, которые Excel сохранил в файле для его текущих входных данных */
+  B.selfTest = function (list) {
+    var saved = this.over, bad = [], checked = 0, today = this.today;
+    this.over = new Map(); this.memo.clear();
+    var mod = /^(\d{4})-(\d{2})-(\d{2})/.exec(this.raw.modified || '');
+    if (mod) this.today = this.serial(+mod[1], +mod[2], +mod[3]);
+    for (var i = 0; i < list.length; i++) {
+      var q = list[i], cell = this.cell(q[0], q[1], q[2]);
+      if (cell.cv === undefined || cell.array || cell.dataTable) continue;
+      var v = this.at(q[0], q[1], q[2]);
+      checked++;
+      if (!same(v, cell.cv)) bad.push({ addr: this.addr(q[0], q[1], q[2]), got: v, want: cell.cv });
+    }
+    this.over = saved; this.today = today; this.memo.clear();
+    return { checked: checked, bad: bad };
+  };
+  B.isErr = isErr;
+
+  var api = { Book: Book, parse: parse, tokenize: tokenize, isErr: isErr, err: err, Ref: Ref, colName: colName, colNum: colNum, COLS: COLS };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.FormulaBook = api;
+})(this);
+
+/*
+ * Калькулятор из файла .xlsx: генератор подставляет клиента во входные ячейки
+ * и берёт результат из формул самого файла — ставки, ПМ и таблицы смертности менять в коде не нужно.
+ *
+ * Ячейки ищем по именам книги (DofB, дата_расч, sex, gp, BP, x, x0, d, nax, i, ind…),
+ * где имён нет — по подписям: «Категория», «Накопления с ЕНПФ», «Минимальная премия»,
+ * «Прожиточный минимум», «выплата на дату заключения», «выплата в момент выхода на пенс».
+ * Результат — в том же виде, что у AnnuityEngine.compute, чтобы отчёт не знал, откуда цифры.
+ */
+(function (root) {
+  'use strict';
+  var XR = root.XlsxReader, FB = root.FormulaBook, AE = root.AnnuityEngine;
+  var COLS = 16385;
+
+  var xround = AE.xround;
+  function num(v) { return typeof v === 'number' && isFinite(v) ? v : NaN; }
+  function show(v) { return v && typeof v === 'object' && v.e ? v.e : v === null ? 'пусто' : String(v); }
+  function txt(v) { return v && typeof v === 'object' && v.e ? v.e : v === null ? '' : String(v); }
+
+  /* подписи на листе → ячейки { sh, r, c } */
+  function labels(bk, re, sheets) {
+    var out = [];
+    sheets.forEach(function (sh) {
+      bk.sheet(sh).cells.forEach(function (cell, k) {
+        if (typeof cell.v === 'string' && re.test(cell.v.replace(/\s+/g, ' ').trim())) out.push({ sh: sh, r: Math.floor(k / COLS), c: k % COLS });
+      });
+    });
+    return out;
+  }
+  function isValueCell(cell) { return cell && (cell.f !== undefined || cell.si !== undefined || typeof cell.v === 'number'); }
+  function formulaText(bk, sh, cell) {
+    if (cell.f) return cell.f;
+    var m = cell.si !== undefined ? bk.sheet(sh).masters[cell.si] : null;
+    return m ? m.f : '';
+  }
+
+  function locate(bk) {
+    var m = {};
+    function named() {
+      for (var i = 0; i < arguments.length; i++) {
+        var r = bk.nameRef(arguments[i]);
+        if (r && r.r1 === r.r2 && r.c1 === r.c2) return r;
+      }
+      return null;
+    }
+    m.dob = named('DofB', 'дата_рождения_клиента');
+    if (!m.dob) {
+      var hit = labels(bk, /^дата рождения$/i, [0])[0];
+      if (!hit) throw new Error('Не нашёл в файле поле «Дата рождения» — это точно калькулятор пенсионного аннуитета?');
+      m.dob = new FB.Ref(0, hit.r, 7, hit.r, 7);
+    }
+    var inSh = m.dob.sh, col = m.dob.c1;
+    function row(re) {
+      var hits = labels(bk, re, [inSh]);
+      for (var i = 0; i < hits.length; i++) if (hits[i].c < col) return new FB.Ref(inSh, hits[i].r, col, hits[i].r, col);
+      return null;
+    }
+    function near(re, sheets) {
+      var hits = labels(bk, re, sheets);
+      for (var i = 0; i < hits.length; i++) {
+        var h = hits[i];
+        for (var dc = 1; dc >= -1; dc -= 2) {
+          if (h.c + dc < 1) continue;
+          if (isValueCell(bk.cell(h.sh, h.r, h.c + dc))) return new FB.Ref(h.sh, h.r, h.c + dc, h.r, h.c + dc);
+        }
+      }
+      return null;
+    }
+    m.date = named('дата_расч', 'датарасч') || row(/^дата расч[её]та$/i);
+    m.sex = named('sex') || row(/^пол$/i);
+    m.oppv = named('OPPV') || row(/^ОППВ/i);
+    m.gp = named('gp') || row(/^гарантированный период/i);
+    m.category = row(/^категория/i);
+    m.savings = row(/^накопления/i);
+    m.redemption = row(/^выкупная сумма/i);
+    m.contribution = row(/^взнос/i);
+    m.bp = named('BP') || row(/^итого премия/i);
+    bk.sheet(inSh).cells.forEach(function (cell, k) {
+      if (!m.status && (cell.f !== undefined || cell.si !== undefined) && /недостаточно средств/i.test(formulaText(bk, inSh, cell)))
+        m.status = new FB.Ref(inSh, Math.floor(k / COLS), k % COLS, Math.floor(k / COLS), k % COLS);
+    });
+    m.x = named('x'); m.x0 = named('x0'); m.x_0 = named('x_0'); m.d = named('d');
+    m.nax = named('nax'); m.ax = named('ax'); m.vd = named('vd');
+    m.i = named('i'); m.ind = named('ind'); m.alfa = named('alfa'); m.gamma = named('gamma');
+    var calcSh = (m.nax || m.i || m.dob).sh, both = calcSh === inSh ? [inSh] : [calcSh, inSh];
+    m.pm = near(/^прожиточный минимум$/i, both);
+    m.minPay = near(/^мин(имальная|\.)?\s*выплата$/i, both);
+    m.threshold = near(/^минимальная премия$/i, both) || near(/^минимальная (пенсия|премия) для заключения$/i, both);
+    m.minPayAtPension = near(/^мин(имальная|\.)?\s*выплата в момент выхода/i, both);
+    m.paySign = near(/^выплата на дату заключения$/i, both);
+    m.first = near(/^выплата в момент выхода на пенс/i, both) || row(/^выплата в момент выхода на пенс/i);
+
+    var need = { date: 'Дата расчёта', sex: 'Пол', category: 'Категория', gp: 'Гарантированный период', status: 'статус расчёта',
+                 x: 'возраст (имя x)', nax: 'аннуитетный фактор (имя nax)', threshold: 'Минимальная премия',
+                 first: 'выплата в момент выхода на пенсию', paySign: 'выплата на дату заключения', ind: 'индексация (имя ind)' };
+    var lost = Object.keys(need).filter(function (k) { return !m[k]; }).map(function (k) { return need[k]; });
+    if (!m.x0 && !m.x_0) lost.push('возраст начала выплат (имя x0)');
+    if (!m.bp && !(m.savings && m.contribution)) lost.push('Итого премия (имя BP)');
+    if (lost.length) throw new Error('В калькуляторе не нашлось: ' + lost.join(', ') + '. Похоже, файл устроен иначе — напишите разработчику генератора.');
+    return m;
+  }
+
+  function covers(sqref, ref) {
+    return sqref.some(function (s) {
+      var p = s.split(':'), a = XR.a1(p[0]), b = XR.a1(p[1] || p[0]);
+      return a && b && ref.r1 >= a.r && ref.r1 <= b.r && ref.c1 >= a.c && ref.c1 <= b.c;
+    });
+  }
+  function validation(bk, ref) {
+    if (!ref) return null;
+    var vs = bk.sheet(ref.sh).validations;
+    for (var i = 0; i < vs.length; i++) if (covers(vs[i].sqref, ref)) return vs[i];
+    return null;
+  }
+  function listOf(bk, ref) {
+    var v = validation(bk, ref);
+    if (!v || v.type !== 'list' || !v.formula1) return null;
+    var f = v.formula1.trim();
+    if (/^".*"$/.test(f)) return f.slice(1, -1).split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    var r = bk.ref(f, ref.sh);
+    if (!r) return null;
+    return bk.values(r).filter(function (x) { return typeof x === 'string' && x.trim(); }).map(function (x) { return x.trim(); });
+  }
+  function maxOf(bk, ref) {
+    var v = validation(bk, ref);
+    if (!v) return null;
+    var f1 = v.formula1 || '', f2 = v.formula2 || '', m;
+    if (v.type === 'custom' && (m = /<=\s*(\d+(?:[.,]\d+)?)/.exec(f1))) return +m[1].replace(',', '.');
+    if (v.type === 'custom' && (m = /<\s*(\d+(?:[.,]\d+)?)/.exec(f1))) return +m[1].replace(',', '.') - 1;
+    if ((v.type === 'whole' || v.type === 'decimal') && /^-?\d/.test(v.operator === 'between' ? f2 : f1)) {
+      if (v.operator === 'between') return +f2;
+      if (v.operator === 'lessThanOrEqual') return +f1;
+      if (v.operator === 'lessThan') return +f1 - 1;
+    }
+    return null;
+  }
+
+  function versionLabel(fileName, modified) {
+    var m = /(\d{2})[.\-_](\d{2})[.\-_](\d{4}|\d{2})(?!\d)/.exec(fileName || '');
+    if (m) return m[1] + '.' + m[2] + '.' + (m[3].length === 2 ? '20' + m[3] : m[3]);
+    var d = /^(\d{4})-(\d{2})-(\d{2})/.exec(modified || '');
+    return d ? d[3] + '.' + d[2] + '.' + d[1] : '';
+  }
+
+  function Engine(book, fileName) {
+    var bk = this.book = book, m;
+    this.fileName = fileName;
+    this.map = m = locate(bk);
+    this.label = versionLabel(fileName, bk.raw.modified);
+
+    var cats = listOf(bk, m.category) || Object.keys(AE.CATEGORIES);
+    cats.sort(function (a, b) { return (/стандарт/i.test(b) ? 1 : 0) - (/стандарт/i.test(a) ? 1 : 0); });
+    this.lists = { categories: cats, sexes: listOf(bk, m.sex) || ['мужской', 'женский'], oppv: m.oppv ? (listOf(bk, m.oppv) || ['Да', 'Нет']) : null };
+
+    function val(ref) { return ref ? num(bk.get(ref)) : NaN; }
+    var ages = [];
+    bk.sheet(m.dob.sh).cells.forEach(function (cell) {
+      var t = cell.f || '', re = /(^|[^\w.])x\s*<\s*(\d+(?:\.\d+)?)/g, a;
+      while ((a = re.exec(t))) ages.push(+a[2]);
+    });
+    var P = this.params = {
+      i: val(m.i), ind: val(m.ind), alfa: val(m.alfa), gamma: val(m.gamma), pm: val(m.pm), minPay: val(m.minPay),
+      maxGuarantee: maxOf(bk, m.gp), minAge: ages.length ? Math.min.apply(null, ages) : null,
+      minAgeStandard: ages.length > 1 ? Math.max.apply(null, ages) : null
+    };
+    if (!isFinite(P.ind)) throw new Error('В калькуляторе не читается индексация (ячейка с именем ind).');
+
+    /* какие формулы участвуют в расчёте и совпадают ли они с тем, что сохранил Excel */
+    var roots = ['status', 'x', 'x0', 'x_0', 'd', 'nax', 'ax', 'vd', 'threshold', 'minPay', 'minPayAtPension', 'paySign', 'first', 'pm']
+      .map(function (k) { return m[k]; }).filter(Boolean);
+    var list = bk.closure(roots);
+    this.formulas = list.length;
+    var unknown = bk.unsupported(list);
+    if (unknown.length) throw new Error('В калькуляторе есть функции Excel, которые генератор пока не считает: ' + unknown.join(', ') + '.');
+    var broken = bk.problems.filter(function (p) { return p.where && list.some(function (q) { return bk.addr(q[0], q[1], q[2]) === p.where; }); });
+    if (broken.length) throw new Error('Не разобрал формулу ' + broken[0].where + ': ' + broken[0].msg + '.');
+    this.check = bk.selfTest(list);
+
+    /* проверочный клиент: мужчина 50 лет, стандартный договор */
+    var now = new Date(), iso = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+    var probe = this.compute({ calcDate: iso(now), dob: (now.getFullYear() - 50) + '-01-15', sex: 'мужской', category: cats[0],
+                               oppv: 'Нет', guarantee: 0, savings: 50000000 });
+    if (probe.errors && probe.errors.length) throw new Error('Калькулятор не посчитал проверочного клиента: ' + probe.errors.join(' '));
+  }
+
+  Engine.prototype.pick = function (list, letter, fallback) {
+    if (!list) return fallback;
+    for (var i = 0; i < list.length; i++) if (list[i].charAt(0).toLowerCase() === letter) return list[i];
+    return fallback;
+  };
+
+  /* input — как у AnnuityEngine.compute */
+  Engine.prototype.compute = function (input) {
+    var bk = this.book, m = this.map, P = this.params, self = this;
+    var calcDate = AE.parseDate(input.calcDate), dob = AE.parseDate(input.dob), errors = [];
+    if (!calcDate) errors.push('Не указана дата расчёта');
+    if (!dob) errors.push('Не указана дата рождения');
+    if (errors.length) return { ok: false, errors: errors };
+    var category = input.category && this.lists.categories.indexOf(input.category) >= 0 ? input.category : this.lists.categories[0];
+    var gp = Math.max(0, Math.floor(+input.guarantee || 0));
+    var savings = Math.max(0, xround(+input.savings || 0));
+    var redemption = Math.max(0, xround(+input.redemption || 0));
+    var contribution = Math.max(0, xround(+input.contribution || 0));
+    var rate = input.dividendRate == null ? AE.TARIFF.dividendNet : +input.dividendRate;
+    var own = savings + redemption;
+    function serial(d) { return bk.serial(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+    function run(contrib) {
+      bk.reset();
+      bk.set(m.date, serial(calcDate));
+      bk.set(m.dob, serial(dob));
+      bk.set(m.sex, self.pick(self.lists.sexes, input.sex === 'женский' ? 'ж' : 'м', input.sex));
+      bk.set(m.category, category);
+      if (m.oppv) bk.set(m.oppv, self.pick(self.lists.oppv, input.oppv === 'Да' ? 'д' : 'н', input.oppv));
+      bk.set(m.gp, gp);
+      if (m.savings) bk.set(m.savings, savings);
+      if (m.redemption) bk.set(m.redemption, redemption);
+      if (m.contribution) bk.set(m.contribution, contrib);
+      if (m.bp) bk.set(m.bp, own + contrib);
+    }
+    function read(key, label) {
+      var v = bk.get(m[key]);
+      if (typeof v !== 'number' || !isFinite(v)) errors.push('калькулятор вернул «' + show(v) + '» в поле «' + label + '»');
+      return num(v);
+    }
+
+    run(contribution);
+    var threshold = read('threshold', 'минимальная премия');
+    var excelStatus = txt(bk.get(m.status));
+    var mode, premium, topup, dividend;
+    if (own + contribution >= threshold) {
+      mode = 'free'; premium = own + contribution; dividend = xround(premium * rate); topup = contribution;
+    } else {
+      mode = 'threshold'; premium = threshold; dividend = xround(premium * rate); topup = Math.max(0, premium - own - dividend);
+      run(premium - own);
+    }
+    var status = mode === 'free' ? excelStatus : txt(bk.get(m.status));
+    var x = read('x', 'возраст');
+    var x0 = m.x0 ? read('x0', 'возраст начала выплат') : read('x_0', 'возраст начала выплат');
+    var xStart = m.x_0 ? read('x_0', 'возраст начала выплат') : x0;
+    var d = m.d ? read('d', 'срок отсрочки') : Math.floor(xStart) - Math.floor(x);
+    var nax = read('nax', 'аннуитетный фактор');
+    var pay0 = read('paySign', 'выплата на дату заключения');
+    var first = read('first', 'выплата в момент выхода на пенсию');
+    if (errors.length) return { ok: false, errors: ['Не получилось посчитать: ' + errors.join('; ') + '.'] };
+
+    var startAgeInt = Math.floor(x) + d;
+    var T = {
+      version: this.label, source: 'xlsx', fileName: this.fileName,
+      i: P.i, ind: P.ind, alfa: P.alfa, gamma: P.gamma, pm: P.pm, minPayShare: P.pm ? P.minPay / P.pm : null,
+      maxGuarantee: P.maxGuarantee, minAge: P.minAge, minAgeStandard: P.minAgeStandard,
+      dividendNet: AE.TARIFF.dividendNet, horizon: AE.TARIFF.horizon
+    };
+    var warnings = [];
+    if (P.maxGuarantee != null && gp > P.maxGuarantee) warnings.push('Гарантированный период по калькулятору — не больше ' + P.maxGuarantee + ' лет');
+    return {
+      ok: status === 'ok', status: status, fundsStatus: own + contribution >= threshold ? 'ok' : 'недостаточно средств',
+      excelStatus: excelStatus, warnings: warnings, errors: [], enteredPremium: own + contribution,
+      tariff: T, table: null, category: category,
+      age: x, ageInt: Math.floor(x), months: Math.round(x * 12), startAge: x0, startAgeInt: startAgeInt, deferral: d,
+      guarantee: gp, ax: m.ax ? num(bk.get(m.ax)) : null, axNet: null, vd: m.vd ? num(bk.get(m.vd)) : null, nax: nax,
+      minPay: num(bk.get(m.minPay)), minPayAtPension: m.minPayAtPension ? num(bk.get(m.minPayAtPension)) : null, threshold: threshold,
+      savings: savings, redemption: redemption, contribution: contribution, premium: premium,
+      dividendRate: rate, dividend: dividend, topup: topup, mode: mode,
+      payAtSigning: xround(pay0), first: first, rows: AE.schedule(first, P.ind, startAgeInt, gp, T.horizon)
+    };
+  };
+
+  /* что изменилось по сравнению со встроенным калькулятором (строка под названием файла) */
+  var TABLES = { 'м_пенс': ['m_pens', 'мужчины'], 'ж_пенс': ['f_pens', 'женщины'],
+                 'м_5_29': ['m_5_29', 'мужчины 5–29%'], 'ж_5_29': ['f_5_29', 'женщины 5–29%'],
+                 'м_30_59': ['m_30_59', 'мужчины 30–59%'], 'ж_30_59': ['f_30_59', 'женщины 30–59%'],
+                 'м_60_89': ['m_60_89', 'мужчины 60–89%'], 'ж_60_89': ['f_60_89', 'женщины 60–89%'],
+                 'м_90_100': ['m_90_100', 'мужчины 90–100%'], 'ж_90_100': ['f_90_100', 'женщины 90–100%'] };
+  /* возраст начала выплат: пробуем клиентов, у которых он задан правилом, а не текущим возрастом */
+  var AGE_PROBES = [['женщин 1974\u00A0г.\u00A0р.', 'женский', '1974-03-01'], ['женщин 1975\u00A0г.\u00A0р. (I полугодие)', 'женский', '1975-03-01'],
+                    ['женщин 1975\u00A0г.\u00A0р. (II полугодие)', 'женский', '1975-09-01'], ['женщин 1976\u00A0г.\u00A0р. (I полугодие)', 'женский', '1976-03-01'],
+                    ['женщин, родившихся с июля 1976\u00A0г.', 'женский', '1976-09-01'], ['мужчин', 'мужской', '1976-03-01']];
+  Engine.prototype.diff = function (mort) {
+    var T = AE.TARIFF, P = this.params, out = [], bk = this.book, self = this;
+    function pct(v) { return String(Math.round(v * 10000) / 100).replace('.', ',') + '%'; }
+    function money(v) { return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₸'; }
+    function age(v) { return String(Math.round(v * 10) / 10).replace('.', ','); }
+    function cmp(label, now, was, f) { if (now != null && isFinite(now) && Math.abs(now - was) > 1e-12) out.push(label + ' ' + f(was) + ' → ' + f(now)); }
+    cmp('ставка', P.i, T.i, pct);
+    cmp('индексация', P.ind, T.ind, pct);
+    cmp('расходы от премии', P.alfa, T.alfa, pct);
+    cmp('расходы от выплаты', P.gamma, T.gamma, pct);
+    cmp('ПМ', P.pm, T.pm, money);
+    if (P.maxGuarantee != null && P.maxGuarantee !== T.maxGuarantee) out.push('гарантия до ' + P.maxGuarantee + ' лет');
+    var was = Object.keys(AE.CATEGORIES), now = this.lists.categories;
+    now.forEach(function (c) { if (was.indexOf(c) < 0) out.push('новая категория «' + c + '»'); });
+    was.forEach(function (c) { if (now.indexOf(c) < 0) out.push('нет категории «' + c + '»'); });
+    if (mort) {
+      var std = now.filter(function (c) { return /стандарт/i.test(c); })[0] || now[0];
+      AGE_PROBES.forEach(function (p) {
+        var input = { calcDate: '2020-01-01', dob: p[2], sex: p[1], category: std, oppv: 'Нет', guarantee: 0, savings: 1e9 };
+        var a = self.compute(input), b = AE.compute(input, mort);
+        if (a.startAge != null && b.startAge != null && Math.abs(a.startAge - b.startAge) > 1e-9) out.push('старт выплат у ' + p[0] + ' ' + age(b.startAge) + ' → ' + age(a.startAge));
+      });
+      var changed = [];
+      Object.keys(TABLES).forEach(function (n) {
+        var r = bk.nameRef(n), t = mort[TABLES[n][0]];
+        if (!r || !t) return;
+        var q = bk.values(r);
+        for (var k = 0; k < Math.max(q.length, t.q.length); k++) {
+          var x = typeof q[k] === 'number' ? q[k] : null, y = t.q[k] != null ? t.q[k] : null;
+          if (x === null && y === null) continue;
+          if (x === null || y === null || Math.abs(x - y) > 1e-12) { changed.push(TABLES[n][1]); break; }
+        }
+      });
+      if (changed.length) out.push('таблицы смертности: ' + changed.join(', '));
+    }
+    return out;
+  };
+
+  function load(bytes, fileName, inflateRaw) {
+    return XR.read(bytes, inflateRaw).then(function (raw) { return new Engine(new FB.Book(raw), fileName || 'калькулятор.xlsx'); });
+  }
+
+  root.XlsxCalculator = { load: load, Engine: Engine };
 })(this);
 
 /*
@@ -424,7 +2049,9 @@ button,input,select{font:inherit;color:inherit}
     var s = (Math.abs(r - Math.round(r)) < 1e-9 ? String(Math.round(r)) : r.toFixed(1)).replace('.', ',');
     return '×' + s;
   }
-  function pct(v) { return Math.round(v * 100) + '%'; }
+  /* 0,11 → 11 · 0,075 → 7,5 — проценты тарифа бывают дробными */
+  function pctNum(v) { return String(Math.round(v * 10000) / 100).replace('.', ','); }
+  function pct(v) { return pctNum(v) + '%'; }
 
   /* 1 год · 2 года · 5 лет · 21 год · 61 год */
   function yearsWord(n) {
@@ -441,6 +2068,11 @@ button,input,select{font:inherit;color:inherit}
   /* возраст начала выплат может быть дробным: 54,5 года */
   function ageLabel(a) {
     if (Math.abs(a - Math.round(a)) < 1e-9) return years(Math.round(a));
+    return String(Math.round(a * 10) / 10).replace('.', ',') + ' года';
+  }
+  /* после «с»: с 55 лет, с 54 лет, с 51 года, с 54,5 года */
+  function ageFrom(a) {
+    if (Math.abs(a - Math.round(a)) < 1e-9) { var n = Math.round(a); return n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'года' : 'лет'); }
     return String(Math.round(a * 10) / 10).replace('.', ',') + ' года';
   }
   function ageNum(a) {
@@ -548,6 +2180,7 @@ button,input,select{font:inherit;color:inherit}
     /* ── производные для шаблона ── */
     var immediate = calc.deferral === 0;
     var startLabel = immediate ? years(s0) : ageLabel(calc.startAge);
+    var startGen = immediate ? ageFrom(s0) : ageFrom(calc.startAge);
     var startNum = immediate ? String(s0) : ageNum(calc.startAge);
     var headline = scenario === 'no-topup' ? 'Доступен без доплаты'
       : scenario === 'small-topup' ? 'Доступен с небольшой доплатой' : 'Доступен с доплатой';
@@ -609,7 +2242,7 @@ button,input,select{font:inherit;color:inherit}
     if (immediate) points.push({ age: calc.ageInt, now: true, title: 'Сегодня — первая выплата', text: 'от ' + tenge(first) + ' в месяц сразу после оформления' });
     else {
       points.push({ age: calc.ageInt, now: true, title: 'Сегодня — вы здесь', text: 'расчёт подготовлен, выплат ещё нет' });
-      points.push({ age: s0, title: 'Первая выплата', text: 'от ' + tenge(first) + ' в месяц, дальше +' + Math.round(ind * 100) + '% каждый год' });
+      points.push({ age: s0, title: 'Первая выплата', text: 'от ' + tenge(first) + ' в месяц, дальше +' + pct(ind) + ' каждый год' });
     }
     points.push({ age: payback.age, title: 'Сумма перевода вернулась', text: 'получено ' + tenge(payback.cum) + ' — больше, чем переведено' });
     if (hasGuar) points.push({ age: afterGuar, title: 'Гарантия завершена', text: tenge(at(afterGuar).m) + ' в месяц, выплаты продолжаются' });
@@ -618,10 +2251,10 @@ button,input,select{font:inherit;color:inherit}
 
     var perks = [
       earlyYears > 0
-        ? { icon: 'clock', big: 'с ' + startLabel, title: 'Выплаты раньше на ' + years(earlyYears), note: tenge(early.cum) + ' придёт за эти годы' }
-        : { icon: 'clock', big: immediate ? 'сразу' : 'с ' + startLabel, title: 'Выплаты без ожидания', note: 'первая выплата — ' + tenge(first) },
+        ? { icon: 'clock', big: 'с ' + startGen, title: 'Выплаты раньше на ' + years(earlyYears), note: tenge(early.cum) + ' придёт за эти годы' }
+        : { icon: 'clock', big: immediate ? 'сразу' : 'с ' + startGen, title: 'Выплаты без ожидания', note: 'первая выплата — ' + tenge(first) },
       { icon: 'inf', big: 'пожизненно', title: 'Выплаты не заканчиваются', note: 'после ' + genYears(payback.age) + ' договор продолжает действовать' },
-      { icon: 'trend', big: '+' + Math.round(ind * 100) + '%', title: 'Индексация каждый год', note: tenge(first) + ' → ' + tenge(at(late).m) + ' ' + toYears(late) },
+      { icon: 'trend', big: '+' + pct(ind), title: 'Индексация каждый год', note: tenge(first) + ' → ' + tenge(at(late).m) + ' ' + toYears(late) },
       hasGuar ? { icon: 'shield', big: years(gp), title: 'Гарантийный период', note: 'выплаты сохраняются за близкими' }
               : { icon: 'shield', big: times(total100.cum / premium), title: 'Возврат перевода', note: 'во столько раз больше вернётся ' + toYears(total100.age) },
       { icon: 'home', big: 'ФГСВ', title: 'Защита по закону', note: 'если компания лишится лицензии' },
@@ -669,7 +2302,7 @@ button,input,select{font:inherit;color:inherit}
     function barTip(a) {
       var lines = ['Получено ' + toYears(a) + ' — ' + money(at(a).cum) + NB + '₸', 'Складывается из ежемесячных выплат:'];
       for (var q = s0; q <= a; q += 5) lines.push('  ' + years(q) + ' — по ' + money(at(q).m) + NB + '₸ в месяц');
-      lines.push('Каждый год выплата растёт на ' + Math.round(ind * 100) + '%');
+      lines.push('Каждый год выплата растёт на ' + pct(ind));
       return lines.join('\n');
     }
 
@@ -685,8 +2318,8 @@ button,input,select{font:inherit;color:inherit}
 
     return {
       calc: calc, client: client, agent: agent,
-      headline: headline, immediate: immediate, startLabel: startLabel, startNum: startNum,
-      startFrom: immediate ? 'сразу после оформления' : 'с ' + startLabel,
+      headline: headline, immediate: immediate, startLabel: startLabel, startGen: startGen, startNum: startNum,
+      startFrom: immediate ? 'сразу после оформления' : 'с ' + startGen,
       mid: mid, late: late, pbTo: pbTo, resultIntro: resultIntro, pieParts: pieParts, metrics: metrics,
       facts: facts, points: points, perks: perks, earlyTitle: earlyTitle, minitab: minitab, mults: mults,
       mileAges: mileAges, cmpAges: cmpAges, slotAges: slotAges, scaleAges: scaleAges,
@@ -720,7 +2353,7 @@ button,input,select{font:inherit;color:inherit}
       first: first, premium: premium, threshold: calc.threshold, savings: calc.savings,
       redemption: calc.redemption, dividend: calc.dividend, dividendRate: calc.dividendRate,
       topup: calc.topup, contribution: calc.contribution,
-      start: calc.startAge, s0: s0, gp: gp, indPct: Math.round(ind * 100), deferral: calc.deferral,
+      start: calc.startAge, s0: s0, gp: gp, indPct: pctNum(ind), minPayPct: pctNum(Math.round((calc.tariff.minPayShare || 0.7) * 1000) / 1000), deferral: calc.deferral,
       scenario: scenario, rows: R, at: at, payback: payback,
       guarLast: guarLast, afterGuar: afterGuar, enpf: enpf, earlyYears: earlyYears, early: early,
       decades: decades, total: total100, horizon: total100.age,
@@ -1173,10 +2806,10 @@ button,input,select{font:inherit;color:inherit}
       <div>
         <span class="hero__badge"><i>${E(M.initials)}</i>Расчёт подготовлен для ${E(M.nameGen)}</span>
         <h1>${M.headline}</h1>
-        <p class="hero__lead">По вашим данным — ${M.sexWord}, ${Y(M.age)}, накопления ${T(M.savings)} — пенсионные накопления превращаются в пожизненный ежемесячный доход ${M.immediate ? 'сразу после оформления' : 'с ' + M.startLabel.replace(' ', '&#160;')}, с ежегодной индексацией${M.gp > 0 ? ' и гарантийным периодом' : ''}.</p>
+        <p class="hero__lead">По вашим данным — ${M.sexWord}, ${Y(M.age)}, накопления ${T(M.savings)} — пенсионные накопления превращаются в пожизненный ежемесячный доход ${M.immediate ? 'сразу после оформления' : 'с ' + M.startGen.replace(' ', '&#160;')}, с ежегодной индексацией${M.gp > 0 ? ' и гарантийным периодом' : ''}.</p>
         <div class="chips">
           <span class="chip"><i></i>${M.sexWordCap} · ${Y(M.age)}</span>
-          <span class="chip"><i></i>${M.immediate ? 'Выплаты сразу' : 'Выплаты с ' + M.startLabel}</span>
+          <span class="chip"><i></i>${M.immediate ? 'Выплаты сразу' : 'Выплаты с ' + M.startGen}</span>
           <span class="chip"><i></i>${M.gp > 0 ? 'Гарантия ' + Y(M.gp) : 'Без гарантийного периода'}</span>
           <span class="chip"><i></i>Индексация ${M.indPct}%</span>
         </div>
@@ -1187,9 +2820,9 @@ button,input,select{font:inherit;color:inherit}
           Ориентир первой выплаты
         </div>
         <div class="outcome__amount num"><span class="outcome__from">от</span><span class="cnt" data-count="${M.first}">${H(M.first)}</span><span class="cur">₸</span></div>
-        <p class="outcome__sub">в месяц ${M.immediate ? 'сразу после оформления' : 'с ' + M.startLabel} — дальше выплата растёт каждый год</p>
+        <p class="outcome__sub">в месяц ${M.immediate ? 'сразу после оформления' : 'с ' + M.startGen} — дальше выплата растёт каждый год</p>
         <div class="outcome__facts">
-          <div><b>${M.immediate ? 'сразу' : 'с ' + M.startLabel}</b><span>начинаются выплаты</span></div>
+          <div><b>${M.immediate ? 'сразу' : 'с ' + M.startGen}</b><span>начинаются выплаты</span></div>
           <div><b class="num">до ${T(M.total.m)}</b><span>в месяц ${M.toYears(M.horizon)}</span></div>
 
         </div>
@@ -1343,7 +2976,7 @@ ${B.agePick(M)}
       <div class="client-bar__facts">
         <div><span>Накопления в ЕНПФ</span><b class="num"><span class="cnt" data-count="${M.savings}">${H(M.savings)}</span>&#160;₸</b></div>
         <div><span>Первая выплата</span><b class="num">от <span class="cnt" data-count="${M.first}">${H(M.first)}</span>&#160;₸</b></div>
-        <div><span>Старт выплат</span><b>${M.immediate ? 'сразу' : 'с ' + M.startLabel}</b></div>
+        <div><span>Старт выплат</span><b>${M.immediate ? 'сразу' : 'с ' + M.startGen}</b></div>
       </div>
     </div>
 
@@ -1358,7 +2991,7 @@ ${B.agePick(M)}
       </div>
       <div class="pcard">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2.1"/></svg></span>
-        <div><span>Начало выплат</span><b>${M.immediate ? 'Сразу' : 'С ' + M.startLabel}</b><small>${M.immediate ? 'немедленный аннуитет: выплаты начинаются после оформления' : 'отложенный аннуитет: до старта остаётся ' + Y(M.deferral)}</small></div>
+        <div><span>Начало выплат</span><b>${M.immediate ? 'Сразу' : 'С ' + M.startGen}</b><small>${M.immediate ? 'немедленный аннуитет: выплаты начинаются после оформления' : 'отложенный аннуитет: до старта остаётся ' + Y(M.deferral)}</small></div>
       </div>
       <div class="pcard">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.8c4.5-1.7 7.3-5.4 7.3-9.6V6.4L12 3.4 4.7 6.4v4.8c0 4.2 2.8 7.9 7.3 9.6Z"/><path d="m9.1 11.9 2.2 2.2 4.1-4.3"/></svg></span>
@@ -1410,7 +3043,7 @@ ${B.stackKey(M)}
           <span class="note-card__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16.5v-5.2M12 8.2h.01"/></svg></span>
           <div>
             <b>Почему порог именно такой</b>
-            <p>Выплата не может быть ниже 70% прожиточного минимума — отсюда и минимальная сумма перевода: ${T(M.threshold)}.</p>
+            <p>Выплата не может быть ниже ${M.minPayPct}% прожиточного минимума — отсюда и минимальная сумма перевода: ${T(M.threshold)}.</p>
 
           </div>
         </div>
@@ -1675,7 +3308,7 @@ ${B.decades(M)}
     <div class="acc-group">
         <details class="acc">
           <summary><span class="acc__n">01</span><span class="acc__q">Какая сумма накоплений считается достаточной?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Когда месячная выплата выходит не ниже 70% прожиточного минимума. В вашем случае это ${T(M.threshold)}.</p></div>
+          <div class="acc__body"><p>Когда месячная выплата выходит не ниже ${M.minPayPct}% прожиточного минимума. В вашем случае это ${T(M.threshold)}.</p></div>
         </details>
         <details class="acc">
           <summary><span class="acc__n">02</span><span class="acc__q">Когда придёт первая выплата?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
@@ -1695,7 +3328,7 @@ ${B.decades(M)}
         </details>
         <details class="acc">
           <summary><span class="acc__n">06</span><span class="acc__q">Можно ли изменить условия договора?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Да, дополнительным соглашением. Выплата при этом не может стать ниже 70% прожиточного минимума.</p></div>
+          <div class="acc__body"><p>Да, дополнительным соглашением. Выплата при этом не может стать ниже ${M.minPayPct}% прожиточного минимума.</p></div>
         </details>
         <details class="acc">
           <summary><span class="acc__n">07</span><span class="acc__q">Что будет с деньгами в случае смерти?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
@@ -1736,7 +3369,7 @@ ${B.decades(M)}
         </details>
         <details class="acc acc--term">
           <summary><span class="acc__n">06</span><span class="acc__q">Достаточность накоплений</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Порог для договора: выплата не ниже 70% прожиточного минимума (1,4 — если договор на двоих).</p></div>
+          <div class="acc__body"><p>Порог для договора: выплата не ниже ${M.minPayPct}% прожиточного минимума (1,4 — если договор на двоих).</p></div>
         </details>
         <details class="acc acc--term">
           <summary><span class="acc__n">07</span><span class="acc__q">Выкупная сумма</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
@@ -2062,6 +3695,8 @@ ${B.contactAsk(M)}
   }
   root.ReportKit = { render: render, model: function (c, cl, ag) { return root.ReportModel.build(c, cl, ag); },
     compute: function (input) { return root.AnnuityEngine.compute(input, MORT); }, MORT: MORT,
+    loadCalculator: function (bytes, name, inflate) { return root.XlsxCalculator.load(bytes, name, inflate); },
+    tariff: root.AnnuityEngine.TARIFF, categories: Object.keys(root.AnnuityEngine.CATEGORIES),
     fonts: ASSETS.fonts, genitive: root.ReportModel.genitiveName, dateRu: root.ReportModel.dateRu };
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
@@ -2117,7 +3752,40 @@ ${B.contactAsk(M)}
   function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
 
   function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-  $('calcDate').value = iso(new Date());
+
+  /* ── даты: 050482, 05041982, 5.4.82, 05.04.1982, 1982-04-05 → 05.04.1982 ──
+     '' — поле пустое, null — не дата, иначе ГГГГ-ММ-ДД */
+  function parseDay(s) {
+    s = String(s || '').trim();
+    if (!s) return '';
+    var m, d, mo, y;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s))) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else if ((m = /^(\d{1,2})[.\/\-, ]+(\d{1,2})[.\/\-, ]+(\d{2}|\d{4})\s*(г\.?)?$/.exec(s))) { d = +m[1]; mo = +m[2]; y = m[3]; }
+    else if ((m = /^(\d{2})(\d{2})(\d{2}|\d{4})$/.exec(s.replace(/\s+/g, '')))) { d = +m[1]; mo = +m[2]; y = m[3]; }
+    else return null;
+    if (typeof y === 'string') {
+      // две цифры года: 82 → 1982, 26 → 2026 — век, при котором дата не в будущем
+      if (y.length === 2) { var yy = +y; y = 2000 + yy > new Date().getFullYear() ? 1900 + yy : 2000 + yy; } else y = +y;
+    }
+    var dt = new Date(y, mo - 1, d);
+    if (y < 1900 || dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+    return iso(dt);
+  }
+  function dayText(v) { var p = v.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+  Array.prototype.forEach.call(document.querySelectorAll('.gdate'), function (el) {
+    function tidy() {
+      var v = parseDay(el.value);
+      if (v) el.value = dayText(v);
+      el.classList.toggle('is-bad', v === null);
+    }
+    el.addEventListener('blur', tidy);
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter') tidy(); });
+    el.addEventListener('input', function () {
+      el.classList.remove('is-bad');
+      if (/^\d{8}$/.test(el.value.trim())) tidy(); // 05041982 — дата полная, сразу 05.04.1982
+    });
+  });
+  $('calcDate').value = dayText(iso(new Date()));
 
   /* ── города: республиканского значения и 17 областных центров ── */
   var CITIES = [
@@ -2156,9 +3824,9 @@ ${B.contactAsk(M)}
 
   /* ── сбор данных формы ── */
   function readForm() {
-    var gp = Math.max(0, Math.min(10, Math.floor(+$('guarantee').value || 0)));
-    var calcDate = radio('dateMode') === 'custom' ? $('calcDate').value : iso(new Date());
-    var input = { calcDate: calcDate, dob: $('dob').value, sex: radio('sex'), category: $('category').value,
+    var gp = Math.max(0, Math.min(maxGuarantee(), Math.floor(+$('guarantee').value || 0)));
+    var calcDate = radio('dateMode') === 'custom' ? parseDay($('calcDate').value) : iso(new Date());
+    var input = { calcDate: calcDate, dob: parseDay($('dob').value), sex: radio('sex'), category: $('category').value,
                   oppv: radio('oppv'), guarantee: gp, savings: num($('savings').value), redemption: num($('redemption').value),
                   contribution: num($('contribution').value), dividendRate: Math.max(0, +$('dividendRate').value || 0) / 100 };
     var client = { name: $('clientName').value.trim(), nameGen: $('clientGen').value.trim(), sex: input.sex,
@@ -2181,7 +3849,11 @@ ${B.contactAsk(M)}
       return;
     }
     var c = st.calc, cls = '', head = '', text = '';
-    if (c.status !== 'ok') { cls = 'bad'; head = 'Договор недоступен'; text = 'Калькулятор: «' + c.status + '». Клиенту должно быть не меньше 45 лет (для категории «Стандартный»).'; }
+    if (c.status !== 'ok') {
+      var minStd = c.tariff && c.tariff.minAgeStandard;
+      cls = 'bad'; head = 'Договор недоступен';
+      text = 'Калькулятор: «' + c.status + '».' + (minStd ? ' Клиенту должно быть не меньше ' + minStd + ' лет (для категории «Стандартный»).' : '');
+    }
     else if (c.mode === 'threshold') { cls = 'warn'; head = 'Своих средств меньше порога'; text = 'КП оформится по порогу: клиенту нужно доплатить ' + T(c.topup) + (c.dividend > 0 ? ' (с учётом дивиденда)' : '') + '.'; }
     var pay = st.model ? st.model.payback : null;
     box.innerHTML = '<h2><i>4</i>Расчёт</h2>' +
@@ -2207,10 +3879,14 @@ ${B.contactAsk(M)}
     var f = readForm();
     if (!f.agent.name || !f.agent.phone) return { ready: false, msg: 'Заполните блок «Агент»: имя и телефон.' };
     if (!f.client.name) return { ready: false, msg: 'Укажите имя клиента.' };
+    if (f.input.dob === null) return { ready: false, msg: 'Проверьте дату рождения — например, 05.04.1982.' };
     if (!f.input.dob) return { ready: false, msg: 'Укажите дату рождения клиента.' };
+    if (f.input.calcDate === null) return { ready: false, msg: 'Проверьте дату расчёта — например, ' + dayText(iso(new Date())) + '.' };
     if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта — или выберите «сегодня».' };
     if (!f.input.savings && !f.input.redemption && !f.input.contribution) return { ready: false, msg: 'Укажите накопления в ЕНПФ.' };
-    var calc = K.compute(f.input);
+    var calc;
+    try { calc = ENGINE ? ENGINE.compute(f.input) : K.compute(f.input); }
+    catch (e) { return { ready: false, msg: 'Калькулятор не посчитал: ' + e.message }; }
     if (calc.errors && calc.errors.length) return { ready: false, msg: calc.errors.join(' ') };
     var model = null;
     try { model = K.model(calc, f.client, f.agent); } catch (e) { model = null; }
@@ -2312,6 +3988,114 @@ ${B.contactAsk(M)}
     });
   });
 
+  /* ── калькулятор: встроенный или загруженный .xlsx — тогда считаем по формулам самого файла ── */
+  var ENGINE = null, CALC_KEY = 'kp-calc-v1', calcNote = null;
+  function maxGuarantee() {
+    var t = ENGINE ? ENGINE.params.maxGuarantee : K.tariff.maxGuarantee;
+    return t == null ? 30 : t;
+  }
+  function pctText(v) { return String(Math.round(v * 10000) / 100).replace('.', ',') + '%'; }
+  function escHtml(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function toB64(u8) { var s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+  function fromB64(b) { var s = atob(b), u8 = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u8[i] = s.charCodeAt(i); return u8; }
+
+  function renderCalc() {
+    var t = K.tariff;
+    var P = ENGINE ? ENGINE.params : { i: t.i, ind: t.ind, pm: t.pm, minPay: Math.ceil(t.pm * t.minPayShare), maxGuarantee: t.maxGuarantee };
+    var label = ENGINE ? ENGINE.label : t.version;
+    $('calcName').textContent = ENGINE ? ENGINE.fileName : 'Встроенный калькулятор';
+    $('calcMeta').textContent = ENGINE ? 'считаю по формулам этого файла' : 'тариф от ' + label;
+    $('calcBtn').textContent = ENGINE ? 'Заменить' : 'Загрузить .xlsx';
+    $('calcReset').hidden = !ENGINE;
+    var chips = [];
+    if (isFinite(P.i)) chips.push('ставка ' + pctText(P.i));
+    if (isFinite(P.ind)) chips.push('индексация ' + pctText(P.ind));
+    if (isFinite(P.pm)) chips.push('ПМ ' + T(P.pm));
+    if (isFinite(P.minPay)) chips.push('мин. выплата ' + T(P.minPay));
+    if (P.maxGuarantee != null) chips.push('гарантия до ' + P.maxGuarantee + ' лет');
+    $('calcChips').innerHTML = chips.map(function (c) { return '<span>' + escHtml(c) + '</span>'; }).join('');
+
+    var msg = calcNote;
+    if (!msg && ENGINE) {
+      var ck = ENGINE.check, diff = ENGINE.diff(K.MORT), lines = [];
+      if (diff.length) { lines.push('Изменилось:'); diff.forEach(function (d) { lines.push('· ' + d); }); }
+      if (ck.bad.length) {
+        msg = { cls: 'warn', lines: lines.concat(['Проверка: ' + ck.bad.length + ' из ' + ck.checked + ' формул считаются не так, как сохранил Excel (' +
+          ck.bad.slice(0, 3).map(function (b) { return b.addr; }).join(', ') + '). Сверьте цифры КП с Excel.']) };
+      } else {
+        lines.push(ck.checked ? 'Формулы проверены: ' + ck.checked + ' из ' + ck.checked + ' совпадают с Excel.' : 'В файле нет сохранённых результатов Excel — сверить формулы не с чем.');
+        msg = { cls: diff.length ? 'info' : 'ok', lines: lines };
+      }
+    }
+    var box = $('calcMsg');
+    box.hidden = !msg;
+    if (msg) { box.className = 'gcalc__msg ' + msg.cls; box.innerHTML = msg.lines.map(function (l) { return '<span>' + escHtml(l) + '</span>'; }).join(''); }
+    $('ver').textContent = 'калькулятор' + (label ? ' от ' + label : ': ' + ENGINE.fileName);
+  }
+  function applyLists() {
+    var cats = ENGINE ? ENGINE.lists.categories : K.categories, sel = $('category'), cur = sel.value;
+    sel.innerHTML = cats.map(function (c) { return '<option>' + escHtml(c) + '</option>'; }).join('');
+    sel.value = cats.indexOf(cur) >= 0 ? cur : cats[0];
+    var g = $('guarantee'), max = maxGuarantee();
+    g.max = max;
+    if (+g.value > max) g.value = max;
+  }
+  function afterCalc() { renderCalc(); applyLists(); schedule(); }
+
+  function loadCalc(u8, name, persist) {
+    calcNote = { cls: 'info', lines: ['Открываю «' + name + '»…'] };
+    renderCalc();
+    return K.loadCalculator(u8, name).then(function (E) {
+      ENGINE = E; calcNote = null;
+      if (persist) {
+        try { localStorage.setItem(CALC_KEY, JSON.stringify({ name: name, b64: toB64(u8) })); }
+        catch (e) { calcNote = { cls: 'warn', lines: ['Файл загружен, но браузер не дал его запомнить — при следующем открытии загрузите его снова.'] }; }
+      }
+      afterCalc();
+    }, function (e) {
+      calcNote = { cls: 'bad', lines: ['Не получилось открыть «' + name + '»: ' + e.message,
+        ENGINE ? 'Считаю по прежнему файлу.' : 'Считаю по встроенному калькулятору.'] };
+      renderCalc();
+    });
+  }
+  function loadFile(file) {
+    if (!file) return;
+    if (!/\.xls[xm]$/i.test(file.name)) {
+      calcNote = { cls: 'bad', lines: [/\.xls$/i.test(file.name) ? 'Это старый формат .xls — откройте файл в Excel и сохраните как .xlsx.' : 'Нужен файл калькулятора в формате .xlsx.'] };
+      renderCalc();
+      return;
+    }
+    file.arrayBuffer().then(function (b) { return loadCalc(new Uint8Array(b), file.name, true); });
+  }
+  function restoreCalc() {
+    var saved = null, u8;
+    try { saved = JSON.parse(localStorage.getItem(CALC_KEY) || 'null'); } catch (e) {}
+    if (!saved || !saved.b64) return Promise.resolve();
+    try { u8 = fromB64(saved.b64); } catch (e) { return Promise.resolve(); }
+    return K.loadCalculator(u8, saved.name).then(function (E) { ENGINE = E; }, function (e) {
+      try { localStorage.removeItem(CALC_KEY); } catch (x) {}
+      calcNote = { cls: 'bad', lines: ['Сохранённый калькулятор «' + saved.name + '» не открылся: ' + e.message, 'Считаю по встроенному — загрузите файл заново.'] };
+    });
+  }
+  $('calcFile').addEventListener('change', function () { loadFile(this.files[0]); this.value = ''; });
+  $('calcReset').addEventListener('click', function () {
+    ENGINE = null; calcNote = null;
+    try { localStorage.removeItem(CALC_KEY); } catch (e) {}
+    afterCalc();
+  });
+
+  /* файл можно просто перетащить на страницу */
+  var dragDepth = 0;
+  function hasFiles(e) { return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0; }
+  window.addEventListener('dragenter', function (e) { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; $('drop').classList.add('on'); });
+  window.addEventListener('dragover', function (e) { if (hasFiles(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', function (e) { if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; $('drop').classList.remove('on'); } });
+  window.addEventListener('drop', function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; $('drop').classList.remove('on');
+    loadFile(e.dataTransfer.files[0]);
+  });
+
   /* ── вид предпросмотра ── */
   Array.prototype.forEach.call(document.querySelectorAll('.gview button'), function (b) {
     b.addEventListener('click', function () {
@@ -2321,10 +4105,13 @@ ${B.contactAsk(M)}
   });
 
   /* для автоматических проверок */
-  window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName };
+  window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName, loadCalc: loadCalc, parseDay: parseDay,
+                  engine: function () { return ENGINE; } };
 
   loadAgent();
   syncExtras();
+  renderCalc();
+  applyLists();
   $('form').addEventListener('input', function (e) {
     if (e.target.hasAttribute('data-agent')) saveAgent();
     schedule();
@@ -2339,6 +4126,7 @@ ${B.contactAsk(M)}
     schedule();
   });
   update();
+  restoreCalc().then(afterCalc);
 })();
 </script>
 </body>

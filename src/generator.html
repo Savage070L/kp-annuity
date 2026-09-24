@@ -87,6 +87,33 @@ button,input,select{font:inherit;color:inherit}
 .gbusy.on{display:grid}
 .gbusy div{padding:16px 20px;border-radius:14px;background:#fff;box-shadow:0 12px 34px rgba(20,42,82,.18);font-weight:700}
 
+.gfield input.is-bad{border-color:var(--bad);box-shadow:0 0 0 3px rgba(179,38,30,.12);background:#fff}
+.gcalc .gcard__ic{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--green-soft);color:var(--green-dark)}
+.gcalc .gcard__ic svg{width:15px;height:15px}
+.gcalc__row{display:flex;align-items:center;gap:10px}
+.gcalc__name{flex:1;min-width:0}
+.gcalc__name b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+.gcalc__name span{display:block;color:var(--muted);font-size:12px}
+.gcalc__chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.gcalc__chips span{padding:3px 9px;border-radius:999px;background:#EEF3F8;color:var(--blue-dark);font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gcalc__msg{display:flex;flex-direction:column;gap:3px;margin-top:10px;padding:9px 11px;border-radius:var(--r-s);font-size:12.3px;line-height:1.4}
+.gcalc__msg[hidden]{display:none}
+.gcalc__msg.ok{background:var(--green-soft);color:var(--green-dark)}
+.gcalc__msg.info{background:#EEF3F8;color:var(--blue-dark)}
+.gcalc__msg.warn{background:var(--warn-soft);color:var(--warn)}
+.gcalc__msg.bad{background:var(--bad-soft);color:var(--bad)}
+.gfile{position:relative;flex:none;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue-dark);font-size:12.5px;font-weight:800;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.gfile:hover,.gfile:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(71,144,60,.14)}
+.gfile svg{width:15px;height:15px}
+.gfile input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.glink{flex:none;padding:0;border:0;background:none;color:var(--muted);font-size:12px;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.glink[hidden]{display:none}
+.gdrop{position:fixed;inset:0;z-index:30;display:none;place-items:center;background:rgba(20,42,82,.6);backdrop-filter:blur(2px)}
+.gdrop.on{display:grid}
+.gdrop div{padding:22px 28px;border:2px dashed rgba(255,255,255,.7);border-radius:18px;color:#fff;font-size:17px;font-weight:800;text-align:center}
+.gdrop small{display:block;margin-top:4px;color:#DCE8F4;font-size:12.5px;font-weight:400}
+@media(max-width:420px){.gcalc__row{flex-wrap:wrap}.gcalc__name{flex-basis:100%}.gfile{flex:1;justify-content:center}}
+
 @media(max-width:980px){
   .gwrap{grid-template-columns:1fr;padding:12px}
   .gpreview{position:static;height:78vh}
@@ -105,6 +132,21 @@ button,input,select{font:inherit;color:inherit}
 
 <main class="gwrap">
   <form class="gform" id="form" autocomplete="off" onsubmit="return false">
+
+    <section class="gcard gcalc" id="calcCard">
+      <h2><span class="gcard__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15h.01M8.5 18h.01M12 18h3.5"/></svg></span>Калькулятор</h2>
+      <div class="gcalc__row">
+        <div class="gcalc__name"><b id="calcName">Встроенный</b><span id="calcMeta"></span></div>
+        <label class="gfile" title="Файл калькулятора компании в формате .xlsx">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>
+          <span id="calcBtn">Загрузить .xlsx</span>
+          <input type="file" id="calcFile" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </label>
+      </div>
+      <div class="gcalc__chips" id="calcChips"></div>
+      <div class="gcalc__msg" id="calcMsg" hidden></div>
+      <div class="gcalc__row" style="margin-top:8px"><button type="button" class="glink" id="calcReset" hidden>Вернуть встроенный калькулятор</button></div>
+    </section>
 
     <section class="gcard">
       <h2><i>1</i>Агент</h2>
@@ -132,7 +174,7 @@ button,input,select{font:inherit;color:inherit}
       <div class="grow">
         <div class="gfield"><label>Пол</label>
           <div class="gseg"><input type="radio" name="sex" id="s-m" value="мужской" checked><label for="s-m">мужской</label><input type="radio" name="sex" id="s-f" value="женский"><label for="s-f">женский</label></div></div>
-        <div class="gfield"><label for="dob">Дата рождения</label><input id="dob" type="date"></div>
+        <div class="gfield"><label for="dob">Дата рождения</label><input id="dob" class="gdate" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" maxlength="10"></div>
       </div>
       <div class="grow">
         <div class="gfield"><label for="clientCity">Город клиента</label><select id="clientCity" data-cities></select>
@@ -140,7 +182,7 @@ button,input,select{font:inherit;color:inherit}
         <div class="gfield"><label>Дата расчёта</label>
           <div class="gseg"><input type="radio" name="dateMode" id="dm-today" value="today" checked><label for="dm-today">сегодня</label><input type="radio" name="dateMode" id="dm-custom" value="custom"><label for="dm-custom">указать</label></div>
           <span class="hint" id="todayHint"></span>
-          <input id="calcDate" class="gextra" type="date" hidden></div>
+          <input id="calcDate" class="gextra gdate" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" maxlength="10" hidden></div>
       </div>
     </section>
 
@@ -148,13 +190,7 @@ button,input,select{font:inherit;color:inherit}
       <h2><i>3</i>Параметры договора</h2>
       <div class="grow">
         <div class="gfield"><label for="category">Категория</label>
-          <select id="category">
-            <option>Стандартный</option>
-            <option>ОППВ 60 мес</option>
-            <option>Инвалидность 3гр (30-59%) бессрочно</option>
-            <option>Инвалидность 2гр (60-89%) бессрочно</option>
-            <option>Инвалидность 1гр (90-100%) бессрочно</option>
-          </select></div>
+          <select id="category"></select></div>
         <div class="gfield"><label>ОППВ более 60 мес.</label>
           <div class="gseg"><input type="radio" name="oppv" id="o-n" value="Нет" checked><label for="o-n">нет</label><input type="radio" name="oppv" id="o-y" value="Да"><label for="o-y">да</label></div></div>
       </div>
@@ -195,6 +231,7 @@ button,input,select{font:inherit;color:inherit}
   </section>
 </main>
 <div class="gbusy" id="busy"><div>Готовлю файл…</div></div>
+<div class="gdrop" id="drop"><div>Отпустите файл калькулятора<small>.xlsx — генератор будет считать по его формулам</small></div></div>
 
 <!--@KIT-->
 <script>
@@ -249,7 +286,40 @@ button,input,select{font:inherit;color:inherit}
   function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
 
   function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-  $('calcDate').value = iso(new Date());
+
+  /* ── даты: 050482, 05041982, 5.4.82, 05.04.1982, 1982-04-05 → 05.04.1982 ──
+     '' — поле пустое, null — не дата, иначе ГГГГ-ММ-ДД */
+  function parseDay(s) {
+    s = String(s || '').trim();
+    if (!s) return '';
+    var m, d, mo, y;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s))) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else if ((m = /^(\d{1,2})[.\/\-, ]+(\d{1,2})[.\/\-, ]+(\d{2}|\d{4})\s*(г\.?)?$/.exec(s))) { d = +m[1]; mo = +m[2]; y = m[3]; }
+    else if ((m = /^(\d{2})(\d{2})(\d{2}|\d{4})$/.exec(s.replace(/\s+/g, '')))) { d = +m[1]; mo = +m[2]; y = m[3]; }
+    else return null;
+    if (typeof y === 'string') {
+      // две цифры года: 82 → 1982, 26 → 2026 — век, при котором дата не в будущем
+      if (y.length === 2) { var yy = +y; y = 2000 + yy > new Date().getFullYear() ? 1900 + yy : 2000 + yy; } else y = +y;
+    }
+    var dt = new Date(y, mo - 1, d);
+    if (y < 1900 || dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+    return iso(dt);
+  }
+  function dayText(v) { var p = v.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+  Array.prototype.forEach.call(document.querySelectorAll('.gdate'), function (el) {
+    function tidy() {
+      var v = parseDay(el.value);
+      if (v) el.value = dayText(v);
+      el.classList.toggle('is-bad', v === null);
+    }
+    el.addEventListener('blur', tidy);
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter') tidy(); });
+    el.addEventListener('input', function () {
+      el.classList.remove('is-bad');
+      if (/^\d{8}$/.test(el.value.trim())) tidy(); // 05041982 — дата полная, сразу 05.04.1982
+    });
+  });
+  $('calcDate').value = dayText(iso(new Date()));
 
   /* ── города: республиканского значения и 17 областных центров ── */
   var CITIES = [
@@ -288,9 +358,9 @@ button,input,select{font:inherit;color:inherit}
 
   /* ── сбор данных формы ── */
   function readForm() {
-    var gp = Math.max(0, Math.min(10, Math.floor(+$('guarantee').value || 0)));
-    var calcDate = radio('dateMode') === 'custom' ? $('calcDate').value : iso(new Date());
-    var input = { calcDate: calcDate, dob: $('dob').value, sex: radio('sex'), category: $('category').value,
+    var gp = Math.max(0, Math.min(maxGuarantee(), Math.floor(+$('guarantee').value || 0)));
+    var calcDate = radio('dateMode') === 'custom' ? parseDay($('calcDate').value) : iso(new Date());
+    var input = { calcDate: calcDate, dob: parseDay($('dob').value), sex: radio('sex'), category: $('category').value,
                   oppv: radio('oppv'), guarantee: gp, savings: num($('savings').value), redemption: num($('redemption').value),
                   contribution: num($('contribution').value), dividendRate: Math.max(0, +$('dividendRate').value || 0) / 100 };
     var client = { name: $('clientName').value.trim(), nameGen: $('clientGen').value.trim(), sex: input.sex,
@@ -313,7 +383,11 @@ button,input,select{font:inherit;color:inherit}
       return;
     }
     var c = st.calc, cls = '', head = '', text = '';
-    if (c.status !== 'ok') { cls = 'bad'; head = 'Договор недоступен'; text = 'Калькулятор: «' + c.status + '». Клиенту должно быть не меньше 45 лет (для категории «Стандартный»).'; }
+    if (c.status !== 'ok') {
+      var minStd = c.tariff && c.tariff.minAgeStandard;
+      cls = 'bad'; head = 'Договор недоступен';
+      text = 'Калькулятор: «' + c.status + '».' + (minStd ? ' Клиенту должно быть не меньше ' + minStd + ' лет (для категории «Стандартный»).' : '');
+    }
     else if (c.mode === 'threshold') { cls = 'warn'; head = 'Своих средств меньше порога'; text = 'КП оформится по порогу: клиенту нужно доплатить ' + T(c.topup) + (c.dividend > 0 ? ' (с учётом дивиденда)' : '') + '.'; }
     var pay = st.model ? st.model.payback : null;
     box.innerHTML = '<h2><i>4</i>Расчёт</h2>' +
@@ -339,10 +413,14 @@ button,input,select{font:inherit;color:inherit}
     var f = readForm();
     if (!f.agent.name || !f.agent.phone) return { ready: false, msg: 'Заполните блок «Агент»: имя и телефон.' };
     if (!f.client.name) return { ready: false, msg: 'Укажите имя клиента.' };
+    if (f.input.dob === null) return { ready: false, msg: 'Проверьте дату рождения — например, 05.04.1982.' };
     if (!f.input.dob) return { ready: false, msg: 'Укажите дату рождения клиента.' };
+    if (f.input.calcDate === null) return { ready: false, msg: 'Проверьте дату расчёта — например, ' + dayText(iso(new Date())) + '.' };
     if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта — или выберите «сегодня».' };
     if (!f.input.savings && !f.input.redemption && !f.input.contribution) return { ready: false, msg: 'Укажите накопления в ЕНПФ.' };
-    var calc = K.compute(f.input);
+    var calc;
+    try { calc = ENGINE ? ENGINE.compute(f.input) : K.compute(f.input); }
+    catch (e) { return { ready: false, msg: 'Калькулятор не посчитал: ' + e.message }; }
     if (calc.errors && calc.errors.length) return { ready: false, msg: calc.errors.join(' ') };
     var model = null;
     try { model = K.model(calc, f.client, f.agent); } catch (e) { model = null; }
@@ -444,6 +522,114 @@ button,input,select{font:inherit;color:inherit}
     });
   });
 
+  /* ── калькулятор: встроенный или загруженный .xlsx — тогда считаем по формулам самого файла ── */
+  var ENGINE = null, CALC_KEY = 'kp-calc-v1', calcNote = null;
+  function maxGuarantee() {
+    var t = ENGINE ? ENGINE.params.maxGuarantee : K.tariff.maxGuarantee;
+    return t == null ? 30 : t;
+  }
+  function pctText(v) { return String(Math.round(v * 10000) / 100).replace('.', ',') + '%'; }
+  function escHtml(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function toB64(u8) { var s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+  function fromB64(b) { var s = atob(b), u8 = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u8[i] = s.charCodeAt(i); return u8; }
+
+  function renderCalc() {
+    var t = K.tariff;
+    var P = ENGINE ? ENGINE.params : { i: t.i, ind: t.ind, pm: t.pm, minPay: Math.ceil(t.pm * t.minPayShare), maxGuarantee: t.maxGuarantee };
+    var label = ENGINE ? ENGINE.label : t.version;
+    $('calcName').textContent = ENGINE ? ENGINE.fileName : 'Встроенный калькулятор';
+    $('calcMeta').textContent = ENGINE ? 'считаю по формулам этого файла' : 'тариф от ' + label;
+    $('calcBtn').textContent = ENGINE ? 'Заменить' : 'Загрузить .xlsx';
+    $('calcReset').hidden = !ENGINE;
+    var chips = [];
+    if (isFinite(P.i)) chips.push('ставка ' + pctText(P.i));
+    if (isFinite(P.ind)) chips.push('индексация ' + pctText(P.ind));
+    if (isFinite(P.pm)) chips.push('ПМ ' + T(P.pm));
+    if (isFinite(P.minPay)) chips.push('мин. выплата ' + T(P.minPay));
+    if (P.maxGuarantee != null) chips.push('гарантия до ' + P.maxGuarantee + ' лет');
+    $('calcChips').innerHTML = chips.map(function (c) { return '<span>' + escHtml(c) + '</span>'; }).join('');
+
+    var msg = calcNote;
+    if (!msg && ENGINE) {
+      var ck = ENGINE.check, diff = ENGINE.diff(K.MORT), lines = [];
+      if (diff.length) { lines.push('Изменилось:'); diff.forEach(function (d) { lines.push('· ' + d); }); }
+      if (ck.bad.length) {
+        msg = { cls: 'warn', lines: lines.concat(['Проверка: ' + ck.bad.length + ' из ' + ck.checked + ' формул считаются не так, как сохранил Excel (' +
+          ck.bad.slice(0, 3).map(function (b) { return b.addr; }).join(', ') + '). Сверьте цифры КП с Excel.']) };
+      } else {
+        lines.push(ck.checked ? 'Формулы проверены: ' + ck.checked + ' из ' + ck.checked + ' совпадают с Excel.' : 'В файле нет сохранённых результатов Excel — сверить формулы не с чем.');
+        msg = { cls: diff.length ? 'info' : 'ok', lines: lines };
+      }
+    }
+    var box = $('calcMsg');
+    box.hidden = !msg;
+    if (msg) { box.className = 'gcalc__msg ' + msg.cls; box.innerHTML = msg.lines.map(function (l) { return '<span>' + escHtml(l) + '</span>'; }).join(''); }
+    $('ver').textContent = 'калькулятор' + (label ? ' от ' + label : ': ' + ENGINE.fileName);
+  }
+  function applyLists() {
+    var cats = ENGINE ? ENGINE.lists.categories : K.categories, sel = $('category'), cur = sel.value;
+    sel.innerHTML = cats.map(function (c) { return '<option>' + escHtml(c) + '</option>'; }).join('');
+    sel.value = cats.indexOf(cur) >= 0 ? cur : cats[0];
+    var g = $('guarantee'), max = maxGuarantee();
+    g.max = max;
+    if (+g.value > max) g.value = max;
+  }
+  function afterCalc() { renderCalc(); applyLists(); schedule(); }
+
+  function loadCalc(u8, name, persist) {
+    calcNote = { cls: 'info', lines: ['Открываю «' + name + '»…'] };
+    renderCalc();
+    return K.loadCalculator(u8, name).then(function (E) {
+      ENGINE = E; calcNote = null;
+      if (persist) {
+        try { localStorage.setItem(CALC_KEY, JSON.stringify({ name: name, b64: toB64(u8) })); }
+        catch (e) { calcNote = { cls: 'warn', lines: ['Файл загружен, но браузер не дал его запомнить — при следующем открытии загрузите его снова.'] }; }
+      }
+      afterCalc();
+    }, function (e) {
+      calcNote = { cls: 'bad', lines: ['Не получилось открыть «' + name + '»: ' + e.message,
+        ENGINE ? 'Считаю по прежнему файлу.' : 'Считаю по встроенному калькулятору.'] };
+      renderCalc();
+    });
+  }
+  function loadFile(file) {
+    if (!file) return;
+    if (!/\.xls[xm]$/i.test(file.name)) {
+      calcNote = { cls: 'bad', lines: [/\.xls$/i.test(file.name) ? 'Это старый формат .xls — откройте файл в Excel и сохраните как .xlsx.' : 'Нужен файл калькулятора в формате .xlsx.'] };
+      renderCalc();
+      return;
+    }
+    file.arrayBuffer().then(function (b) { return loadCalc(new Uint8Array(b), file.name, true); });
+  }
+  function restoreCalc() {
+    var saved = null, u8;
+    try { saved = JSON.parse(localStorage.getItem(CALC_KEY) || 'null'); } catch (e) {}
+    if (!saved || !saved.b64) return Promise.resolve();
+    try { u8 = fromB64(saved.b64); } catch (e) { return Promise.resolve(); }
+    return K.loadCalculator(u8, saved.name).then(function (E) { ENGINE = E; }, function (e) {
+      try { localStorage.removeItem(CALC_KEY); } catch (x) {}
+      calcNote = { cls: 'bad', lines: ['Сохранённый калькулятор «' + saved.name + '» не открылся: ' + e.message, 'Считаю по встроенному — загрузите файл заново.'] };
+    });
+  }
+  $('calcFile').addEventListener('change', function () { loadFile(this.files[0]); this.value = ''; });
+  $('calcReset').addEventListener('click', function () {
+    ENGINE = null; calcNote = null;
+    try { localStorage.removeItem(CALC_KEY); } catch (e) {}
+    afterCalc();
+  });
+
+  /* файл можно просто перетащить на страницу */
+  var dragDepth = 0;
+  function hasFiles(e) { return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0; }
+  window.addEventListener('dragenter', function (e) { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; $('drop').classList.add('on'); });
+  window.addEventListener('dragover', function (e) { if (hasFiles(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', function (e) { if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; $('drop').classList.remove('on'); } });
+  window.addEventListener('drop', function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; $('drop').classList.remove('on');
+    loadFile(e.dataTransfer.files[0]);
+  });
+
   /* ── вид предпросмотра ── */
   Array.prototype.forEach.call(document.querySelectorAll('.gview button'), function (b) {
     b.addEventListener('click', function () {
@@ -453,10 +639,13 @@ button,input,select{font:inherit;color:inherit}
   });
 
   /* для автоматических проверок */
-  window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName };
+  window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName, loadCalc: loadCalc, parseDay: parseDay,
+                  engine: function () { return ENGINE; } };
 
   loadAgent();
   syncExtras();
+  renderCalc();
+  applyLists();
   $('form').addEventListener('input', function (e) {
     if (e.target.hasAttribute('data-agent')) saveAgent();
     schedule();
@@ -471,6 +660,7 @@ button,input,select{font:inherit;color:inherit}
     schedule();
   });
   update();
+  restoreCalc().then(afterCalc);
 })();
 </script>
 </body>

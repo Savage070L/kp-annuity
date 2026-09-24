@@ -10,7 +10,7 @@
     <div class="acc-group">
         <details class="acc">
           <summary><span class="acc__n">01</span><span class="acc__q">Какая сумма накоплений считается достаточной?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Когда месячная выплата выходит не ниже 70% прожиточного минимума. В вашем случае это ${T(M.threshold)}.</p></div>
+          <div class="acc__body"><p>Когда месячная выплата выходит не ниже ${M.minPayPct}% прожиточного минимума. В вашем случае это ${T(M.threshold)}.</p></div>
         </details>
         <details class="acc">
           <summary><span class="acc__n">02</span><span class="acc__q">Когда придёт первая выплата?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
@@ -30,7 +30,7 @@
         </details>
         <details class="acc">
           <summary><span class="acc__n">06</span><span class="acc__q">Можно ли изменить условия договора?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Да, дополнительным соглашением. Выплата при этом не может стать ниже 70% прожиточного минимума.</p></div>
+          <div class="acc__body"><p>Да, дополнительным соглашением. Выплата при этом не может стать ниже ${M.minPayPct}% прожиточного минимума.</p></div>
         </details>
         <details class="acc">
           <summary><span class="acc__n">07</span><span class="acc__q">Что будет с деньгами в случае смерти?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
@@ -71,7 +71,7 @@
         </details>
         <details class="acc acc--term">
           <summary><span class="acc__n">06</span><span class="acc__q">Достаточность накоплений</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Порог для договора: выплата не ниже 70% прожиточного минимума (1,4 — если договор на двоих).</p></div>
+          <div class="acc__body"><p>Порог для договора: выплата не ниже ${M.minPayPct}% прожиточного минимума (1,4 — если договор на двоих).</p></div>
         </details>
         <details class="acc acc--term">
           <summary><span class="acc__n">07</span><span class="acc__q">Выкупная сумма</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>

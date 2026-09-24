@@ -26,7 +26,9 @@
     var s = (Math.abs(r - Math.round(r)) < 1e-9 ? String(Math.round(r)) : r.toFixed(1)).replace('.', ',');
     return '×' + s;
   }
-  function pct(v) { return Math.round(v * 100) + '%'; }
+  /* 0,11 → 11 · 0,075 → 7,5 — проценты тарифа бывают дробными */
+  function pctNum(v) { return String(Math.round(v * 10000) / 100).replace('.', ','); }
+  function pct(v) { return pctNum(v) + '%'; }
 
   /* 1 год · 2 года · 5 лет · 21 год · 61 год */
   function yearsWord(n) {
@@ -43,6 +45,11 @@
   /* возраст начала выплат может быть дробным: 54,5 года */
   function ageLabel(a) {
     if (Math.abs(a - Math.round(a)) < 1e-9) return years(Math.round(a));
+    return String(Math.round(a * 10) / 10).replace('.', ',') + ' года';
+  }
+  /* после «с»: с 55 лет, с 54 лет, с 51 года, с 54,5 года */
+  function ageFrom(a) {
+    if (Math.abs(a - Math.round(a)) < 1e-9) { var n = Math.round(a); return n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'года' : 'лет'); }
     return String(Math.round(a * 10) / 10).replace('.', ',') + ' года';
   }
   function ageNum(a) {
@@ -150,6 +157,7 @@
     /* ── производные для шаблона ── */
     var immediate = calc.deferral === 0;
     var startLabel = immediate ? years(s0) : ageLabel(calc.startAge);
+    var startGen = immediate ? ageFrom(s0) : ageFrom(calc.startAge);
     var startNum = immediate ? String(s0) : ageNum(calc.startAge);
     var headline = scenario === 'no-topup' ? 'Доступен без доплаты'
       : scenario === 'small-topup' ? 'Доступен с небольшой доплатой' : 'Доступен с доплатой';
@@ -211,7 +219,7 @@
     if (immediate) points.push({ age: calc.ageInt, now: true, title: 'Сегодня — первая выплата', text: 'от ' + tenge(first) + ' в месяц сразу после оформления' });
     else {
       points.push({ age: calc.ageInt, now: true, title: 'Сегодня — вы здесь', text: 'расчёт подготовлен, выплат ещё нет' });
-      points.push({ age: s0, title: 'Первая выплата', text: 'от ' + tenge(first) + ' в месяц, дальше +' + Math.round(ind * 100) + '% каждый год' });
+      points.push({ age: s0, title: 'Первая выплата', text: 'от ' + tenge(first) + ' в месяц, дальше +' + pct(ind) + ' каждый год' });
     }
     points.push({ age: payback.age, title: 'Сумма перевода вернулась', text: 'получено ' + tenge(payback.cum) + ' — больше, чем переведено' });
     if (hasGuar) points.push({ age: afterGuar, title: 'Гарантия завершена', text: tenge(at(afterGuar).m) + ' в месяц, выплаты продолжаются' });
@@ -220,10 +228,10 @@
 
     var perks = [
       earlyYears > 0
-        ? { icon: 'clock', big: 'с ' + startLabel, title: 'Выплаты раньше на ' + years(earlyYears), note: tenge(early.cum) + ' придёт за эти годы' }
-        : { icon: 'clock', big: immediate ? 'сразу' : 'с ' + startLabel, title: 'Выплаты без ожидания', note: 'первая выплата — ' + tenge(first) },
+        ? { icon: 'clock', big: 'с ' + startGen, title: 'Выплаты раньше на ' + years(earlyYears), note: tenge(early.cum) + ' придёт за эти годы' }
+        : { icon: 'clock', big: immediate ? 'сразу' : 'с ' + startGen, title: 'Выплаты без ожидания', note: 'первая выплата — ' + tenge(first) },
       { icon: 'inf', big: 'пожизненно', title: 'Выплаты не заканчиваются', note: 'после ' + genYears(payback.age) + ' договор продолжает действовать' },
-      { icon: 'trend', big: '+' + Math.round(ind * 100) + '%', title: 'Индексация каждый год', note: tenge(first) + ' → ' + tenge(at(late).m) + ' ' + toYears(late) },
+      { icon: 'trend', big: '+' + pct(ind), title: 'Индексация каждый год', note: tenge(first) + ' → ' + tenge(at(late).m) + ' ' + toYears(late) },
       hasGuar ? { icon: 'shield', big: years(gp), title: 'Гарантийный период', note: 'выплаты сохраняются за близкими' }
               : { icon: 'shield', big: times(total100.cum / premium), title: 'Возврат перевода', note: 'во столько раз больше вернётся ' + toYears(total100.age) },
       { icon: 'home', big: 'ФГСВ', title: 'Защита по закону', note: 'если компания лишится лицензии' },
@@ -271,7 +279,7 @@
     function barTip(a) {
       var lines = ['Получено ' + toYears(a) + ' — ' + money(at(a).cum) + NB + '₸', 'Складывается из ежемесячных выплат:'];
       for (var q = s0; q <= a; q += 5) lines.push('  ' + years(q) + ' — по ' + money(at(q).m) + NB + '₸ в месяц');
-      lines.push('Каждый год выплата растёт на ' + Math.round(ind * 100) + '%');
+      lines.push('Каждый год выплата растёт на ' + pct(ind));
       return lines.join('\n');
     }
 
@@ -287,8 +295,8 @@
 
     return {
       calc: calc, client: client, agent: agent,
-      headline: headline, immediate: immediate, startLabel: startLabel, startNum: startNum,
-      startFrom: immediate ? 'сразу после оформления' : 'с ' + startLabel,
+      headline: headline, immediate: immediate, startLabel: startLabel, startGen: startGen, startNum: startNum,
+      startFrom: immediate ? 'сразу после оформления' : 'с ' + startGen,
       mid: mid, late: late, pbTo: pbTo, resultIntro: resultIntro, pieParts: pieParts, metrics: metrics,
       facts: facts, points: points, perks: perks, earlyTitle: earlyTitle, minitab: minitab, mults: mults,
       mileAges: mileAges, cmpAges: cmpAges, slotAges: slotAges, scaleAges: scaleAges,
@@ -322,7 +330,7 @@
       first: first, premium: premium, threshold: calc.threshold, savings: calc.savings,
       redemption: calc.redemption, dividend: calc.dividend, dividendRate: calc.dividendRate,
       topup: calc.topup, contribution: calc.contribution,
-      start: calc.startAge, s0: s0, gp: gp, indPct: Math.round(ind * 100), deferral: calc.deferral,
+      start: calc.startAge, s0: s0, gp: gp, indPct: pctNum(ind), minPayPct: pctNum(Math.round((calc.tariff.minPayShare || 0.7) * 1000) / 1000), deferral: calc.deferral,
       scenario: scenario, rows: R, at: at, payback: payback,
       guarLast: guarLast, afterGuar: afterGuar, enpf: enpf, earlyYears: earlyYears, early: early,
       decades: decades, total: total100, horizon: total100.age,

@@ -11,5 +11,5 @@ function legacyCalc() {
     contribution: 0, dividend: 1082148, dividendRate: 0.11, topup: 2955564, rows: rows };
 }
 var client = { name: 'Арман Сейтов', nameGen: 'Армана Сейтова', sex: 'мужской', city: 'Алматы', calcDate: '2026-09-18' };
-var agent = { name: 'Куаныш Тойбаев', phone: '+7 700 555 08 72', email: 'toibaevkuka@gmail.com', city: 'Алматы' };
+var agent = { name: 'Тимур Агентов', phone: '+7 700 000 00 00', email: 'agent@example.kz', city: 'Алматы' };
 module.exports = { legacyCalc: legacyCalc, client: client, agent: agent };

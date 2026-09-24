@@ -8,10 +8,10 @@
       <div>
         <span class="hero__badge"><i>${E(M.initials)}</i>Расчёт подготовлен для ${E(M.nameGen)}</span>
         <h1>${M.headline}</h1>
-        <p class="hero__lead">По вашим данным — ${M.sexWord}, ${Y(M.age)}, накопления ${T(M.savings)} — пенсионные накопления превращаются в пожизненный ежемесячный доход ${M.immediate ? 'сразу после оформления' : 'с ' + M.startLabel.replace(' ', '&#160;')}, с ежегодной индексацией${M.gp > 0 ? ' и гарантийным периодом' : ''}.</p>
+        <p class="hero__lead">По вашим данным — ${M.sexWord}, ${Y(M.age)}, накопления ${T(M.savings)} — пенсионные накопления превращаются в пожизненный ежемесячный доход ${M.immediate ? 'сразу после оформления' : 'с ' + M.startGen.replace(' ', '&#160;')}, с ежегодной индексацией${M.gp > 0 ? ' и гарантийным периодом' : ''}.</p>
         <div class="chips">
           <span class="chip"><i></i>${M.sexWordCap} · ${Y(M.age)}</span>
-          <span class="chip"><i></i>${M.immediate ? 'Выплаты сразу' : 'Выплаты с ' + M.startLabel}</span>
+          <span class="chip"><i></i>${M.immediate ? 'Выплаты сразу' : 'Выплаты с ' + M.startGen}</span>
           <span class="chip"><i></i>${M.gp > 0 ? 'Гарантия ' + Y(M.gp) : 'Без гарантийного периода'}</span>
           <span class="chip"><i></i>Индексация ${M.indPct}%</span>
         </div>
@@ -22,9 +22,9 @@
           Ориентир первой выплаты
         </div>
         <div class="outcome__amount num"><span class="outcome__from">от</span><span class="cnt" data-count="${M.first}">${H(M.first)}</span><span class="cur">₸</span></div>
-        <p class="outcome__sub">в месяц ${M.immediate ? 'сразу после оформления' : 'с ' + M.startLabel} — дальше выплата растёт каждый год</p>
+        <p class="outcome__sub">в месяц ${M.immediate ? 'сразу после оформления' : 'с ' + M.startGen} — дальше выплата растёт каждый год</p>
         <div class="outcome__facts">
-          <div><b>${M.immediate ? 'сразу' : 'с ' + M.startLabel}</b><span>начинаются выплаты</span></div>
+          <div><b>${M.immediate ? 'сразу' : 'с ' + M.startGen}</b><span>начинаются выплаты</span></div>
           <div><b class="num">до ${T(M.total.m)}</b><span>в месяц ${M.toYears(M.horizon)}</span></div>
 
         </div>

@@ -4,7 +4,7 @@ var K = require('./render.js').loadKit();
 var cases = require('./excel-cases.json');
 var names = { ref47: 'Арман Сейтов', m50_g0: 'Нурлан Абенов', w50_g5: 'Айгерим Касымова', w58_now: 'Динара Ахметова',
               m46_oppv: 'Ерлан Сапаров', w52_inv2: 'Мария Иванова', m62_g7: 'Сергей Каменский' };
-var agent = { name: 'Куаныш Тойбаев', phone: '+7 700 555 08 72', email: 'toibaevkuka@gmail.com', city: 'Алматы', sex: 'мужской' };
+var agent = { name: 'Тимур Агентов', phone: '+7 700 000 00 00', email: 'agent@example.kz', city: 'Алматы', sex: 'мужской' };
 var bad = 0;
 cases.forEach(function (c) {
   // вносим ровно столько, сколько нужно, либо оставляем как в профиле

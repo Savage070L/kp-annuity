@@ -5,7 +5,8 @@
  * Соответствие Excel:
  *   ввод!H6   x      = DATEDIF(дата рождения; дата расчёта; "m") / 12
  *   возраст!E21 x0   = возраст начала выплат (по полу, дате рождения, категории)
- *   calc!B5   d      = INT(x0) − INT(x)            — срок отсрочки
+ *   ввод!H23  x_0    = возраст на дату начала выплат (29 февраля — дни/365)
+ *   calc!B5   d      = INT(x_0) − INT(x)           — срок отсрочки
  *   calc!G8   äx     = ((ΣPV − 11/24)·(1+γ)/(1−α))·12
  *   calc!G7   v^d    = ((1+ind)/(1+i))^d
  *   calc!G6   n|äx   = äx · v^d
@@ -41,9 +42,22 @@
     'Инвалидность 1гр (90-100%) бессрочно': ['m_90_100', 'f_90_100']
   };
 
-  /* Excel ROUND: половина — от нуля */
-  function xround(v) { return v < 0 ? -Math.round(-v) : Math.floor(v + 0.5); }
-  function xroundup(v) { return v < 0 ? -Math.ceil(-v) : Math.ceil(v); }
+  /* Excel ROUND: половина — от нуля, число сначала приводим к 15 значащим цифрам, как Excel */
+  function snap(v) { return v === 0 || !isFinite(v) ? v : +v.toPrecision(15); }
+  function xround(v) { v = snap(v); return v < 0 ? -Math.floor(-v + 0.5) : Math.floor(v + 0.5); }
+  function xroundup(v) { v = snap(v); return v < 0 ? -Math.ceil(-v) : Math.ceil(v); }
+
+  /* Выплаты по возрастным годам — как лист «График» калькулятора: раз в год
+     ROUND(прошлая выплата · (1+ind)), за год — 12 одинаковых выплат */
+  function schedule(first, ind, fromAge, gp, horizon) {
+    var rows = [], m = first, cum = 0;
+    for (var age = fromAge, n = 0; age <= horizon; age++, n++) {
+      if (n > 0) m = xround(m * (1 + ind));
+      cum += 12 * m;
+      rows.push({ age: age, m: m, y: 12 * m, cum: cum, guaranteed: n < gp });
+    }
+    return rows;
+  }
 
   function parseDate(s) {
     if (s instanceof Date) return new Date(s.getFullYear(), s.getMonth(), s.getDate());
@@ -59,6 +73,16 @@
   }
 
   function ymd(d) { return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+
+  /* EDATE(дата; месяцев) — тот же день через k месяцев, в коротком месяце — последний день */
+  function edate(d, k) {
+    var y = d.getFullYear(), m = d.getMonth() + k;
+    var last = new Date(y, m + 1, 0).getDate();
+    return new Date(y, m, Math.min(d.getDate(), last));
+  }
+  function daysBetween(a, b) {
+    return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5);
+  }
 
   /* возраст!E2:E20 — для женщин возраст начала выплат зависит от даты рождения */
   function womanStartAge(dob) {
@@ -109,7 +133,11 @@
     var months = monthsBetween(dob, calcDate);
     var x = months / 12;
     var x0 = startAge(input, dob, x);
-    var xInt = Math.floor(x), x0Int = Math.floor(x0);
+    /* ввод!G23, H23: дата начала выплат и возраст на неё. У родившихся 29 февраля калькулятор
+       считает этот возраст как дни/365 — повторяем, иначе отсрочка разойдётся на год */
+    var begin = x === x0 ? calcDate : edate(dob, Math.trunc(x0 * 12));
+    var xStart = dob.getMonth() === 1 && dob.getDate() === 29 ? daysBetween(dob, begin) / 365 : monthsBetween(dob, begin) / 12;
+    var xInt = Math.floor(x), x0Int = Math.floor(xStart);   // calc!A10 = INT(x_0)
     var d = x0Int - xInt;
 
     /* calc!A10:G75 — приведённая стоимость выплат */
@@ -168,14 +196,7 @@
     var fundsStatus = enteredPremium >= threshold ? 'ok' : 'недостаточно средств';
     if (gp > T.maxGuarantee) warnings.push('Гарантированный период по калькулятору — не больше ' + T.maxGuarantee + ' лет');
 
-    /* Таблица выплат по возрастным годам: месячная растёт на ind каждый год */
-    var rows = [], cumExact = 0;
-    for (var age = x0Int, n = 0; age <= T.horizon; age++, n++) {
-      var exact = first * Math.pow(1 + T.ind, n);
-      cumExact += 12 * exact;
-      rows.push({ age: age, m: xround(exact), y: xround(12 * exact), cum: xround(cumExact),
-                  guaranteed: n < gp });
-    }
+    var rows = schedule(first, T.ind, x0Int, gp, T.horizon);
 
     return {
       ok: status === 'ok', status: status, fundsStatus: fundsStatus,
@@ -191,7 +212,7 @@
     };
   }
 
-  var api = { TARIFF: TARIFF, CATEGORIES: CATEGORIES, compute: compute,
+  var api = { TARIFF: TARIFF, CATEGORIES: CATEGORIES, compute: compute, schedule: schedule,
               monthsBetween: monthsBetween, parseDate: parseDate, xround: xround };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AnnuityEngine = api;

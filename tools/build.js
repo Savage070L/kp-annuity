@@ -41,6 +41,9 @@ function kit() {
   return [
     '/* Генератор КП «Пенсионный аннуитет» — собрано tools/build.js, руками не править */',
     read(path.join(SRC, 'engine.js')),
+    read(path.join(SRC, 'xlsx.js')),
+    read(path.join(SRC, 'formula.js')),
+    read(path.join(SRC, 'calc-xlsx.js')),
     read(path.join(SRC, 'report-model.js')),
     blocks,
     '(function (root) {',
@@ -63,6 +66,8 @@ function kit() {
     '  }',
     '  root.ReportKit = { render: render, model: function (c, cl, ag) { return root.ReportModel.build(c, cl, ag); },',
     '    compute: function (input) { return root.AnnuityEngine.compute(input, MORT); }, MORT: MORT,',
+    '    loadCalculator: function (bytes, name, inflate) { return root.XlsxCalculator.load(bytes, name, inflate); },',
+    '    tariff: root.AnnuityEngine.TARIFF, categories: Object.keys(root.AnnuityEngine.CATEGORIES),',
     '    fonts: ASSETS.fonts, genitive: root.ReportModel.genitiveName, dateRu: root.ReportModel.dateRu };',
     '})(typeof window !== "undefined" ? window : globalThis);',
     ''
