@@ -296,6 +296,15 @@
       rowsWord: function (n) { var t = n % 100, o = n % 10; return (t > 10 && t < 20) ? 'строк' : o === 1 ? 'строка' : (o >= 2 && o <= 4) ? 'строки' : 'строк'; },
       lastDecadeAvg: Math.round(last.sum / last.count), lastDecadeLabel: 'в ' + last.from + '–' + last.to + ' лет',
       agentWa: waDigits, agentTel: telDigits ? '+' + telDigits : '', agentFem: agent.sex === 'женский',
+      waSame: !!waDigits && waDigits === telDigits,
+      agentWaText: agent.whatsapp || agent.phone || '',
+      waLink: function (text) { return 'https://wa.me/' + waDigits + '?text=' + encodeURIComponent(text); },
+      askList: [
+        { title: 'Хочу официальный расчёт КСЖ', msg: 'Здравствуйте! Прошу официальный расчёт КСЖ' },
+        { title: 'Какие документы нужны', msg: 'Здравствуйте! Какие документы нужны для оформления?' },
+        { title: 'Можно оформить на двоих', msg: 'Здравствуйте! Можно ли оформить договор на двоих?' },
+        { title: 'Пересчитайте на другой возраст', msg: 'Здравствуйте! Пересчитайте, пожалуйста, на другой возраст начала выплат' }
+      ],
       cfg: { data: R.map(function (r) { return { age: r.age, m: r.m, y: r.y, cum: r.cum }; }),
              transfer: premium, payback: payback.age, guarLast: guarLastAge, start: s0,
              end: total100.age, pbTo: pbTo, keyAges: keyAges },

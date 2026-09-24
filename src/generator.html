@@ -107,12 +107,12 @@ button,input,select{font:inherit;color:inherit}
   <form class="gform" id="form" autocomplete="off" onsubmit="return false">
 
     <section class="gcard">
-      <h2><i>1</i>Агент <small>сохраняется в этом браузере</small></h2>
+      <h2><i>1</i>Агент</h2>
       <div class="gfield"><label for="agentName">ФИО агента</label><input id="agentName" data-agent placeholder="Имя Фамилия"></div>
       <div class="grow">
         <div class="gfield"><label>Пол агента</label>
           <div class="gseg"><input type="radio" name="agentSex" id="as-m" value="мужской" data-agent checked><label for="as-m">муж.</label><input type="radio" name="agentSex" id="as-f" value="женский" data-agent><label for="as-f">жен.</label></div>
-          <span class="hint">«подготовил / подготовила»</span></div>
+</div>
         <div class="gfield"><label for="agentCity">Город</label><select id="agentCity" data-agent data-cities></select>
           <input id="agentCityOther" class="gextra" data-agent placeholder="Название города" hidden></div>
       </div>
@@ -128,8 +128,7 @@ button,input,select{font:inherit;color:inherit}
     <section class="gcard">
       <h2><i>2</i>Клиент</h2>
       <div class="gfield"><label for="clientName">Имя и фамилия клиента</label><input id="clientName" placeholder="Например: Арман Сейтов"></div>
-      <div class="gfield"><label for="clientGen">Для кого (родительный падеж)</label><input id="clientGen" placeholder="Армана Сейтова">
-        <span class="hint">Заполняется само — поправьте, если склонение неверное.</span></div>
+      <input type="hidden" id="clientGen">
       <div class="grow">
         <div class="gfield"><label>Пол</label>
           <div class="gseg"><input type="radio" name="sex" id="s-m" value="мужской" checked><label for="s-m">мужской</label><input type="radio" name="sex" id="s-f" value="женский"><label for="s-f">женский</label></div></div>
@@ -160,15 +159,14 @@ button,input,select{font:inherit;color:inherit}
           <div class="gseg"><input type="radio" name="oppv" id="o-n" value="Нет" checked><label for="o-n">нет</label><input type="radio" name="oppv" id="o-y" value="Да"><label for="o-y">да</label></div></div>
       </div>
       <div class="grow">
-        <div class="gfield"><label for="guarantee">Гарантированный период, лет</label><input id="guarantee" type="number" min="0" max="10" step="1" value="10"><span class="hint">от 0 до 10 — как в калькуляторе</span></div>
-        <div class="gfield"><label for="dividendRate">Дивиденд, % от премии</label><input id="dividendRate" type="number" min="0" max="20" step="0.1" value="11"><span class="hint">нетто; брутто в калькуляторе — 12,5%</span></div>
+        <div class="gfield"><label for="guarantee">Гарантированный период, лет</label><input id="guarantee" type="number" min="0" max="10" step="1" value="10"></div>
+        <div class="gfield"><label for="dividendRate">Дивиденд, % от премии</label><input id="dividendRate" type="number" min="0" max="20" step="0.1" value="11"></div>
       </div>
       <div class="gfield"><label for="savings">Накопления в ЕНПФ, ₸</label><input id="savings" class="money" inputmode="numeric" placeholder="5 800 000"></div>
       <div class="grow">
         <div class="gfield"><label for="redemption">Выкупная сумма КСЖ, ₸</label><input id="redemption" class="money" inputmode="numeric" placeholder="0"></div>
         <div class="gfield"><label for="contribution">Взнос клиента, ₸</label><input id="contribution" class="money" inputmode="numeric" placeholder="0"></div>
       </div>
-      <p class="gnote">Если своих средств меньше порога, взнос можно не указывать: генератор оформит расчёт по порогу и посчитает доплату с учётом дивиденда.</p>
     </section>
 
     <section class="gcard gsum" id="summary" aria-live="polite"></section>
@@ -183,7 +181,6 @@ button,input,select{font:inherit;color:inherit}
         Печать / PDF
       </button>
     </div>
-    <p class="gnote">Всё считается прямо в этом браузере: данные клиентов никуда не отправляются.</p>
   </form>
 
   <section class="gpreview">
@@ -222,8 +219,7 @@ button,input,select{font:inherit;color:inherit}
 
   /* ── агент: храним в браузере ── */
   var AGENT_KEY = 'kp-agent-v1';
-  var DEFAULT_AGENT = { agentName: 'Куаныш Тойбаев', agentSex: 'мужской', agentCity: 'Алматы',
-                        agentPhone: '+7 700 555 08 72', agentWa: '', agentEmail: 'toibaevkuka@gmail.com' };
+  var DEFAULT_AGENT = { agentName: '', agentSex: 'мужской', agentCity: '', agentPhone: '', agentWa: '', agentEmail: '' };
   function loadAgent() {
     var a = DEFAULT_AGENT;
     try { var s = localStorage.getItem(AGENT_KEY); if (s) a = JSON.parse(s); } catch (e) {}
@@ -316,12 +312,12 @@ button,input,select{font:inherit;color:inherit}
       box.innerHTML = '<h2><i>4</i>Расчёт</h2><div class="gsum__status warn"><span><b>Нужны данные</b>' + st.msg + '</span></div>';
       return;
     }
-    var c = st.calc, cls = 'ok', head = 'Можно формировать КП', text = 'Цифры посчитаны по калькулятору компании.';
+    var c = st.calc, cls = '', head = '', text = '';
     if (c.status !== 'ok') { cls = 'bad'; head = 'Договор недоступен'; text = 'Калькулятор: «' + c.status + '». Клиенту должно быть не меньше 45 лет (для категории «Стандартный»).'; }
     else if (c.mode === 'threshold') { cls = 'warn'; head = 'Своих средств меньше порога'; text = 'КП оформится по порогу: клиенту нужно доплатить ' + T(c.topup) + (c.dividend > 0 ? ' (с учётом дивиденда)' : '') + '.'; }
     var pay = st.model ? st.model.payback : null;
     box.innerHTML = '<h2><i>4</i>Расчёт</h2>' +
-      '<div class="gsum__status ' + cls + '"><span><b>' + head + '</b>' + text + '</span></div>' +
+      (cls ? '<div class="gsum__status ' + cls + '"><span><b>' + head + '</b>' + text + '</span></div>' : '') +
       '<dl>' +
       '<dt>Возраст на дату расчёта</dt><dd>' + ageText(c.age) + '</dd>' +
       '<dt>Начало выплат</dt><dd>' + (c.deferral === 0 ? 'сразу' : 'с ' + ageText(c.startAge)) + '</dd>' +
@@ -341,6 +337,7 @@ button,input,select{font:inherit;color:inherit}
   /* ── пересчёт и предпросмотр ── */
   function recompute() {
     var f = readForm();
+    if (!f.agent.name || !f.agent.phone) return { ready: false, msg: 'Заполните блок «Агент»: имя и телефон.' };
     if (!f.client.name) return { ready: false, msg: 'Укажите имя клиента.' };
     if (!f.input.dob) return { ready: false, msg: 'Укажите дату рождения клиента.' };
     if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта — или выберите «сегодня».' };

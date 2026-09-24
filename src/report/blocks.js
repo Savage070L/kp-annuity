@@ -345,6 +345,23 @@
       return '      <div class="decades">\n' + rows + '\n      </div>';
     };
 
+    /* ── WhatsApp: главная кнопка и быстрые вопросы рядом с агентом ── */
+    function waIcon(cls) { return '<img class="' + cls + '" src="' + ICONS.wa + '" alt="" width="24" height="24">'; }
+    var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 6 6 6-6 6"/></svg>';
+    B.contactAsk = function () {
+      if (!M.agentWa) return '';
+      var q = M.askList.map(function (a) {
+        return '          <a class="qbtn" href="' + E(M.waLink(a.msg)) + '" target="_blank" rel="noopener">' +
+          '<span class="qbtn__ic">' + waIcon('wa-ic') + '</span><span class="qbtn__t">' + a.title + '</span>' +
+          '<span class="qbtn__go">' + ARROW + '</span></a>';
+      }).join('\n');
+      return '      <div class="contact__ask">\n' +
+        '        <a class="btn-wa" href="' + E(M.waLink('Здравствуйте! У меня вопрос по расчёту пенсионного аннуитета')) + '" target="_blank" rel="noopener">' +
+        waIcon('wa-ic') + 'Написать в WhatsApp</a>\n' +
+        '        <p class="contact__ask-note">или выберите вопрос — текст сообщения подставится сам</p>\n' +
+        '        <div class="qlist">\n' + q + '\n        </div>\n      </div>';
+    };
+
     /* ── Таблица выплат по годам (с ней работает и скрипт) ── */
     B.schedRows = function () {
       return M.rows.map(function (d) {

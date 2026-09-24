@@ -301,7 +301,7 @@ p{margin:0}
 
 /* ── Контакты ───────────────────────────────────────────────── */
 .contact{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:26px;align-items:center;
+  display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);gap:clamp(22px,3vw,40px);align-items:center;
   padding:clamp(24px,3vw,36px);border-radius:var(--r-l);color:#fff;position:relative;overflow:hidden;
   background:radial-gradient(120% 180% at 12% 40%,rgba(50,96,164,.42) 0%,rgba(50,96,164,0) 60%),
     linear-gradient(243deg,var(--navy-1) 0%,var(--navy-2) 52%,var(--navy-3) 100%);
@@ -309,21 +309,37 @@ p{margin:0}
 }
 .contact .eyebrow{color:var(--lime)}
 .contact h2{color:#fff;font-size:clamp(24px,2.8vw,32px)}
-.contact>div>p{margin:10px 0 0;max-width:56ch;color:#D1DFEB;font-size:14.5px;line-height:1.5}
+.contact__main>p{margin:10px 0 0;max-width:56ch;color:#D1DFEB;font-size:14.5px;line-height:1.5}
 .contact-data{display:flex;flex-wrap:wrap;gap:14px 30px;margin-top:20px}
 .contact-data span{display:block;color:#B8CADA;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .contact-data b{display:block;margin-top:3px;color:#fff;font-size:15px;letter-spacing:-.01em}
 .contact-data a{text-decoration:none}
 .contact-data a:hover b{color:var(--lime)}
 .btn-wa{
-  display:inline-flex;align-items:center;gap:10px;padding:16px 24px;flex:none;
+  display:flex;align-items:center;justify-content:center;gap:10px;padding:15px 22px;width:100%;
   border-radius:var(--btn-corner) 0 var(--btn-corner) 0;background:var(--green-grad);color:#fff;
   font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 12px 28px rgba(71,144,60,.36);
   transition:transform .2s,box-shadow .2s;
 }
-.btn-wa svg{width:21px;height:21px}
+.btn-wa .wa-ic{width:22px;height:22px;flex:none}
 .btn-wa:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(71,144,60,.44)}
-@media(max-width:860px){.contact{grid-template-columns:1fr}.btn-wa{justify-self:start}}
+/* WhatsApp и быстрые вопросы — панель в карточке агента */
+.contact__ask{padding:16px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14)}
+.contact__ask-note{margin:12px 2px 10px;color:#BCD0E6;font-size:12.2px;line-height:1.4}
+.qlist{display:grid;gap:8px}
+.qbtn{display:flex;align-items:center;gap:11px;padding:9px 12px 9px 9px;border-radius:14px;background:#fff;
+  color:var(--blue-dark);font-size:13.6px;font-weight:700;line-height:1.25;text-decoration:none;
+  box-shadow:0 4px 14px rgba(8,20,44,.16);transition:transform .18s,box-shadow .18s}
+.qbtn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(8,20,44,.26)}
+.qbtn__ic{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:50%;background:#25D366}
+.qbtn__ic .wa-ic{width:18px;height:18px}
+.qbtn__t{flex:1;min-width:0}
+.qbtn__go{display:grid;flex:none;color:var(--green)}
+.qbtn__go svg{width:16px;height:16px;transition:transform .18s}
+.qbtn:hover .qbtn__go svg{transform:translateX(3px)}
+@media(max-width:860px){.contact{grid-template-columns:1fr}}
+@media(max-width:520px){.contact__ask{padding:12px;border-radius:17px}.qbtn{font-size:13px}}
+@media print{.contact__ask-note,.qlist{display:none}.contact__ask{padding:0;border:0;background:none}}
 
 /* ── Подвал ─────────────────────────────────────────────────── */
 .credits{padding:0 0 clamp(26px,3vw,38px);color:var(--muted);font-size:13px;text-align:center}
@@ -1078,16 +1094,7 @@ footer{padding:clamp(28px,3vw,40px) 0;background:var(--navy-3);color:#AEBFD0}
 @media(max-width:860px){.checklist__head{grid-template-columns:1fr;align-items:start}.checklist__list{grid-template-columns:1fr}}
 
 /* ── Быстрые вопросы агенту ────────────────────────────────── */
-.askbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:16px;padding:16px 18px;
-  border:1px dashed var(--outline);border-radius:var(--r-m);background:var(--card)}
-.askbar__label{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
-.askbar__chips{display:flex;flex-wrap:wrap;gap:8px}
-.askchip{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--frame);
-  border-radius:999px;background:#fff;color:var(--blue);font-size:12.5px;font-weight:700;text-decoration:none;transition:.18s}
-.askchip svg{width:15px;height:15px;color:var(--green);transition:transform .18s}
-.askchip:hover{border-color:var(--green-light);color:var(--green-dark);box-shadow:var(--shadow-s)}
-.askchip:hover svg{transform:translateX(3px)}
-@media print{.askbar{display:none}.checklist,.decade{break-inside:avoid}}
+@media print{.checklist,.decade{break-inside:avoid}}
 
 /* ── Фирменная лента-волна (компонент заявления) ───────────── */
 .wave-host{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
