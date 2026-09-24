@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<title>Генератор КП — пенсионный аннуитет</title>
+<style>
+:root{
+  --green:#47903C;--green-dark:#37742E;--green-soft:#EDF5EB;--lime:#BBD034;
+  --blue:#294A69;--blue-dark:#1D3650;--navy:#142A52;
+  --ink:#1D3650;--muted:#6B7B8C;--line:#DCE3EA;--frame:#E4EAF0;--bg:#F3F6F9;--card:#fff;
+  --warn:#B7791F;--warn-soft:#FDF6E7;--bad:#B3261E;--bad-soft:#FCEDEB;
+  --r:16px;--r-s:11px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'NeoSansPro',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+
+.gtop{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:12px 22px;
+  background:linear-gradient(243deg,#16305E,#142A52 52%,#101F3E);color:#fff}
+.gtop__mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--lime);color:#2E3B0C;font-weight:800}
+.gtop b{display:block;font-size:15.5px;letter-spacing:-.01em}
+.gtop small{display:block;color:#BCD0E6;font-size:12px}
+.gtop__ver{margin-left:auto;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.1);color:#DCE8F4;font-size:11.5px;white-space:nowrap}
+
+.gwrap{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);gap:18px;padding:18px 22px 28px;align-items:start}
+.gform{display:flex;flex-direction:column;gap:12px}
+.gcard{background:var(--card);border:1px solid var(--frame);border-radius:var(--r);padding:16px 16px 14px}
+.gcard h2{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:15px;letter-spacing:-.01em}
+.gcard h2 i{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--green-soft);color:var(--green-dark);font-style:normal;font-size:12px;font-weight:800}
+.gcard h2 small{margin-left:auto;color:var(--muted);font-size:11.5px;font-weight:400}
+.grow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gfield{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;min-width:0}
+.gfield label{color:var(--muted);font-size:12px;font-weight:700}
+.gfield input,.gfield select{width:100%;height:38px;padding:0 11px;border:1px solid var(--line);border-radius:var(--r-s);background:#FBFCFD;outline:none;transition:border-color .15s,box-shadow .15s}
+.gfield input:focus,.gfield select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(71,144,60,.14);background:#fff}
+.gfield .hint{color:var(--muted);font-size:11.5px}
+.gfield .money{font-variant-numeric:tabular-nums}
+.gseg{display:flex;padding:3px;border:1px solid var(--line);border-radius:var(--r-s);background:#FBFCFD}
+.gseg label{flex:1;display:grid;place-items:center;height:30px;border-radius:8px;color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;transition:background .15s,color .15s}
+.gseg{position:relative}
+.gseg input{position:absolute;left:0;top:0;width:1px!important;height:1px!important;opacity:0;pointer-events:none}
+.gseg input:checked+label{background:var(--blue);color:#fff}
+
+.gsum{border-color:#CFE3CB;background:linear-gradient(160deg,#F3FAF1,#fff 70%)}
+.gsum__status{display:flex;gap:9px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border-radius:var(--r-s);font-size:12.5px}
+.gsum__status.ok{background:var(--green-soft);color:var(--green-dark)}
+.gsum__status.warn{background:var(--warn-soft);color:var(--warn)}
+.gsum__status.bad{background:var(--bad-soft);color:var(--bad)}
+.gsum__status b{display:block}
+.gsum dl{display:grid;grid-template-columns:1fr auto;gap:7px 12px;margin:0}
+.gsum dt{color:var(--muted);font-size:12.5px}
+.gsum dd{margin:0;text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.gsum dd.big{color:var(--green-dark);font-size:16px}
+.gsum hr{grid-column:1/-1;width:100%;border:0;border-top:1px solid #E2ECDF;margin:3px 0}
+
+.gactions{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:sticky;bottom:12px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border:0;border-radius:13px;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s}
+.gbtn svg{width:18px;height:18px}
+.gbtn--main{background:linear-gradient(135deg,#55A148,#37742E);color:#fff;box-shadow:0 10px 22px rgba(55,116,46,.28)}
+.gbtn--alt{background:#fff;color:var(--blue-dark);border:1px solid var(--line)}
+.gbtn:hover{transform:translateY(-1px)}
+.gbtn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.gnote{margin:2px 2px 0;color:var(--muted);font-size:11.5px;line-height:1.45}
+
+.gpreview{position:sticky;top:74px;display:flex;flex-direction:column;height:calc(100vh - 92px);min-height:520px;
+  background:var(--card);border:1px solid var(--frame);border-radius:var(--r);overflow:hidden}
+.gpreview__bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--frame);background:#FBFCFD}
+.gpreview__bar b{font-size:13.5px}
+.gpreview__bar span{color:var(--muted);font-size:12px}
+.gview{margin-left:auto;display:flex;padding:3px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.gview button{height:28px;padding:0 11px;border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer}
+.gview button.on{background:var(--blue);color:#fff}
+.gstage{flex:1;display:flex;justify-content:center;background:#E9EEF3;overflow:auto}
+.gstage iframe{width:100%;height:100%;border:0;background:#fff;transition:width .25s}
+.gstage.is-phone{padding:14px 0}
+.gstage.is-phone iframe{width:390px;height:100%;border-radius:22px;box-shadow:0 12px 34px rgba(20,42,82,.22)}
+.gbusy{position:fixed;inset:0;z-index:20;display:none;place-items:center;background:rgba(243,246,249,.72);backdrop-filter:blur(2px)}
+.gbusy.on{display:grid}
+.gbusy div{padding:16px 20px;border-radius:14px;background:#fff;box-shadow:0 12px 34px rgba(20,42,82,.18);font-weight:700}
+
+@media(max-width:980px){
+  .gwrap{grid-template-columns:1fr;padding:12px}
+  .gpreview{position:static;height:78vh}
+  .gtop{padding:10px 14px}
+  .gtop__ver{display:none}
+}
+@media(max-width:420px){.grow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="gtop">
+  <span class="gtop__mark">КП</span>
+  <div><b>Генератор коммерческих предложений</b><small>Пенсионный аннуитет · АО «КСЖ «Standard Life»</small></div>
+  <span class="gtop__ver" id="ver">тариф калькулятора от 21.09.2026</span>
+</header>
+
+<main class="gwrap">
+  <form class="gform" id="form" autocomplete="off" onsubmit="return false">
+
+    <section class="gcard">
+      <h2><i>1</i>Агент <small>сохраняется в этом браузере</small></h2>
+      <div class="gfield"><label for="agentName">ФИО агента</label><input id="agentName" data-agent placeholder="Имя Фамилия"></div>
+      <div class="grow">
+        <div class="gfield"><label>Пол агента</label>
+          <div class="gseg"><input type="radio" name="agentSex" id="as-m" value="мужской" data-agent checked><label for="as-m">муж.</label><input type="radio" name="agentSex" id="as-f" value="женский" data-agent><label for="as-f">жен.</label></div>
+          <span class="hint">«подготовил / подготовила»</span></div>
+        <div class="gfield"><label for="agentCity">Город</label><input id="agentCity" data-agent placeholder="Алматы"></div>
+      </div>
+      <div class="grow">
+        <div class="gfield"><label for="agentPhone">Телефон</label><input id="agentPhone" data-agent inputmode="tel" placeholder="+7 700 000 00 00"></div>
+        <div class="gfield"><label for="agentWa">WhatsApp</label><input id="agentWa" data-agent inputmode="tel" placeholder="если отличается"></div>
+      </div>
+      <div class="gfield"><label for="agentEmail">E-mail</label><input id="agentEmail" data-agent inputmode="email" placeholder="name@mail.kz"></div>
+    </section>
+
+    <section class="gcard">
+      <h2><i>2</i>Клиент</h2>
+      <div class="gfield"><label for="clientName">Имя и фамилия клиента</label><input id="clientName" placeholder="Например: Арман Сейтов"></div>
+      <div class="gfield"><label for="clientGen">Для кого (родительный падеж)</label><input id="clientGen" placeholder="Армана Сейтова">
+        <span class="hint">Заполняется само — поправьте, если склонение неверное.</span></div>
+      <div class="grow">
+        <div class="gfield"><label>Пол</label>
+          <div class="gseg"><input type="radio" name="sex" id="s-m" value="мужской" checked><label for="s-m">мужской</label><input type="radio" name="sex" id="s-f" value="женский"><label for="s-f">женский</label></div></div>
+        <div class="gfield"><label for="dob">Дата рождения</label><input id="dob" type="date"></div>
+      </div>
+      <div class="grow">
+        <div class="gfield"><label for="clientCity">Город клиента</label><input id="clientCity" placeholder="Алматы"></div>
+        <div class="gfield"><label for="calcDate">Дата расчёта</label><input id="calcDate" type="date"></div>
+      </div>
+    </section>
+
+    <section class="gcard">
+      <h2><i>3</i>Параметры договора</h2>
+      <div class="grow">
+        <div class="gfield"><label for="category">Категория</label>
+          <select id="category">
+            <option>Стандартный</option>
+            <option>ОППВ 60 мес</option>
+            <option>Инвалидность 3гр (30-59%) бессрочно</option>
+            <option>Инвалидность 2гр (60-89%) бессрочно</option>
+            <option>Инвалидность 1гр (90-100%) бессрочно</option>
+          </select></div>
+        <div class="gfield"><label>ОППВ более 60 мес.</label>
+          <div class="gseg"><input type="radio" name="oppv" id="o-n" value="Нет" checked><label for="o-n">нет</label><input type="radio" name="oppv" id="o-y" value="Да"><label for="o-y">да</label></div></div>
+      </div>
+      <div class="grow">
+        <div class="gfield"><label for="guarantee">Гарантированный период, лет</label><input id="guarantee" type="number" min="0" max="10" step="1" value="10"><span class="hint">от 0 до 10 — как в калькуляторе</span></div>
+        <div class="gfield"><label for="dividendRate">Дивиденд, % от премии</label><input id="dividendRate" type="number" min="0" max="20" step="0.1" value="11"><span class="hint">нетто; брутто в калькуляторе — 12,5%</span></div>
+      </div>
+      <div class="gfield"><label for="savings">Накопления в ЕНПФ, ₸</label><input id="savings" class="money" inputmode="numeric" placeholder="5 800 000"></div>
+      <div class="grow">
+        <div class="gfield"><label for="redemption">Выкупная сумма КСЖ, ₸</label><input id="redemption" class="money" inputmode="numeric" placeholder="0"></div>
+        <div class="gfield"><label for="contribution">Взнос клиента, ₸</label><input id="contribution" class="money" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <p class="gnote">Если своих средств меньше порога, взнос можно не указывать: генератор оформит расчёт по порогу и посчитает доплату с учётом дивиденда.</p>
+    </section>
+
+    <section class="gcard gsum" id="summary" aria-live="polite"></section>
+
+    <div class="gactions">
+      <button type="button" class="gbtn gbtn--main" id="btnDownload">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11"/><path d="m7.5 10 4.5 4.5 4.5-4.5"/><path d="M4.5 16v2.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>
+        Скачать КП
+      </button>
+      <button type="button" class="gbtn gbtn--alt" id="btnPrint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8V3h10v5"/><rect x="4" y="8" width="16" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>
+        Печать / PDF
+      </button>
+    </div>
+    <p class="gnote">Всё считается прямо в этом браузере: данные клиентов никуда не отправляются.</p>
+  </form>
+
+  <section class="gpreview">
+    <div class="gpreview__bar">
+      <b>Предпросмотр</b><span id="pvState">введите данные клиента</span>
+      <div class="gview" role="group" aria-label="Размер предпросмотра">
+        <button type="button" data-view="desk" class="on">Компьютер</button>
+        <button type="button" data-view="phone">Телефон</button>
+      </div>
+    </div>
+    <div class="gstage" id="stage"><iframe id="preview" title="Предпросмотр коммерческого предложения"></iframe></div>
+  </section>
+</main>
+<div class="gbusy" id="busy"><div>Готовлю файл…</div></div>
+
+<!--@KIT-->
+<script>
+(function () {
+  'use strict';
+  var K = window.ReportKit;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* шрифт отчёта — и для генератора */
+  var st = document.createElement('style'); st.textContent = K.fonts; document.head.appendChild(st);
+
+  /* ── деньги в полях: 5 800 000 ── */
+  function num(v) { return +String(v || '').replace(/[^\d]/g, '') || 0; }
+  function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  Array.prototype.forEach.call(document.querySelectorAll('.money'), function (el) {
+    el.addEventListener('input', function () {
+      var pos = el.value.length - el.selectionStart, v = num(el.value);
+      el.value = v ? fmt(v) : '';
+      try { var p = Math.max(0, el.value.length - pos); el.setSelectionRange(p, p); } catch (e) {}
+    });
+  });
+
+  /* ── агент: храним в браузере ── */
+  var AGENT_KEY = 'kp-agent-v1';
+  var DEFAULT_AGENT = { agentName: 'Куаныш Тойбаев', agentSex: 'мужской', agentCity: 'Алматы',
+                        agentPhone: '+7 700 555 08 72', agentWa: '', agentEmail: 'toibaevkuka@gmail.com' };
+  function loadAgent() {
+    var a = DEFAULT_AGENT;
+    try { var s = localStorage.getItem(AGENT_KEY); if (s) a = JSON.parse(s); } catch (e) {}
+    $('agentName').value = a.agentName || ''; $('agentCity').value = a.agentCity || '';
+    $('agentPhone').value = a.agentPhone || ''; $('agentWa').value = a.agentWa || ''; $('agentEmail').value = a.agentEmail || '';
+    (a.agentSex === 'женский' ? $('as-f') : $('as-m')).checked = true;
+  }
+  function saveAgent() {
+    var a = { agentName: $('agentName').value.trim(), agentCity: $('agentCity').value.trim(), agentPhone: $('agentPhone').value.trim(),
+              agentWa: $('agentWa').value.trim(), agentEmail: $('agentEmail').value.trim(),
+              agentSex: $('as-f').checked ? 'женский' : 'мужской' };
+    try { localStorage.setItem(AGENT_KEY, JSON.stringify(a)); } catch (e) {}
+  }
+
+  /* ── «для кого»: склоняем сами, пока агент не поправил руками ── */
+  var genTouched = false;
+  $('clientGen').addEventListener('input', function () { genTouched = !!this.value.trim(); });
+  function syncGen() {
+    if (genTouched) return;
+    $('clientGen').value = K.genitive($('clientName').value, radio('sex'));
+  }
+  function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
+
+  function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  $('calcDate').value = iso(new Date());
+
+  /* ── сбор данных формы ── */
+  function readForm() {
+    var gp = Math.max(0, Math.min(10, Math.floor(+$('guarantee').value || 0)));
+    var input = { calcDate: $('calcDate').value, dob: $('dob').value, sex: radio('sex'), category: $('category').value,
+                  oppv: radio('oppv'), guarantee: gp, savings: num($('savings').value), redemption: num($('redemption').value),
+                  contribution: num($('contribution').value), dividendRate: Math.max(0, +$('dividendRate').value || 0) / 100 };
+    var client = { name: $('clientName').value.trim(), nameGen: $('clientGen').value.trim(), sex: input.sex,
+                   city: $('clientCity').value.trim(), calcDate: input.calcDate };
+    var agent = { name: $('agentName').value.trim(), sex: radio('agentSex'), city: $('agentCity').value.trim(),
+                  phone: $('agentPhone').value.trim(), whatsapp: $('agentWa').value.trim(), email: $('agentEmail').value.trim() };
+    return { input: input, client: client, agent: agent };
+  }
+
+  /* ── сводка расчёта ── */
+  var last = null;
+  function T(v) { return fmt(v) + ' ₸'; }
+  function ageText(a) { var r = Math.round(a * 10) / 10; return String(r).replace('.', ','); }
+  function summary(st) {
+    var box = $('summary');
+    if (!st.ready) {
+      box.innerHTML = '<h2><i>4</i>Расчёт</h2><div class="gsum__status warn"><span><b>Нужны данные</b>' + st.msg + '</span></div>';
+      return;
+    }
+    var c = st.calc, cls = 'ok', head = 'Можно формировать КП', text = 'Цифры посчитаны по калькулятору компании.';
+    if (c.status !== 'ok') { cls = 'bad'; head = 'Договор недоступен'; text = 'Калькулятор: «' + c.status + '». Клиенту должно быть не меньше 45 лет (для категории «Стандартный»).'; }
+    else if (c.mode === 'threshold') { cls = 'warn'; head = 'Своих средств меньше порога'; text = 'КП оформится по порогу: клиенту нужно доплатить ' + T(c.topup) + (c.dividend > 0 ? ' (с учётом дивиденда)' : '') + '.'; }
+    var pay = st.model ? st.model.payback : null;
+    box.innerHTML = '<h2><i>4</i>Расчёт</h2>' +
+      '<div class="gsum__status ' + cls + '"><span><b>' + head + '</b>' + text + '</span></div>' +
+      '<dl>' +
+      '<dt>Возраст на дату расчёта</dt><dd>' + ageText(c.age) + '</dd>' +
+      '<dt>Начало выплат</dt><dd>' + (c.deferral === 0 ? 'сразу' : 'с ' + ageText(c.startAge)) + '</dd>' +
+      '<dt>Отсрочка</dt><dd>' + c.deferral + ' ' + (c.deferral % 10 === 1 && c.deferral % 100 !== 11 ? 'год' : (c.deferral % 10 >= 2 && c.deferral % 10 <= 4 && (c.deferral % 100 < 10 || c.deferral % 100 > 20)) ? 'года' : 'лет') + '</dd>' +
+      '<dt>Аннуитетный фактор</dt><dd>' + c.nax.toFixed(2).replace('.', ',') + '</dd>' +
+      '<hr>' +
+      '<dt>Порог (мин. премия)</dt><dd>' + T(c.threshold) + '</dd>' +
+      '<dt>Сумма перевода</dt><dd>' + T(c.premium) + '</dd>' +
+      (c.dividend ? '<dt>Возможный дивиденд</dt><dd>' + T(c.dividend) + '</dd>' : '') +
+      (c.topup ? '<dt>' + (c.mode === 'threshold' ? 'Доплата клиента' : 'Взнос клиента') + '</dt><dd>' + T(c.topup) + '</dd>' : '') +
+      '<hr>' +
+      '<dt>Первая выплата</dt><dd class="big">' + T(c.first) + '</dd>' +
+      (pay ? '<dt>Окупаемость</dt><dd>к ' + pay.age + ' годам</dd>' : '') +
+      '</dl>';
+  }
+
+  /* ── пересчёт и предпросмотр ── */
+  function recompute() {
+    var f = readForm();
+    if (!f.client.name) return { ready: false, msg: 'Укажите имя клиента.' };
+    if (!f.input.dob) return { ready: false, msg: 'Укажите дату рождения клиента.' };
+    if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта.' };
+    if (!f.input.savings && !f.input.redemption && !f.input.contribution) return { ready: false, msg: 'Укажите накопления в ЕНПФ.' };
+    var calc = K.compute(f.input);
+    if (calc.errors && calc.errors.length) return { ready: false, msg: calc.errors.join(' ') };
+    var model = null;
+    try { model = K.model(calc, f.client, f.agent); } catch (e) { model = null; }
+    return { ready: true, calc: calc, form: f, model: model };
+  }
+
+  var timer = null;
+  function schedule() { clearTimeout(timer); timer = setTimeout(update, 350); }
+  function update() {
+    syncGen();
+    var st = recompute();
+    last = st;
+    summary(st);
+    var ok = st.ready && st.calc.status === 'ok';
+    $('btnDownload').disabled = !ok; $('btnPrint').disabled = !ok;
+    if (!ok) { $('pvState').textContent = st.ready ? 'договор недоступен по калькулятору' : 'введите данные клиента'; return; }
+    try {
+      var html = K.render(st.calc, st.form.client, st.form.agent);
+      var fr = $('preview'), y = 0;
+      try { y = fr.contentWindow.scrollY || 0; } catch (e) {}
+      fr.onload = function () { try { fr.contentWindow.scrollTo(0, y); } catch (e) {} };
+      fr.srcdoc = html;
+      $('pvState').textContent = st.form.client.name + ' · ' + T(st.calc.first) + ' в месяц';
+    } catch (e) {
+      $('pvState').textContent = 'ошибка сборки: ' + e.message;
+    }
+  }
+
+  /* ── снимки графиков для просмотрщиков без скриптов (WhatsApp, Telegram, почта) ── */
+  function cleanChart(svg, cls, suffix) {
+    var s = svg.replace(/^<svg([^>]*?)\swidth="[\d.]+"/, '<svg$1').replace(/^<svg([^>]*?)\sheight="[\d.]+"/, '<svg$1');
+    s = s.replace(/stroke-dashoffset:\s*[\d.]+(px)?/g, 'stroke-dashoffset: 0');
+    s = s.replace(/id="([A-Za-z][\w-]*)"/g, 'id="$1-' + suffix + '"').replace(/url\(#([A-Za-z][\w-]*)\)/g, 'url(#$1-' + suffix + ')');
+    return s.replace('<svg ', '<svg class="chart-fixed ' + cls + '" preserveAspectRatio="xMidYMid meet" ');
+  }
+  function snapAt(html, width) {
+    return new Promise(function (resolve) {
+      var f = document.createElement('iframe');
+      f.setAttribute('aria-hidden', 'true');
+      f.style.cssText = 'position:fixed;left:-20000px;top:0;width:' + width + 'px;height:1000px;border:0;';
+      var done = false;
+      function grab() {
+        if (done) return; done = true;
+        var out = { payback: '', growth: '' };
+        try {
+          var d = f.contentDocument;
+          try { f.contentWindow.dispatchEvent(new f.contentWindow.Event('beforeprint')); } catch (e) {}
+          ['payback', 'growth'].forEach(function (k) {
+            var host = d.getElementById('chart-' + k), svg = host && host.querySelector('svg:not(.chart-fixed)');
+            if (svg) out[k] = svg.outerHTML;
+          });
+        } catch (e) {}
+        setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); resolve(out); }, 50);
+      }
+      f.onload = function () { setTimeout(grab, 1300); };
+      setTimeout(grab, 6000);
+      document.body.appendChild(f);
+      f.srcdoc = html;
+    });
+  }
+  function buildFinal() {
+    var st = last;
+    var draft = K.render(st.calc, st.form.client, st.form.agent);
+    return Promise.all([snapAt(draft, 1200), snapAt(draft, 380)]).then(function (r) {
+      var snaps = {
+        payback: (r[0].payback ? cleanChart(r[0].payback, 'is-wide', 'wide') : '') + (r[1].payback ? cleanChart(r[1].payback, 'is-narrow', 'narrow') : ''),
+        growth: (r[0].growth ? cleanChart(r[0].growth, 'is-wide', 'wide') : '') + (r[1].growth ? cleanChart(r[1].growth, 'is-narrow', 'narrow') : '')
+      };
+      return K.render(st.calc, st.form.client, st.form.agent, snaps);
+    });
+  }
+  function fileName() {
+    var n = (last.form.client.name || 'клиент').replace(/[\\/:*?"<>|]+/g, '').trim();
+    return 'КП пенсионный аннуитет — ' + n + ' — ' + last.form.input.calcDate + '.html';
+  }
+  function busy(on) { $('busy').classList.toggle('on', on); }
+
+  $('btnDownload').addEventListener('click', function () {
+    if (!last || !last.ready) return;
+    busy(true);
+    buildFinal().then(function (html) {
+      var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = fileName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    }).catch(function (e) { alert('Не удалось собрать файл: ' + e.message); })
+      .then(function () { busy(false); });
+  });
+
+  $('btnPrint').addEventListener('click', function () {
+    if (!last || !last.ready) return;
+    var w = window.open('', '_blank');
+    if (!w) { alert('Разрешите всплывающие окна для этой страницы, чтобы открыть печать.'); return; }
+    w.document.write('<p style="font-family:sans-serif;padding:24px">Готовлю КП к печати…</p>');
+    buildFinal().then(function (html) {
+      w.document.open(); w.document.write(html); w.document.close();
+      setTimeout(function () { try { w.focus(); w.print(); } catch (e) {} }, 1800);
+    });
+  });
+
+  /* ── вид предпросмотра ── */
+  Array.prototype.forEach.call(document.querySelectorAll('.gview button'), function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.gview button'), function (x) { x.classList.toggle('on', x === b); });
+      $('stage').classList.toggle('is-phone', b.getAttribute('data-view') === 'phone');
+    });
+  });
+
+  /* для автоматических проверок */
+  window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName };
+
+  loadAgent();
+  $('form').addEventListener('input', function (e) {
+    if (e.target.hasAttribute('data-agent')) saveAgent();
+    schedule();
+  });
+  $('form').addEventListener('change', function (e) {
+    if (e.target.hasAttribute('data-agent')) saveAgent();
+    schedule();
+  });
+  update();
+})();
+</script>
+</body>
+</html>

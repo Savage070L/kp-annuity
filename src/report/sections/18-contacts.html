@@ -1,0 +1,33 @@
+  <!-- ══ Контакты ══ -->
+  <section class="section page" id="contacts">
+    <div class="contact">
+      <div class="wave-host wave-host--contact" data-wp aria-hidden="true"></div>
+      <div>
+        <p class="eyebrow">Ваш страховой агент</p>
+        <h2>${E(M.agentName)}</h2>
+        <p>Подготовил${M.agentFem ? 'а' : ''} расчёт для ${E(M.nameGen)}. Подскажет, что запросить у компании и как сверить официальное предложение.</p>
+        <div class="contact-data">
+          ${M.agentPhone ? '<a href="tel:' + M.agentTel + '"><span>Телефон' + (M.agentWa ? ' / WhatsApp' : '') + '</span><b>' + E(M.agentPhone).replace(/ /g, '&#160;') + '</b></a>' : ''}
+          ${M.agentEmail ? '<a href="mailto:' + E(M.agentEmail) + '"><span>E-mail</span><b>' + E(M.agentEmail) + '</b></a>' : ''}
+          ${M.agentCity ? '<div><span>Город</span><b>' + E(M.agentCity) + '</b></div>' : ''}
+        </div>
+
+      </div>
+      <a class="btn-wa" href="https://wa.me/${M.agentWa}?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%20%D0%A3%20%D0%BC%D0%B5%D0%BD%D1%8F%20%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%80%D0%B0%D1%81%D1%87%D1%91%D1%82%D1%83%20%D0%BF%D0%B5%D0%BD%D1%81%D0%B8%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%B0%D0%BD%D0%BD%D1%83%D0%B8%D1%82%D0%B5%D1%82%D0%B0" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.2 8.2 0 0 1-8.5 8A9.4 9.4 0 0 1 8 18.3L3 20l1.7-4.7A8 8 0 1 1 21 11.5Z"/><path d="M9 8.5c.2 2.4 2 4.3 4.4 4.5l1.1-1.1 1.8.8c.2.1.3.3.2.5l-.3 1c-.1.3-.4.6-.7.6-4.4 0-8-3.6-8-8 0-.3.2-.6.5-.7l1-.3c.2-.1.4 0 .5.2l.8 1.8L9 8.5Z"/></svg>
+        Задать вопрос в WhatsApp
+      </a>
+    </div>
+    <div class="askbar">
+      <span class="askbar__label">Быстрые вопросы:</span>
+      <div class="askbar__chips">
+        <a class="askchip" href="https://wa.me/${M.agentWa}?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%20%D0%9F%D1%80%D0%BE%D1%88%D1%83%20%D0%BE%D1%84%D0%B8%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D1%80%D0%B0%D1%81%D1%87%D1%91%D1%82%20%D0%9A%D0%A1%D0%96" target="_blank" rel="noopener">Хочу официальный расчёт КСЖ<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 6 6 6-6 6"/></svg></a>
+        <a class="askchip" href="https://wa.me/${M.agentWa}?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%20%D0%9A%D0%B0%D0%BA%D0%B8%D0%B5%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B%20%D0%BD%D1%83%D0%B6%D0%BD%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%BE%D1%84%D0%BE%D1%80%D0%BC%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%3F" target="_blank" rel="noopener">Какие документы нужны<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 6 6 6-6 6"/></svg></a>
+        <a class="askchip" href="https://wa.me/${M.agentWa}?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%20%D0%9C%D0%BE%D0%B6%D0%BD%D0%BE%20%D0%BB%D0%B8%20%D0%BE%D1%84%D0%BE%D1%80%D0%BC%D0%B8%D1%82%D1%8C%20%D0%B4%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%20%D0%BD%D0%B0%20%D0%B4%D0%B2%D0%BE%D0%B8%D1%85%3F" target="_blank" rel="noopener">Можно оформить на двоих<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 6 6 6-6 6"/></svg></a>
+        <a class="askchip" href="https://wa.me/${M.agentWa}?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%20%D0%9F%D0%B5%D1%80%D0%B5%D1%81%D1%87%D0%B8%D1%82%D0%B0%D0%B9%D1%82%D0%B5%2C%20%D0%BF%D0%BE%D0%B6%D0%B0%D0%BB%D1%83%D0%B9%D1%81%D1%82%D0%B0%2C%20%D0%BD%D0%B0%20%D0%B4%D1%80%D1%83%D0%B3%D0%BE%D0%B9%20%D0%B2%D0%BE%D0%B7%D1%80%D0%B0%D1%81%D1%82%20%D0%BD%D0%B0%D1%87%D0%B0%D0%BB%D0%B0%20%D0%B2%D1%8B%D0%BF%D0%BB%D0%B0%D1%82" target="_blank" rel="noopener">Пересчитайте на другой возраст<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 6 6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+

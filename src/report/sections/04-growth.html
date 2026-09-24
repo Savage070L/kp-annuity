@@ -1,0 +1,24 @@
+  <!-- ══ Рост выплаты ══ -->
+  <section class="section section--tint" id="growth"><div class="page">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Динамика выплат</p>
+        <h2>Как растёт ежемесячная выплата</h2>
+      </div>
+      <p class="intro">Выплата не фиксированная: от ${T(M.first)} в ${M.startLabel} она растёт до ${T(M.at(M.mid).m)} в ${M.mid} и до ${T(M.total.m)} в ${Y(M.horizon)}. Это не доходность, а предусмотренный договором рост +${M.indPct}% в год.</p>
+    </div>
+    <article class="card chart-card">
+      <h3>От ${T(M.first)} до ${T(M.total.m)} в месяц</h3>
+      <p class="chart-note">Выберите возраст — цифры пересчитаются.</p>
+      <div class="chart-host" id="chart-growth">${B.snapshot("growth")}</div>
+      <div class="legend">
+        ${M.gp > 0 ? '<span><i class="l-band"></i>гарантийный период ' + M.s0 + '–' + M.guarLast.age + ' лет</span>' : ''}
+
+        <span><i class="l-green"></i>ежемесячная выплата</span>
+        <span><i class="l-lime"></i>выбранный возраст</span>
+      </div>
+
+${B.agePick(M)}
+    </article>
+  </div></section>
+

@@ -1,0 +1,37 @@
+  <!-- ══ Таблица ══ -->
+  <section class="section section--tint" id="schedule"><div class="page">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Полные данные</p>
+        <h2>Таблица выплат по годам</h2>
+      </div>
+      <p class="intro">Все ${Y(M.rows.length)} выплат — помесячно, за год и нарастающим итогом.</p>
+    </div>
+    <details class="schedule" open>
+      <summary>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg></span>
+        <span><b>Все выплаты с ${M.s0} до ${M.horizon} лет</b><small>${M.rows.length} ${M.rowsWord(M.rows.length)}<span class="js-only"> · нажмите на строку, чтобы выбрать возраст</span></small></span>
+        <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      <div class="schedule__body">
+        <input type="radio" name="tfilter" id="tf-all" checked hidden><input type="radio" name="tfilter" id="tf-guar" hidden><input type="radio" name="tfilter" id="tf-after" hidden>
+        ${M.gp > 0 ? '<div class="filters" role="group" aria-label="Фильтр строк таблицы">\n          <label for="tf-all">Все годы</label>\n          <label for="tf-guar">Гарантийный период · ' + M.s0 + '–' + M.guarLast.age + '</label>\n          <label for="tf-after">После гарантии · ' + M.afterGuar + '+</label>\n        </div>' : ''}
+        <div class="sched-scroll" id="sched-scroll">
+          <table>
+            <thead><tr>
+              <th>Возраст</th><th>Период</th><th>Выплата в месяц, ₸</th><th>Выплата за год, ₸</th><th>Получено всего, ₸</th><th>До суммы перевода</th>
+            </tr></thead>
+            <tbody id="sched-body">${B.schedRows(M)}</tbody>
+          </table>
+        </div>
+        <div class="sched-legend">
+          ${M.gp > 0 ? '<span><span class="tag tag--g">гарантийный период</span></span>' : ''}
+          <span><span class="tag tag--l">сумма перевода вернулась</span></span>
+          ${M.gp > 0 ? '<span><span class="tag tag--b">после гарантии</span></span>' : ''}
+        </div>
+        <p class="sched-foot">${M.gp > 0 ? 'Гарантийный период охватывает возрастные строки ' + M.s0 + '–' + M.guarLast.age + ' включительно. Строка ' + M.afterGuar + ' — первый год после его завершения; выплаты при этом продолжаются пожизненно по условиям договора.' : 'Гарантийный период не выбран: выплаты идут пожизненно по условиям договора.'}</p>
+
+      </div>
+    </details>
+  </div></section>
+

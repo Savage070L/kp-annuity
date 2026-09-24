@@ -1,0 +1,18 @@
+  <!-- ══ Выплаты по десятилетиям ══ -->
+  <section class="section page" id="decades">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Дальняя перспектива <span class="who"><i>${E(M.initials)}</i>ваш сценарий</span></p>
+        <h2>Сколько придёт в каждом десятилетии</h2>
+      </div>
+      <p class="intro">Чем дальше, тем крупнее выплата — так работает индексация.</p>
+    </div>
+    <article class="card decades-card">
+${B.decades(M)}
+      <div class="decades__foot">
+        <div><b class="num"><span class="cnt" data-count="${M.total.cum}">${H(M.total.cum)}</span>&#160;₸</b><span>суммарно ${M.toYears(M.horizon)} — в ${X(M.total.cum / M.premium).slice(1)} раза больше суммы перевода</span></div>
+        <div><b class="num">${T(M.lastDecadeAvg)}</b><span>средняя выплата в месяц ${M.lastDecadeLabel}</span></div>
+      </div>
+    </article>
+  </section>
+

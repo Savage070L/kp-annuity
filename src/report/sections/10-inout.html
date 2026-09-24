@@ -1,0 +1,62 @@
+  <!-- ══ Вложено и получено ══ -->
+  <section class="section section--tint" id="inout"><div class="page">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Коротко о результате</p>
+        <h2>Что вносите и что получаете</h2>
+      </div>
+      <p class="intro">Один взнос — и пожизненные выплаты.</p>
+    </div>
+    <article class="card inout">
+      <div class="inout__side">
+        <span class="inout__tag">Вы вносите один раз</span>
+        <b class="num">${T(M.premium)}</b>
+${B.inoutParts(M)}
+      </div>
+      <div class="inout__arrow">
+        <svg viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h56"/><path d="m50 5 8 7-8 7"/></svg>
+        <span>пожизненные выплаты</span>
+      </div>
+      <div class="inout__side inout__side--out">
+        <span class="inout__tag">Получаете ${M.toYears(M.horizon)}</span>
+        <b class="num"><span class="cnt" data-count="${M.total.cum}">${H(M.total.cum)}</span>&#160;₸</b>
+        <div class="inout__x">${X(M.total.cum / M.premium)} к сумме перевода</div>
+        <div class="inout__parts">
+          <span>первая выплата — ${T(M.first)} в месяц</span>
+          <span>${M.toYears(M.late)} — ${T(M.at(M.late).m)} в месяц</span>
+          <span>выплаты не прекращаются при жизни</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="card cmpbars">
+      <div class="cmpbars__head">
+        <b>Во сколько раз вернётся перевод</b>
+        <span>столбец — сколько получено к возрасту; наведите, чтобы увидеть разбивку по годам</span>
+      </div>
+      <div class="cmpbars__grid">
+      <div class="cmpchart">
+${B.cmpChart(M)}
+      </div>
+        <div class="cmpbars__x">
+          <b>${X(M.total.cum / M.premium).replace('×', '&#215;')}</b>
+          <span>во столько раз сумма выплат превышает перевод</span>
+        </div>
+      </div>
+    </article>
+
+  </div></section>
+
+  <!-- ══ Акцент: пожизненно ══ -->
+  <section class="accent-wrap page">
+    <div class="accent" >
+      <div class="wave-host wave-host--accent" data-wp aria-hidden="true"></div>
+      <div class="accent__grid">
+        <div class="accent__item"><b>${M.payback.age}</b><span>${M.yearsWord(M.payback.age)} — сумма перевода вернулась выплатами</span></div>
+        <div class="accent__item"><b class="num">${X(M.total.cum / M.premium)}</b><span>во столько раз больше вернётся ${M.toYears(M.horizon)}</span></div>
+
+        <div class="accent__item"><b class="accent__inf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7.6 8.9a3.6 3.6 0 1 0 0 6.2c1.5-1 2.2-3.1 4.4-3.1s2.9 2.1 4.4 3.1a3.6 3.6 0 1 0 0-6.2c-1.5 1-2.2 3.1-4.4 3.1S9.1 9.9 7.6 8.9Z"/></svg></b><span>выплаты продолжаются, пока действует договор</span></div>
+      </div>
+    </div>
+  </section>
+

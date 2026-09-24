@@ -1,0 +1,9 @@
+{
+ "inf": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7.6 8.9a3.6 3.6 0 1 0 0 6.2c1.5-1 2.2-3.1 4.4-3.1s2.9 2.1 4.4 3.1a3.6 3.6 0 1 0 0-6.2c-1.5 1-2.2 3.1-4.4 3.1S9.1 9.9 7.6 8.9Z\"/></svg>",
+ "perk_clock": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.85\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"8.6\"/><path d=\"M12 7.4V12l3.2 2\"/></svg>",
+ "perk_inf": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.85\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7.6 8.9a3.6 3.6 0 1 0 0 6.2c1.5-1 2.2-3.1 4.4-3.1s2.9 2.1 4.4 3.1a3.6 3.6 0 1 0 0-6.2c-1.5 1-2.2 3.1-4.4 3.1S9.1 9.9 7.6 8.9Z\"/></svg>",
+ "perk_trend": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.85\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3.5 16.5 9 11l3.5 3.5 8-8\"/><path d=\"M15 7h6v6\"/></svg>",
+ "perk_shield": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.85\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20.8c4.5-1.7 7.3-5.4 7.3-9.6V6.4L12 3.4 4.7 6.4v4.8c0 4.2 2.8 7.9 7.3 9.6Z\"/><path d=\"m9.1 11.9 2.2 2.2 4.1-4.3\"/></svg>",
+ "perk_home": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.85\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m3.8 10.8 8.2-7.4 8.2 7.4\"/><path d=\"M6.2 10.2V20.2h11.6V10.2\"/><path d=\"M10 20.2v-5.4h4v5.4\"/></svg>",
+ "perk_pct": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.85\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8.2\" cy=\"8.2\" r=\"2.4\"/><circle cx=\"15.8\" cy=\"15.8\" r=\"2.4\"/><path d=\"M18.5 5.5 5.5 18.5\"/></svg>"
+}

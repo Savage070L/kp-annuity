@@ -1,0 +1,36 @@
+  <!-- ══ Главный вывод ══ -->
+  <section class="section section--tint" id="result"><div class="page">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Главный вывод <span class="who"><i>${E(M.initials)}</i>для ${E(M.nameGen)}</span></p>
+        <h2>Из чего складывается сумма для оформления</h2>
+      </div>
+      <p class="intro">${M.resultIntro}</p>
+    </div>
+
+    <div class="stack-grid">
+      <article class="card stack-card">
+        <h3>Три части одной суммы</h3>
+        <p class="lede">Из чего состоит порог оформления.</p>
+
+        <div class="pie-wrap">
+${B.pie(M)}
+        </div>
+${B.stackKey(M)}
+
+        <div class="note-card">
+          <span class="note-card__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16.5v-5.2M12 8.2h.01"/></svg></span>
+          <div>
+            <b>Почему порог именно такой</b>
+            <p>Выплата не может быть ниже 70% прожиточного минимума — отсюда и минимальная сумма перевода: ${T(M.threshold)}.</p>
+
+          </div>
+        </div>
+      </article>
+
+${B.metrics(M)}
+    </div>
+
+${B.facts(M)}
+  </div></section>
+

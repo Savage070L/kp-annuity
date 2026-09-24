@@ -1,0 +1,29 @@
+  <!-- ══ Что получает клиент ══ -->
+  <section class="section section--tint" id="benefits"><div class="page">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Что получает клиент</p>
+        <h2>Не просто перевод накоплений</h2>
+      </div>
+      <p class="intro">Шесть вещей, которые даёт этот договор.</p>
+    </div>
+${B.perks(M)}
+
+${B.compare(M)}
+
+    <div class="family">
+      <div class="family__ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.6" r="3"/><path d="M3.6 19.4c.6-3.3 2.8-5 5.4-5s4.8 1.7 5.4 5"/><path d="M16 5.9a3 3 0 0 1 0 5.4"/><path d="M17.4 14.7c2 .6 3.2 2.2 3.6 4.7"/></svg>
+      </div>
+      <div class="family__txt">
+        <b>Если случится непоправимое</b>
+        <p>Договор продолжает работать для близких.</p>
+      </div>
+      <div class="family__facts">
+        <div><b>35 МРП</b><span>единовременно на погребение — не менее этой суммы</span></div>
+        ${M.gp > 0 ? '<div><b>остаток гарантии</b><span>невыплаченное за ' + Y(M.gp) + ' переходит лицу из договора или наследникам</span></div>' : '<div><b>по договору</b><span>порядок выплат близким — в разделе «Вопросы и термины»</span></div>'}
+
+      </div>
+    </div>
+  </div></section>
+

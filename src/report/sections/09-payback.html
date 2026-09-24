@@ -1,0 +1,41 @@
+  <!-- ══ Окупаемость ══ -->
+  <section class="section page" id="payback">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Окупаемость <span class="who"><i>${E(M.initials)}</i>ваш сценарий</span></p>
+        <h2>Когда выплаты вернут сумму перевода</h2>
+      </div>
+      <p class="intro">Столбики — сколько получено к каждому возрасту, пунктир — сумма перевода.</p>
+    </div>
+
+    <div class="payback-grid">
+      <article class="card chart-card">
+        <h3>Накопленные выплаты, ${M.s0}–${M.pbTo} лет</h3>
+        <p class="chart-note">После пересечения пунктира выплаты продолжаются пожизненно.</p>
+        <div class="chart-host" id="chart-payback">${B.snapshot("payback")}</div>
+        <div class="legend">
+          <span><i class="l-soft"></i>до возврата суммы перевода</span>
+          <span><i class="l-green"></i>после возврата</span>
+          <span><i class="l-line"></i>сумма перевода — ${T(M.premium)}</span>
+        </div>
+        <table class="minitab">
+          <thead><tr><th>Возраст</th><th>В месяц</th><th>Получено всего</th><th>Что происходит</th></tr></thead>
+          <tbody>
+${B.minitab(M)}
+          </tbody>
+        </table>
+      </article>
+${B.paybackNote(M)}
+    </div>
+
+    <div class="section-head" style="margin-top:clamp(28px,3.4vw,44px)">
+      <div>
+        <p class="eyebrow">Пожизненная перспектива</p>
+        <h2>Сколько накопится к возрасту</h2>
+      </div>
+      <p class="intro">С учётом индексации ${M.indPct}% в год.</p>
+
+    </div>
+    <div id="miles">${B.miles(M)}</div>
+  </section>
+
