@@ -65,6 +65,11 @@ button,input,select{font:inherit;color:inherit}
 .gbtn:hover{transform:translateY(-1px)}
 .gbtn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 .gnote{margin:2px 2px 0;color:var(--muted);font-size:11.5px;line-height:1.45}
+.gextra{margin-top:6px}
+.gextra[hidden]{display:none}
+.gfield select{appearance:none;-webkit-appearance:none;padding-right:32px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7B8C' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:16px}
 
 .gpreview{position:sticky;top:74px;display:flex;flex-direction:column;height:calc(100vh - 92px);min-height:520px;
   background:var(--card);border:1px solid var(--frame);border-radius:var(--r);overflow:hidden}
@@ -108,12 +113,15 @@ button,input,select{font:inherit;color:inherit}
         <div class="gfield"><label>Пол агента</label>
           <div class="gseg"><input type="radio" name="agentSex" id="as-m" value="мужской" data-agent checked><label for="as-m">муж.</label><input type="radio" name="agentSex" id="as-f" value="женский" data-agent><label for="as-f">жен.</label></div>
           <span class="hint">«подготовил / подготовила»</span></div>
-        <div class="gfield"><label for="agentCity">Город</label><input id="agentCity" data-agent placeholder="Алматы"></div>
+        <div class="gfield"><label for="agentCity">Город</label><select id="agentCity" data-agent data-cities></select>
+          <input id="agentCityOther" class="gextra" data-agent placeholder="Название города" hidden></div>
       </div>
       <div class="grow">
         <div class="gfield"><label for="agentPhone">Телефон</label><input id="agentPhone" data-agent inputmode="tel" placeholder="+7 700 000 00 00"></div>
-        <div class="gfield"><label for="agentWa">WhatsApp</label><input id="agentWa" data-agent inputmode="tel" placeholder="если отличается"></div>
+        <div class="gfield"><label>WhatsApp</label>
+          <div class="gseg"><input type="radio" name="waMode" id="wa-same" value="same" data-agent checked><label for="wa-same">как телефон</label><input type="radio" name="waMode" id="wa-other" value="other" data-agent><label for="wa-other">другой</label></div></div>
       </div>
+      <div class="gfield gextra" id="waBox" hidden><label for="agentWa">Номер WhatsApp</label><input id="agentWa" data-agent inputmode="tel" placeholder="+7 700 000 00 00"></div>
       <div class="gfield"><label for="agentEmail">E-mail</label><input id="agentEmail" data-agent inputmode="email" placeholder="name@mail.kz"></div>
     </section>
 
@@ -128,8 +136,12 @@ button,input,select{font:inherit;color:inherit}
         <div class="gfield"><label for="dob">Дата рождения</label><input id="dob" type="date"></div>
       </div>
       <div class="grow">
-        <div class="gfield"><label for="clientCity">Город клиента</label><input id="clientCity" placeholder="Алматы"></div>
-        <div class="gfield"><label for="calcDate">Дата расчёта</label><input id="calcDate" type="date"></div>
+        <div class="gfield"><label for="clientCity">Город клиента</label><select id="clientCity" data-cities></select>
+          <input id="clientCityOther" class="gextra" placeholder="Название города" hidden></div>
+        <div class="gfield"><label>Дата расчёта</label>
+          <div class="gseg"><input type="radio" name="dateMode" id="dm-today" value="today" checked><label for="dm-today">сегодня</label><input type="radio" name="dateMode" id="dm-custom" value="custom"><label for="dm-custom">указать</label></div>
+          <span class="hint" id="todayHint"></span>
+          <input id="calcDate" class="gextra" type="date" hidden></div>
       </div>
     </section>
 
@@ -2068,14 +2080,19 @@ ${B.decades(M)}
   function loadAgent() {
     var a = DEFAULT_AGENT;
     try { var s = localStorage.getItem(AGENT_KEY); if (s) a = JSON.parse(s); } catch (e) {}
-    $('agentName').value = a.agentName || ''; $('agentCity').value = a.agentCity || '';
+    $('agentName').value = a.agentName || '';
     $('agentPhone').value = a.agentPhone || ''; $('agentWa').value = a.agentWa || ''; $('agentEmail').value = a.agentEmail || '';
     (a.agentSex === 'женский' ? $('as-f') : $('as-m')).checked = true;
+    var waOther = a.agentWaMode ? a.agentWaMode === 'other' : !!(a.agentWa && a.agentWa.replace(/\D/g, '') !== (a.agentPhone || '').replace(/\D/g, ''));
+    $(waOther ? 'wa-other' : 'wa-same').checked = true;
+    setCity('agentCity', 'agentCityOther', a.agentCity);
+    // город клиента по умолчанию — как у агента
+    setCity('clientCity', 'clientCityOther', a.agentCity);
   }
   function saveAgent() {
-    var a = { agentName: $('agentName').value.trim(), agentCity: $('agentCity').value.trim(), agentPhone: $('agentPhone').value.trim(),
-              agentWa: $('agentWa').value.trim(), agentEmail: $('agentEmail').value.trim(),
-              agentSex: $('as-f').checked ? 'женский' : 'мужской' };
+    var a = { agentName: $('agentName').value.trim(), agentCity: cityOf('agentCity', 'agentCityOther'),
+              agentPhone: $('agentPhone').value.trim(), agentWa: $('agentWa').value.trim(), agentWaMode: radio('waMode'),
+              agentEmail: $('agentEmail').value.trim(), agentSex: $('as-f').checked ? 'женский' : 'мужской' };
     try { localStorage.setItem(AGENT_KEY, JSON.stringify(a)); } catch (e) {}
   }
 
@@ -2091,16 +2108,54 @@ ${B.decades(M)}
   function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   $('calcDate').value = iso(new Date());
 
+  /* ── города: республиканского значения и 17 областных центров ── */
+  var CITIES = [
+    ['Города республиканского значения', ['Алматы', 'Астана', 'Шымкент']],
+    ['Областные центры', ['Актау', 'Актобе', 'Атырау', 'Жезказган', 'Караганда', 'Кокшетау', 'Конаев', 'Костанай',
+      'Кызылорда', 'Павлодар', 'Петропавловск', 'Семей', 'Талдыкорган', 'Тараз', 'Туркестан', 'Уральск', 'Усть-Каменогорск']]
+  ];
+  var OTHER = '__other';
+  Array.prototype.forEach.call(document.querySelectorAll('select[data-cities]'), function (sel) {
+    var html = '<option value="">Не указывать</option>';
+    CITIES.forEach(function (g) {
+      html += '<optgroup label="' + g[0] + '">' + g[1].map(function (c) { return '<option>' + c + '</option>'; }).join('') + '</optgroup>';
+    });
+    sel.innerHTML = html + '<option value="' + OTHER + '">Другой город…</option>';
+  });
+  function known(city) { return CITIES.some(function (g) { return g[1].indexOf(city) >= 0; }); }
+  function setCity(selId, otherId, city) {
+    city = String(city || '').trim();
+    if (!city) $(selId).value = '';
+    else if (known(city)) $(selId).value = city;
+    else { $(selId).value = OTHER; $(otherId).value = city; }
+    syncExtras();
+  }
+  function cityOf(selId, otherId) { return $(selId).value === OTHER ? $(otherId).value.trim() : $(selId).value; }
+
+  /* поля «указать / другой» видны только когда выбраны */
+  function syncExtras() {
+    $('agentCityOther').hidden = $('agentCity').value !== OTHER;
+    $('clientCityOther').hidden = $('clientCity').value !== OTHER;
+    $('waBox').hidden = radio('waMode') !== 'other';
+    var custom = radio('dateMode') === 'custom';
+    $('calcDate').hidden = !custom;
+    $('todayHint').hidden = custom;
+    $('todayHint').textContent = K.dateRu(iso(new Date()));
+  }
+
   /* ── сбор данных формы ── */
   function readForm() {
     var gp = Math.max(0, Math.min(10, Math.floor(+$('guarantee').value || 0)));
-    var input = { calcDate: $('calcDate').value, dob: $('dob').value, sex: radio('sex'), category: $('category').value,
+    var calcDate = radio('dateMode') === 'custom' ? $('calcDate').value : iso(new Date());
+    var input = { calcDate: calcDate, dob: $('dob').value, sex: radio('sex'), category: $('category').value,
                   oppv: radio('oppv'), guarantee: gp, savings: num($('savings').value), redemption: num($('redemption').value),
                   contribution: num($('contribution').value), dividendRate: Math.max(0, +$('dividendRate').value || 0) / 100 };
     var client = { name: $('clientName').value.trim(), nameGen: $('clientGen').value.trim(), sex: input.sex,
-                   city: $('clientCity').value.trim(), calcDate: input.calcDate };
-    var agent = { name: $('agentName').value.trim(), sex: radio('agentSex'), city: $('agentCity').value.trim(),
-                  phone: $('agentPhone').value.trim(), whatsapp: $('agentWa').value.trim(), email: $('agentEmail').value.trim() };
+                   city: cityOf('clientCity', 'clientCityOther'), calcDate: input.calcDate };
+    var phone = $('agentPhone').value.trim();
+    var agent = { name: $('agentName').value.trim(), sex: radio('agentSex'), city: cityOf('agentCity', 'agentCityOther'),
+                  phone: phone, whatsapp: radio('waMode') === 'other' ? $('agentWa').value.trim() : phone,
+                  email: $('agentEmail').value.trim() };
     return { input: input, client: client, agent: agent };
   }
 
@@ -2141,7 +2196,7 @@ ${B.decades(M)}
     var f = readForm();
     if (!f.client.name) return { ready: false, msg: 'Укажите имя клиента.' };
     if (!f.input.dob) return { ready: false, msg: 'Укажите дату рождения клиента.' };
-    if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта.' };
+    if (!f.input.calcDate) return { ready: false, msg: 'Укажите дату расчёта — или выберите «сегодня».' };
     if (!f.input.savings && !f.input.redemption && !f.input.contribution) return { ready: false, msg: 'Укажите накопления в ЕНПФ.' };
     var calc = K.compute(f.input);
     if (calc.errors && calc.errors.length) return { ready: false, msg: calc.errors.join(' ') };
@@ -2257,12 +2312,18 @@ ${B.decades(M)}
   window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName };
 
   loadAgent();
+  syncExtras();
   $('form').addEventListener('input', function (e) {
     if (e.target.hasAttribute('data-agent')) saveAgent();
     schedule();
   });
   $('form').addEventListener('change', function (e) {
+    syncExtras();
     if (e.target.hasAttribute('data-agent')) saveAgent();
+    // выбрали «Другой город» или «указать дату» — сразу ставим курсор в поле
+    if (e.target.value === OTHER) $(e.target.id + 'Other').focus();
+    if (e.target.id === 'dm-custom') $('calcDate').focus();
+    if (e.target.id === 'wa-other') $('agentWa').focus();
     schedule();
   });
   update();
