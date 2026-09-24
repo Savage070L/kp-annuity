@@ -1772,15 +1772,16 @@ footer{position:relative;overflow:hidden}
 .wait-pair .is-hi b{color:var(--green-dark)}
 .wait-pair>i{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#EDF5EB;color:var(--green)}
 .wait-pair>i svg{width:16px;height:16px}
-.stairs{display:flex;align-items:flex-end;gap:clamp(4px,1vw,10px);height:200px;margin-top:24px;padding:0 2px;border-bottom:2px solid #DDE4EA}
-.stair{position:relative;flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
-.stair i{display:block;width:100%;max-width:58px;height:var(--h);border-radius:9px 9px 3px 3px;
-  background:linear-gradient(180deg,#9AB1C8,#5F7F9F);transform-origin:bottom;
+.stairs{display:flex;gap:clamp(4px,1vw,10px);height:176px;margin-top:50px;padding:0 2px;border-bottom:2px solid #DDE4EA}
+/* высота столбика — доля высоты колонки; подпись висит над столбиком и места у него не отнимает */
+.stair{position:relative;flex:1;min-width:0;height:100%}
+.stair i{position:absolute;left:0;right:0;bottom:0;display:block;width:100%;max-width:58px;height:var(--h);margin:0 auto;
+  border-radius:9px 9px 3px 3px;background:linear-gradient(180deg,#9AB1C8,#5F7F9F);transform-origin:bottom;
   transition:transform .7s cubic-bezier(.2,.7,.3,1);transition-delay:calc(var(--k) * 70ms)}
 .stair.is-last i{background:linear-gradient(180deg,#6FA85F,#37742E);box-shadow:0 8px 18px rgba(71,144,60,.25)}
-.stair b{order:-1;margin-bottom:6px;color:#5E7288;font-size:11.5px;letter-spacing:-.02em;white-space:nowrap}
+.stair b{position:absolute;left:-10px;right:-10px;bottom:calc(var(--h) + 6px);color:#5E7288;font-size:11.5px;letter-spacing:-.02em;text-align:center;white-space:nowrap}
 .stair.is-last b{color:var(--green-dark);font-size:13px}
-.stair span{position:absolute;top:100%;margin-top:7px;color:#8B98A6;font-size:11.5px;font-weight:800}
+.stair span{position:absolute;left:0;right:0;top:100%;margin-top:7px;color:#8B98A6;font-size:11.5px;font-weight:800;text-align:center}
 .stair.is-last span{color:var(--green-dark)}
 .stairs__cap{margin:32px 0 0;color:var(--muted);font-size:12px}
 .js-charts .stairs:not(.is-in) .stair i{transform:scaleY(0)}
@@ -1788,7 +1789,7 @@ footer{position:relative;overflow:hidden}
 @media(max-width:760px){
   .wait-card__head{grid-template-columns:1fr}
   .wait-pair>div{flex:1;min-width:0}
-  .stairs{height:160px}
+  .stairs{height:140px;margin-top:40px}
   .stair:not(.is-first):not(.is-last) b{display:none}
   .stairs--many .stair:nth-child(even):not(.is-last) span{visibility:hidden}
 }
@@ -1812,7 +1813,7 @@ footer{position:relative;overflow:hidden}
 /* ── Где ваши деньги: получено выплатами + выкупная сумма ── */
 .cf{margin-top:20px}
 .cf__plot{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:clamp(2px,.6vw,6px);
-  align-items:end;height:280px;padding-top:30px;border-bottom:2px solid #DDE4EA}
+  align-items:end;height:250px;margin-top:34px;border-bottom:2px solid #DDE4EA}
 .cf__col{position:relative;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
 .cf__bar{display:flex;flex-direction:column;overflow:hidden;border-radius:6px 6px 2px 2px;transform-origin:bottom;
   transition:transform .7s cubic-bezier(.2,.7,.3,1),box-shadow .18s;transition-delay:calc(var(--k) * 45ms),0s}
@@ -1840,7 +1841,7 @@ footer{position:relative;overflow:hidden}
 .pbnote__surr b{display:block;margin-top:4px;color:var(--blue-dark);font-size:21px;letter-spacing:-.03em}
 .pbnote__surr span{display:block;margin-top:5px;color:#5A6B7C;font-size:12.6px;line-height:1.45}
 @media(max-width:760px){
-  .cf__plot{height:220px}
+  .cf__plot{height:196px;margin-top:30px}
   .cf__axis .is-minor{visibility:hidden}
   .cf__axis small{font-size:8.5px}
   .cf__prem em{font-size:10.5px}
@@ -1919,5 +1920,5 @@ footer{position:relative;overflow:hidden}
   /* «где деньги» и карточка окупаемости — одним куском, без пустых рамок внизу листа */
   .payback-grid{break-inside:avoid!important}
   .cf-card .minitab th:last-child,.cf-card .minitab td:last-child{display:none}
-  .cf__plot{height:230px}
+  .cf__plot{height:210px}
 }
