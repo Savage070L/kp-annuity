@@ -395,7 +395,7 @@
     ['.outcome', ''],
     ['.section-head', 'reveal--left'],
     ['.card,.client-bar,.contact,.ksj,.family,.payback-note', ''],
-    ['.pcard,.src3,.payout,.perk,.level,.level-arrow,.cfact,.fact,.tile,.abbr,.srcard,.acc,.step,.mile,.tl-points li,.chain>div,.metric,.decade,.mflow__node,.alt,.cparam,.why__node,.wait-pair>div,.phase', 'reveal--pop'],
+    ['.pcard,.src3,.payout,.perk,.level,.level-arrow,.cfact,.fact,.tile,.abbr,.srcard,.acc,.step,.mile,.tl-points li,.chain>div,.metric,.decade,.mflow__node,.alt,.cparam,.why__node,.wait-pair>div,.phase,.rest__opt,.cats__row,.doc', 'reveal--pop'],
     ['.tl-bar,.waffle,.pbnote__scale,.inout__side,.cmp-side', '']
   ];
 

@@ -115,6 +115,15 @@
     return ((parts[0] || '').charAt(0) + (parts[1] || '').charAt(0)).toUpperCase() || '—';
   }
 
+  /* Категории калькулятора простыми словами: «Инвалидность 2гр (60-89%) бессрочно» → «Инвалидность II группы» */
+  function catInfo(name) {
+    var n = String(name || ''), g = /(\d)\s*гр/i.exec(n);
+    if (/стандарт/i.test(n)) return { label: 'Без льгот', hint: 'стандартные условия', kind: 'std' };
+    if (/оппв/i.test(n)) return { label: 'Вредное производство', hint: 'ОППВ за 60 месяцев', kind: 'oppv' };
+    if (/инвалид/i.test(n) && g && +g[1] >= 1 && +g[1] <= 3) return { label: 'Инвалидность ' + ['', 'I', 'II', 'III'][+g[1]] + ' группы', hint: 'бессрочная', kind: 'inv' };
+    return { label: n, hint: '', kind: 'other' };
+  }
+
   /* Пенсионный возраст ЕНПФ для блока «Ранний старт»: мужчины 63, женщины 61 */
   function enpfAge(sex) { return sex === 'мужской' ? 63 : 61; }
 
@@ -243,7 +252,9 @@
       { icon: 'trend', big: '+' + pct(ind), title: 'Индексация каждый год', note: tenge(first) + ' → ' + tenge(at(late).m) + ' ' + toYears(late) },
       hasGuar ? { icon: 'shield', big: years(gp), title: 'Гарантийный период', note: 'выплаты сохраняются за близкими' }
               : { icon: 'shield', big: times(total100.cum / premium), title: 'Возврат перевода', note: 'во столько раз больше вернётся ' + toYears(total100.age) },
-      { icon: 'home', big: 'ФГСВ', title: 'Защита по закону', note: 'если компания лишится лицензии' },
+      isFinite(calc.tariff.i) && calc.tariff.i > 0
+        ? { icon: 'lock', big: pct(calc.tariff.i), title: 'Фиксированная доходность', note: 'ставка закреплена в договоре — рынок на выплаты не влияет' }
+        : { icon: 'home', big: 'ФГСВ', title: 'Защита по закону', note: 'если компания лишится лицензии' },
       { icon: 'pct', big: 'до ' + pct(calc.dividendRate), title: 'Возможный дивиденд', note: 'в вашем расчёте ' + tenge(calc.dividend) }
     ];
 
@@ -332,6 +343,21 @@
 
     /* варианты гарантийного периода: при своей сумме меняется выплата, при оформлении по порогу — порог */
     var alts = (calc.alts || []).map(function (a) { return { gp: a.gp, value: free ? a.first : a.threshold, cur: a.gp === gp }; });
+    /* пороги по категориям калькулятора — тот же возраст и гарантия; метка — свои накопления */
+    var cats = (calc.cats || []).map(function (c) {
+      var ci = catInfo(c.name);
+      return { name: c.name, label: ci.label, hint: ci.hint, kind: ci.kind, threshold: c.threshold, own: c.own,
+               from: c.deferral === 0 ? 'выплаты сразу' : 'выплаты с ' + ageFrom(c.start), first: c.first, topup: c.topup,
+               viaDiv: c.mode === 'threshold' && !(c.topup > 0), enough: c.own ? free : c.first != null };
+    });
+    var catOwn = cats.filter(function (c) { return c.own; })[0] || null;
+    /* у клиента с инвалидностью другие группы — не выбор: сравниваем только со стандартом */
+    if (catOwn && catOwn.kind === 'inv') cats = cats.filter(function (c) { return c.own || c.kind === 'std'; });
+    var catStd = cats.filter(function (c) { return c.kind === 'std'; })[0] || null;
+    if (cats.length < 2 || !catOwn) cats = [];
+    var catMin = cats.length ? Math.min.apply(null, cats.map(function (c) { return c.threshold; })) : 0;
+    var minimal = calc.minimal && calc.minimal.rest > 0 ? calc.minimal : null;
+
     var digits = function (v) { return String(v || '').replace(/\D/g, ''); };
     var waDigits = digits(agent.whatsapp || agent.phone);
     if (waDigits.length === 11 && waDigits.charAt(0) === '8') waDigits = '7' + waDigits.slice(1);
@@ -391,6 +417,10 @@
       surrBase: surrBase, surrFirst: surrFirst, surrFromText: dateRu(calc.surrFrom),
       beginIndexIn: beginD ? 'каждый год в ' + MONTHS_PREP[beginD.m - 1] : 'каждый год', surrFromMonth: monthYear(ymdOf(calc.surrFrom)),
       zeroRow: zeroRow, flow: flow, flowMax: flowMax, alts: alts,
+      cats: cats, catOwn: catOwn, catStd: catStd, catMin: catMin, minimal: minimal,
+      /* с чем сравниваем пороги категорий: при своей сумме — вся сумма перевода, иначе — свои накопления */
+      catMoney: free ? premium : own, catMoneyName: free && calc.contribution > 0 ? 'сумма перевода' : 'ваши накопления',
+      ratePct: isFinite(calc.tariff.i) ? pctNum(calc.tariff.i) : '',
       pctNum: pctNum, monthsWord: monthsWord
     };
   }

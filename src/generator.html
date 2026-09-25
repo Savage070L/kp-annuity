@@ -221,7 +221,7 @@ button,input,select{font:inherit;color:inherit}
 
   <section class="gpreview">
     <div class="gpreview__bar">
-      <b>Предпросмотр</b><span id="pvState">введите данные клиента</span>
+      <b>Предпросмотр</b><span id="pvState"></span>
       <div class="gview" role="group" aria-label="Размер предпросмотра">
         <button type="button" data-view="desk" class="on">Компьютер</button>
         <button type="button" data-view="phone">Телефон</button>
@@ -436,7 +436,7 @@ button,input,select{font:inherit;color:inherit}
     summary(st);
     var ok = st.ready && st.calc.status === 'ok';
     $('btnDownload').disabled = !ok; $('btnPrint').disabled = !ok;
-    if (!ok) { $('pvState').textContent = st.ready ? 'договор недоступен по калькулятору' : 'введите данные клиента'; return; }
+    if (!ok) { $('pvState').textContent = st.ready ? 'договор недоступен по калькулятору' : ''; return; }
     try {
       var html = K.render(st.calc, st.form.client, st.form.agent);
       var fr = $('preview'), y = 0;
@@ -556,8 +556,9 @@ button,input,select{font:inherit;color:inherit}
         msg = { cls: 'warn', lines: lines.concat(['Проверка: ' + ck.bad.length + ' из ' + ck.checked + ' формул считаются не так, как сохранил Excel (' +
           ck.bad.slice(0, 3).map(function (b) { return b.addr; }).join(', ') + '). Сверьте цифры КП с Excel.']) };
       } else {
-        lines.push(ck.checked ? 'Формулы проверены: ' + ck.checked + ' из ' + ck.checked + ' совпадают с Excel.' : 'В файле нет сохранённых результатов Excel — сверить формулы не с чем.');
-        msg = { cls: diff.length ? 'info' : 'ok', lines: lines };
+        // всё сошлось — молчим; пишем только об изменениях и о том, что сверить не с чем
+        if (!ck.checked) lines.push('В файле нет сохранённых результатов Excel — сверить формулы не с чем.');
+        msg = lines.length ? { cls: 'info', lines: lines } : null;
       }
     }
     var box = $('calcMsg');

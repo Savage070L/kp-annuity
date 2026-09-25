@@ -20,19 +20,21 @@
       <div class="phase">
         <p class="phase__t"><span class="phase__n">2</span><b>Оформление</b><small>КСЖ и ЕНПФ</small></p>
         <ol class="steps">
-        <li class="step"><input type="checkbox" id="st5"><label for="st5"><span class="step__box"></span><span class="step__num">5</span><span class="step__text"><b>КСЖ передаст сведения</b><span>через страховую информационную систему</span></span></label></li>
-        <li class="step"><input type="checkbox" id="st6"><label for="st6"><span class="step__box"></span><span class="step__num">6</span><span class="step__text"><b>ЕНПФ выполнит перевод</b><span>накопления уходят по установленной процедуре</span></span></label></li>
+        <li class="step"><input type="checkbox" id="st5"><label for="st5"><span class="step__box"></span><span class="step__num">5</span><span class="step__text"><b>Соберите документы</b><span>список — ниже</span></span></label></li>
+        <li class="step"><input type="checkbox" id="st6"><label for="st6"><span class="step__box"></span><span class="step__num">6</span><span class="step__text"><b>Подпишите договор</b><span>сведения в ЕНПФ КСЖ передаст сама — через страховую информационную систему</span></span></label></li>
+        <li class="step"><input type="checkbox" id="st7"><label for="st7"><span class="step__box"></span><span class="step__num">7</span><span class="step__text"><b>ЕНПФ переведёт накопления</b><span>в компанию — в течение 10 рабочих дней</span></span></label></li>
         </ol>
       </div>
       <div class="phase phase--pay">
         <p class="phase__t"><span class="phase__n">3</span><b>Выплаты</b><small>${M.immediate ? 'после перевода' : M.beginMonth}</small></p>
         <ol class="steps">
-        <li class="step"><input type="checkbox" id="st7"><label for="st7"><span class="step__box"></span><span class="step__num">7</span><span class="step__text"><b>Начнутся выплаты</b><span>${M.immediate ? 'не позднее 10 рабочих дней после перевода' : 'с ' + M.beginText}</span></span></label></li>
+        <li class="step"><input type="checkbox" id="st8"><label for="st8"><span class="step__box"></span><span class="step__num">8</span><span class="step__text"><b>Начнутся выплаты</b><span>${M.immediate ? 'не позднее 10 рабочих дней после перевода' : 'с ' + M.beginText}</span></span></label></li>
         </ol>
         <div class="phase__pay"><b class="num">от ${T(M.first)}</b><span>в месяц — дальше +${M.indPct}% ${M.beginIndexIn}, пожизненно</span></div>
       </div>
     </div>
     <p class="steps__hint">Отмечайте шаги по мере прохождения: галочки видны только вам и нигде не сохраняются.</p>
+${B.docs(M)}
 
   </div></section>
 

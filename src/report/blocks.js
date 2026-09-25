@@ -445,6 +445,93 @@
         '        </div>';
     };
 
+    /* ── Накоплений больше порога: переводить всё не обязательно, остаток — на жильё или лечение ── */
+    B.rest = function () {
+      var m = M.minimal;
+      if (!m) return '';
+      var onlyThr = m.premium === M.threshold;
+      return '    <article class="card rest">\n' +
+        '      <div class="rest__txt">\n' +
+        '        <p class="eyebrow">Остаток в ЕНПФ</p>\n' +
+        '        <h3>Переводить всё не обязательно</h3>\n' +
+        '        <p>Минимум для договора — порог ' + T(M.threshold) + '. Остальное можно оставить в ЕНПФ: после договора аннуитета порог достаточности ЕНПФ на остаток не действует — его можно снять на жильё или лечение.</p>\n' +
+        '      </div>\n' +
+        '      <div class="rest__opts">\n' +
+        '        <div class="rest__opt is-cur"><span class="rest__k">перевести всё</span><b class="num">' + T(M.premium) + '</b>' +
+        '<small>первая выплата — от ' + T(M.first) + ' в месяц</small><em class="rest__me">в этом расчёте</em></div>\n' +
+        '        <div class="rest__opt"><span class="rest__k">' + (onlyThr ? 'перевести только порог' : 'перевести минимум') + '</span><b class="num">' + T(m.premium) + '</b>' +
+        '<small>первая выплата — от ' + T(m.first) + ' в месяц</small><em class="rest__plus"><b class="num">+' + NBSP + T(m.rest) + '</b> остаются в ЕНПФ — на жильё или лечение</em></div>\n' +
+        '      </div>\n' +
+        '      <p class="rest__foot">Можно выбрать и сумму между ними — агент пересчитает выплату.</p>\n' +
+        '    </article>';
+    };
+
+    /* ── Пороги по категориям калькулятора: вредное производство и инвалидность снижают порог ── */
+    B.cats = function () {
+      var C = M.cats;
+      if (!C || C.length < 2) return '';
+      var own = M.catOwn, std = own.kind === 'std', money = M.catMoney;
+      var top = Math.max.apply(null, C.map(function (c) { return c.threshold; }).concat([money])) * 1.03;
+      var has = function (k) { return C.some(function (c) { return c.kind === k && !c.own; }); };
+      var what = has('oppv') && has('inv') ? 'Вредное производство или инвалидность снижают' : has('oppv') ? 'Вредное производство снижает'
+        : has('inv') ? 'Инвалидность снижает' : 'Льготная категория снижает';
+      var higher = C.some(function (c) { return !c.own && c.first != null && c.first > M.first; });
+      var save = M.catStd ? M.catStd.threshold - own.threshold : 0;
+      var lede = std
+        ? what + ' порог' + (higher ? ', а выплата при той же сумме выходит больше' : '') + '.'
+        : (save > 0 ? 'Без льготы порог был бы ' + T(M.catStd.threshold) + ' — ваша категория снижает его на ' + T(save) + '.' : 'Порог зависит от категории клиента.');
+      lede += ' Всё по калькулятору компании — для вашего возраста' + (M.gp > 0 ? ' и гарантии ' + Y(M.gp) : '') + '.';
+      var mp = r1(money / top * 100);
+      var head = '        <div class="cats__row cats__row--head"><span></span><span class="cats__track">' +
+        (money > 0 ? '<em class="cats__mark' + (mp > 62 ? ' is-r' : mp < 38 ? ' is-l' : '') + '">' + M.catMoneyName + ' · ' + T(money) + '</em>' : '') +
+        '</span><span class="cats__thr">порог</span><span class="cats__pay">первая выплата</span></div>';
+      var rows = C.map(function (c) {
+        var pay = c.own ? '<b class="num">' + T(c.first) + '</b><small class="cats__me">ваш расчёт</small>'
+          : c.first != null ? '<b class="num">' + T(c.first) + '</b><small class="cats__ok">' + (c.viaDiv ? 'хватает с дивидендом' : 'хватает') + '</small>'
+          : '<small class="cats__no">доплата ' + T(c.topup) + '</small>';
+        return '        <div class="cats__row' + (c.own ? ' is-own' : '') + (c.enough ? ' is-ok' : '') + '">' +
+          '<div class="cats__name"><b>' + E(c.label) + '</b><small>' + (c.hint ? E(c.hint) + ' · ' : '') + c.from + '</small></div>' +
+          '<div class="cats__track"><i style="width:' + r1(c.threshold / top * 100) + '%"></i></div>' +
+          '<div class="cats__thr"><b class="num">' + T(c.threshold) + '</b></div>' +
+          '<div class="cats__pay">' + pay + '</div></div>';
+      }).join('\n');
+      var how = [];
+      if (C.some(function (c) { return c.kind === 'oppv' && !c.own; })) how.push('вредное производство — выписка ЕНПФ, где видны ОППВ за 60 месяцев и больше');
+      if (C.some(function (c) { return c.kind === 'inv' && !c.own; })) how.push('инвалидность — справка о социальном статусе с egov.kz');
+      return '    <article class="card cats">\n' +
+        '      <p class="eyebrow">' + (std ? 'Льготные категории' : 'Ваша категория') + '</p>\n' +
+        '      <h3>' + (std ? 'Порог ниже, если есть льгота' : 'Льгота снижает порог') + '</h3>\n' +
+        '      <p class="cats__lede">' + lede + '</p>\n' +
+        '      <div class="cats__plot"' + (money > 0 ? ' style="--own:' + mp + '%"' : '') + '>\n' + head + '\n' + rows + '\n      </div>\n' +
+        (how.length ? '      <p class="cats__foot"><b>Как подтвердить:</b> ' + how.join('; ') + '.' + (std ? ' Если льгота есть — скажите агенту, он пересчитает.' : '') + '</p>\n' : '') +
+        '    </article>';
+    };
+
+    /* ── Документы для оформления ── */
+    var DOC_IC = {
+      id: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.4" width="18" height="13.2" rx="2.6"/><circle cx="8.8" cy="11" r="2.1"/><path d="M5.6 15.8c.5-1.5 1.7-2.3 3.2-2.3s2.7.8 3.2 2.3"/><path d="M14.6 9.8h3.8M14.6 13.2h3.8"/></svg>',
+      doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3.2h6.6l5.2 5.2v12.4H6.6Z"/><path d="M13.2 3.2v5.2h5.2"/><path d="M9.6 13h6M9.6 16.4h6"/></svg>',
+      bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3.6 9.2 8.4-5 8.4 5"/><path d="M5.6 9.8v7.4M9.9 9.8v7.4M14.1 9.8v7.4M18.4 9.8v7.4"/><path d="M3.4 20h17.2"/></svg>',
+      pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4.2L19 9.2a2.6 2.6 0 0 0-3.7-3.7L4.5 16.3Z"/><path d="m13.6 7.2 3.7 3.7"/></svg>',
+      cert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3.2h6.6l5.2 5.2v12.4H6.6Z"/><path d="M13.2 3.2v5.2h5.2"/><path d="m9.4 14.4 2 2 3.8-4"/></svg>'
+    };
+    B.docs = function () {
+      var kind = M.catOwn ? M.catOwn.kind : '';
+      var D = [
+        { ic: 'id', t: 'Удостоверение личности', n: 'копия' },
+        { ic: 'doc', t: 'Выписка с пенсионного счёта', n: kind === 'oppv' ? 'из ЕНПФ — в ней видны ОППВ за 60 месяцев' : 'из ЕНПФ — сумма ваших накоплений' },
+        { ic: 'bank', t: 'Банковские реквизиты', n: 'счёт с IBAN — на него придут выплаты' },
+        { ic: 'pen', t: 'Заявление на договор', n: 'заполните вместе с агентом' }
+      ];
+      if (kind === 'inv') D.push({ ic: 'cert', t: 'Справка о социальном статусе', n: 'с egov.kz — подтверждает группу инвалидности' });
+      return '    <article class="card docs">\n' +
+        '      <div class="docs__head"><p class="eyebrow">Документы</p><h3>Что понадобится для оформления</h3></div>\n' +
+        '      <ul class="docs__list docs__list--' + D.length + '">\n' + D.map(function (d) {
+          return '        <li class="doc"><span class="doc__ic">' + DOC_IC[d.ic] + '</span><b>' + d.t + '</b><small>' + d.n + '</small></li>';
+        }).join('\n') + '\n      </ul>\n' +
+        '    </article>';
+    };
+
     /* ── Варианты гарантийного периода ── */
     B.alts = function () {
       var A = M.alts;

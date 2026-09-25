@@ -10,7 +10,7 @@
     <div class="acc-group">
         <details class="acc">
           <summary><span class="acc__n">01</span><span class="acc__q">Какая сумма накоплений считается достаточной?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
-          <div class="acc__body"><p>Когда месячная выплата выходит не ниже ${M.minPayPct}% прожиточного минимума. В вашем случае это ${T(M.threshold)}.</p></div>
+          <div class="acc__body"><p>Когда месячная выплата выходит не ниже ${M.minPayPct}% прожиточного минимума. В вашем случае это ${T(M.threshold)}.${M.cats.length && M.catOwn.kind === 'std' && M.catMin < M.threshold ? ' При вредном производстве или инвалидности порог ниже — до ' + T(M.catMin) + '.' : ''}</p></div>
         </details>
         <details class="acc">
           <summary><span class="acc__n">02</span><span class="acc__q">Когда придёт первая выплата?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
@@ -39,6 +39,14 @@
         <details class="acc">
           <summary><span class="acc__n">08</span><span class="acc__q">Можно ли оформить договор на двоих?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
           <div class="acc__body"><p>Да — супруги или близкие родственники. Порог для такого договора выше: 1,4 прожиточного минимума.</p></div>
+        </details>
+        <details class="acc">
+          <summary><span class="acc__n">09</span><span class="acc__q">Можно ли снять остаток из ЕНПФ на жильё или лечение?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+          <div class="acc__body"><p>Да. После договора аннуитета порог достаточности ЕНПФ на оставшиеся накопления не действует — их можно использовать на цели, разрешённые законом: жильё, лечение.${M.minimal ? ' Если перевести только порог, в ЕНПФ останется ' + T(M.minimal.rest) + '.' : ''}</p></div>
+        </details>
+        <details class="acc">
+          <summary><span class="acc__n">10</span><span class="acc__q">Будет ли пенсия от государства?</span><span class="acc__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+          <div class="acc__body"><p>Да, аннуитет её не заменяет: базовую пенсию назначает государство, при стаже до 1998&#160;г. — и солидарную. Если вы продолжаете работать, новые взносы снова копятся в ЕНПФ.</p></div>
         </details>
     </div>
     <div class="section-head" style="margin:clamp(26px,3vw,40px) 0 16px">
