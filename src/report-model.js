@@ -420,7 +420,6 @@
       cats: cats, catOwn: catOwn, catStd: catStd, catMin: catMin, minimal: minimal,
       /* с чем сравниваем пороги категорий: при своей сумме — вся сумма перевода, иначе — свои накопления */
       catMoney: free ? premium : own, catMoneyName: free && calc.contribution > 0 ? 'сумма перевода' : 'ваши накопления',
-      ratePct: isFinite(calc.tariff.i) ? pctNum(calc.tariff.i) : '',
       pctNum: pctNum, monthsWord: monthsWord
     };
   }

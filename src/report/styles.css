@@ -2083,6 +2083,7 @@ footer{position:relative;overflow:hidden}
 
 /* ── Документы для оформления ── */
 .docs{margin-top:16px;padding:clamp(18px,2.2vw,24px)}
+#contacts .docs{margin:0 0 18px}
 .docs__head h3{font-size:clamp(17px,1.8vw,20px);line-height:1.2}
 .docs__list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
 .docs__list--5{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -2104,4 +2105,12 @@ footer{position:relative;overflow:hidden}
   .docs__list--5{grid-template-columns:repeat(5,minmax(0,1fr))!important}
   .docs{padding:14px 16px!important}
   .doc{padding:10px}
+}
+
+/* ── Печать: кнопка WhatsApp на бумаге не нужна; подвал (логотип, подпись, ссылки) повторяет карточку агента
+   и уходил один на последний лист — в печати его нет, документ заканчивается карточкой агента ── */
+@media print{
+  .contact__ask{display:none!important}
+  footer{display:none!important}
+  #contacts .docs{padding:12px 14px!important}
 }
