@@ -227,11 +227,7 @@ button,input,select{font:inherit;color:inherit}
 
     <section class="gcard genpf" id="enpfCard">
       <h2><i>4</i>Сравнение с ЕНПФ</h2>
-      <div class="grow">
-        <div class="gfield"><label>Блок в КП</label>
-          <div class="gseg"><input type="radio" name="enpfShow" id="es-on" value="on" checked><label for="es-on">показать</label><input type="radio" name="enpfShow" id="es-off" value="off"><label for="es-off">скрыть</label></div></div>
-        <div class="gfield"><label for="enpfScenario">Сценарий ЕНПФ</label><select id="enpfScenario"></select></div>
-      </div>
+      <div class="gfield"><label for="enpfScenario">Сценарий ЕНПФ</label><select id="enpfScenario"></select></div>
       <div class="gfield"><label for="enpfInflation">Инфляция для пересчёта в сегодняшние деньги</label><select id="enpfInflation"></select></div>
       <div class="genpf__sum" id="enpfSum" aria-live="polite"></div>
       <div class="genpf__live">
@@ -239,7 +235,6 @@ button,input,select{font:inherit;color:inherit}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg>
           Сверить с ЕНПФ
         </button>
-        <p class="gnote">Отправит в калькулятор ЕНПФ (mobile.enpf.kz) только пол, дату рождения и сумму накоплений — без имени и контактов. Нажимайте только с согласия клиента.</p>
         <div class="gcalc__msg" id="enpfLive" hidden></div>
         <label class="genpf__stamp" id="enpfStampBox" hidden><input type="checkbox" id="enpfStamp"><span id="enpfStampText">Указать в КП, что цифры сверены с калькулятором ЕНПФ</span></label>
       </div>
@@ -480,10 +475,9 @@ button,input,select{font:inherit;color:inherit}
     try { saved = JSON.parse(localStorage.getItem(ENPF_KEY) || '{}') || {}; } catch (e) {}
     $('enpfScenario').value = P.scenarios.some(function (s) { return s.key === saved.scenario; }) ? saved.scenario : 'realist';
     $('enpfInflation').value = P.inflation.some(function (s) { return s.key === saved.inflation; }) ? saved.inflation : 'enpf';
-    $(saved.show === false ? 'es-off' : 'es-on').checked = true;
   })();
   function enpfForm() {
-    var f = { show: radio('enpfShow') !== 'off', scenario: $('enpfScenario').value, inflation: $('enpfInflation').value };
+    var f = { show: true, scenario: $('enpfScenario').value, inflation: $('enpfInflation').value };   // блок «ЕНПФ или аннуитет» — в КП всегда
     try { localStorage.setItem(ENPF_KEY, JSON.stringify(f)); } catch (e) {}
     // после сверки цифры ЕНПФ в КП берутся из ответа ЕНПФ (модель проверит, что данные те же); отметка о сверке —
     // по галочке агента, а если ЕНПФ ответил иначе, чем копия методики, — всегда («цифры — из ответа ЕНПФ»)
