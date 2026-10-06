@@ -1,0 +1,15 @@
+/* ════ EnpfLib · реестр модулей ════
+ * Библиотека «Калькулятор ЕНПФ» (~/Downloads/Калькулятор ЕНПФ/lib) внутри генератора КП.
+ * Модули src/enpf/NN-*.js регистрируются здесь по порядку зависимостей; последний файл (99-index.js)
+ * собирает все экспорты в window.EnpfLib — как lib/index.js. Создано tools/sync-enpf.js, руками не править. */
+(function (root) {
+  'use strict';
+  var modules = {};
+  root.EnpfLib = {
+    source: "~/Downloads/Калькулятор ЕНПФ/lib",
+    files: [{"module":"params-2026.js","sha256":"e08d6fa8dcdf87157bf56526641c295ab7d9ddcfeb270af499a81cab9c2091e8"},{"module":"data/mortality.js","sha256":"fbe6e68d0bab9e4ceb8f0ce755c615b4422b7e0163cb6a3915c05ab9e739ff6b"},{"module":"actuarial.js","sha256":"d5d6a9efc144f50bd26dcc14d0d0b3d46a185e7d4d2bb30e7723ef179048071b"},{"module":"dates.js","sha256":"fce100b3e16c872c4515d3ab24ada6bb7a7cacc625c76c1228b5da711e332ea3"},{"module":"sl-annuity.js","sha256":"110d3c11e2721435ff701571e4ef66085a4d1e5ba9e2dd2aba346088b4f52257"},{"module":"enpf-schedule.js","sha256":"309a36b7ea008374e99dd829615923011063d1a626b4e6fd2dbc95afb0ed2b17"},{"module":"data/porog_table.js","sha256":"92e16a8e937016135b889b36ab12a98a4f8f96eb38c6bceb23350757b457e3b5"},{"module":"data/forecast_tables.js","sha256":"aa9112124a3c379c1a10340d58db990817a31e181658ef4d605334f424b8f413"},{"module":"enpf-forecast.js","sha256":"747dea2add6e43b47de67e1e41347ae4786a2867aa75517fdd4f1d489426708c"},{"module":"enpf-kszh.js","sha256":"41fc1dbc29c5ea38d545917146e19d52cfcd35e890fdc62d5f9246a1b0a9786c"},{"module":"compare.js","sha256":"5b69166561dbed123ce9e508ab140a5f8ee32ce9ce60c00a420c1fe98cebfa1a"},{"module":"enpf-api.js","sha256":"081a8d36e572416b2667bf7b12f1327224d2e6323b50e422b25b8e889be46b33"}],
+    modules: modules,
+    define: function (name, exp) { modules[name] = exp; },
+    require: function (name) { var m = modules[name]; if (!m) throw new Error('EnpfLib: модуль ' + name + ' не загружен'); return m; }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);

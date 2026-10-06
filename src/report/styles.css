@@ -147,9 +147,10 @@ p{margin:0}
 .stack-key .nm{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11.5px;font-weight:700;line-height:1.25}
 .stack-key .nm i{width:10px;height:10px;border-radius:3px;flex:none}
 .stack-key .nm i.c-own{background:var(--green)}
-.stack-key .nm i.c-div{background:#B4CA34}
 .stack-key .nm i.c-top{background:var(--blue)}
 .stack-key .val{color:var(--blue-dark);font-size:16.5px;font-weight:800;letter-spacing:-.025em}
+/* возможный дивиденд — отдельно от суммы для оформления */
+.stack-note{margin:12px 0 0;padding:10px 13px;border:1px dashed var(--outline);border-radius:13px;color:var(--muted);font-size:12.6px;line-height:1.5}
 .metrics{display:flex;flex-direction:column;gap:12px;align-content:start}
 .metric{display:flex;flex-direction:column;justify-content:center;padding:20px;border:1px solid var(--frame);border-radius:var(--r-m);background:#fff;box-shadow:var(--shadow-s)}
 .metric span{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.02em}
@@ -1062,7 +1063,6 @@ footer{padding:clamp(28px,3vw,40px) 0;background:var(--navy-3);color:#AEBFD0}
 .inout__parts span{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.3px;line-height:1.35}
 .inout__parts i{width:10px;height:10px;border-radius:3px;flex:none}
 .inout__parts i.c-own{background:var(--green)}
-.inout__parts i.c-div{background:#B4CA34}
 .inout__parts i.c-top{background:var(--blue)}
 .inout__arrow{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--green);min-width:86px}
 .inout__arrow svg{width:64px;height:24px}
@@ -1495,7 +1495,6 @@ footer{position:relative;overflow:hidden}
 }
 
 /* ── Круговая диаграмма раскрывается по кругу ──────────────── */
-.pie-div{transition-delay:.5s}
 .pie-top{transition-delay:.68s}
 .js-charts .pie-pct{opacity:0;transition:opacity .45s ease}
 .js-charts .pie.is-in .pie-pct{opacity:1}
@@ -2113,4 +2112,189 @@ footer{position:relative;overflow:hidden}
   .contact__ask{display:none!important}
   footer{display:none!important}
   #contacts .docs{padding:12px 14px!important}
+}
+
+/* ════════════════════════════════════════════════════════════
+   «ЕНПФ или аннуитет» (раздел 08b-enpf): те же накопления — два пути.
+   ЕНПФ — приглушённый сине-серый (в «Раннем старте» ЕНПФ тоже серый), аннуитет — фирменный зелёный.
+   ════════════════════════════════════════════════════════════ */
+:root{--enpf:#6E86A0;--enpf-dark:#4F6680;--enpf-soft:#C9D4DF;--enpf-band:rgba(110,134,160,.16)}
+
+/* вывод одной фразой */
+.vs-verdict{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start;padding:clamp(18px,2.2vw,26px)}
+.vs-verdict__ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#EEF3F8;color:var(--enpf-dark)}
+.vs-verdict__ic svg{width:24px;height:24px}
+.vs-verdict h3{font-size:clamp(18px,2vw,23px);line-height:1.2}
+.vs-verdict p:not(.eyebrow){margin-top:8px;color:#4A5B6C;font-size:14.5px;line-height:1.55;max-width:88ch}
+.vs-verdict--sl{background:linear-gradient(140deg,#F1F8EF,#fff 65%);border-color:#CFE3CB}
+.vs-verdict--sl .vs-verdict__ic{background:#E3F0DF;color:var(--green-dark)}
+.vs-verdict .num{font-weight:800;color:var(--blue-dark)}
+.vs-stamp{display:flex;align-items:center;gap:8px;margin-top:12px!important;padding:8px 11px;border-radius:11px;background:#EEF3F8;
+  color:var(--enpf-dark)!important;font-size:12.6px!important;font-weight:700}
+.vs-stamp__ic{display:grid;place-items:center;width:18px;height:18px;flex:none;color:var(--green-dark)}
+.vs-stamp__ic svg{width:18px;height:18px}
+
+/* две карточки */
+.vs-split-card{margin-top:14px}
+.vs-split-card .cmp-split{margin-top:0}
+.cmp-side--enpf{background:linear-gradient(160deg,#F3F6F9,#fff 70%);border-color:#D5DEE7}
+.cmp-side--enpf .cmp-side__big{color:var(--enpf-dark)}
+.vs-list{display:grid;gap:7px;margin:14px 0 0;padding:0;list-style:none}
+.vs-list li{position:relative;padding-left:16px;color:#5A6B7C;font-size:13px;line-height:1.45}
+.vs-list li::before{content:'';position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;background:var(--enpf-soft)}
+.cmp-side--ann .vs-list li::before{background:var(--green-light)}
+.vs-list .num{color:var(--blue-dark);font-weight:800}
+
+/* графики */
+.vs-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.vs-card .chart-note{max-width:none}
+.vs-chart{margin-top:14px}
+.vs-svg{display:block;width:100%;height:auto;overflow:visible}
+.vs-svg--wide{aspect-ratio:560/330}
+.vs-svg--narrow{display:none;aspect-ratio:420/300}
+.vs-grid{stroke:#EEF2F5;stroke-width:1}
+.vs-grid--0{stroke:#DDE4EA}
+.vs-axis{stroke:#C4CFD9;stroke-width:1.4}
+.vs-y,.vs-x{font:700 11px/1 'NeoSansPro',system-ui,sans-serif;fill:#8B98A6}
+.vs-x{fill:#5A6B7C}
+.vs-unit{font:700 10.5px/1 'NeoSansPro',system-ui,sans-serif;fill:#9BA7B4}
+.vs-area{fill:rgba(71,144,60,.12)}
+.vs-sl{fill:none;stroke:var(--green);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.vs-enpf{fill:none;stroke:var(--enpf);stroke-width:2.6;stroke-dasharray:7 5;stroke-linejoin:round;stroke-linecap:round}
+.vs-band{fill:var(--enpf-band);stroke:none}
+.vs-mark{stroke:var(--enpf);stroke-width:1.4;stroke-dasharray:3 4;opacity:.85}
+.vs-mark--sl{stroke:var(--green)}
+.vs-mcap{font:800 11px/1 'NeoSansPro',system-ui,sans-serif;fill:var(--enpf-dark);paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}
+.vs-mcap.vs-mark--sl{fill:var(--green-dark)}
+.vs-dot{stroke:#fff;stroke-width:2}
+.vs-dot--sl{fill:var(--green-dark)}
+.vs-dot--enpf{fill:var(--enpf)}
+.vs-vcap{font:800 12px/1 'NeoSansPro',system-ui,sans-serif;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.vs-vcap--sl{fill:var(--green-dark)}
+.vs-vcap--enpf{fill:var(--enpf-dark)}
+.vs-hit{fill:transparent;cursor:crosshair}
+.vs-cursor{stroke:var(--lime);stroke-width:2;opacity:0;pointer-events:none}
+.vs-cursor.is-on{opacity:1}
+.vs-svg--narrow .vs-y,.vs-svg--narrow .vs-x,.vs-svg--narrow .vs-unit,.vs-svg--narrow .vs-mcap{font-size:11.5px}
+.legend i.l-enpf{width:20px;height:0;border-top:2.5px dashed var(--enpf);border-radius:0}
+.legend i.l-enpf-band{background:var(--enpf-band);border:1px solid var(--enpf-soft)}
+@media(max-width:1000px){.vs-charts{grid-template-columns:1fr}}
+@media(max-width:640px){.vs-svg--wide{display:none}.vs-svg--narrow{display:block}}
+
+/* таблица «ЕНПФ | аннуитет»: на телефоне прокручивается целиком, колонки не прячутся */
+.vs-tab-card{margin-top:14px;padding:clamp(18px,2.2vw,26px)}
+.vs-tab-card h3{font-size:clamp(17px,1.8vw,20px)}
+.vs-tab-card .chart-note{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.5}
+.vs-scroll{margin-top:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.vs-tab{width:100%;min-width:560px;border-collapse:collapse;font-size:13px}
+.vs-tab th{padding:7px 10px;text-align:right;color:var(--muted);font-size:10.5px;font-weight:800;letter-spacing:.04em;
+  text-transform:uppercase;border-bottom:1px solid var(--frame);white-space:nowrap}
+.vs-tab thead tr:first-child th{font-size:11px;letter-spacing:.06em}
+.vs-tab thead th[colspan]{text-align:center;border-bottom-width:2px}
+.vs-tab thead th[colspan].is-enpf{border-bottom-color:var(--enpf-soft)}
+.vs-tab thead th[colspan].is-ann{border-bottom-color:var(--green-light)}
+.vs-tab th.is-enpf{color:var(--enpf-dark)}
+.vs-tab th.is-ann{color:var(--green-dark)}
+.vs-tab th:first-child{text-align:left}
+.vs-tab td{padding:10px;text-align:right;vertical-align:top;border-bottom:1px solid #EFF2F5;color:#33465C;font-variant-numeric:tabular-nums}
+.vs-tab td:first-child{text-align:left;color:var(--blue-dark);font-weight:800;white-space:nowrap}
+.vs-tab td>.num{display:block;font-weight:800}
+.vs-tab td.is-enpf>.num{color:var(--enpf-dark)}
+.vs-tab td.is-ann>.num{color:var(--green-dark)}
+.vs-tab td small{display:block;margin-top:2px;color:#9AA7B4;font-size:10.5px;font-weight:700;white-space:nowrap}
+.vs-tab__none{color:#B3BCC5}
+.vs-tab__lump{color:var(--enpf-dark);font-weight:800}
+.vs-tab tr:last-child td{border-bottom:0}
+.vs-tab tr.is-key td{background:#F6F8FA}
+
+.vs-facts{margin-top:14px}
+/* три факта в две колонки (≤ 900 px): последний — на всю ширину, без пустой половины */
+@media screen and (max-width:900px){.vs-facts .fact:last-child:nth-child(odd){grid-column:1/-1}}   /* в печати — три в ряд */
+@media screen and (max-width:520px){.vs-facts .fact b.num{font-size:17px}}   /* как .fact b у остальных фактов на телефоне */
+.vs-facts .fact .num{display:block;color:var(--blue-dark);font-size:clamp(20px,2.1vw,25px);letter-spacing:-.04em;line-height:1.05}
+.vs-facts .fact--accent .num{color:var(--green-dark)}
+.vs-facts .fact span .num{display:inline;font-size:inherit;letter-spacing:normal;line-height:inherit;color:inherit;white-space:nowrap}
+
+/* если клиента не станет */
+.vs-inh{margin-top:14px;padding:clamp(18px,2.2vw,26px)}
+.vs-inh__head h3{font-size:clamp(17px,1.8vw,20px)}
+.vs-inh__head p:not(.eyebrow){margin-top:8px;color:#5A6B7C;font-size:13.4px;line-height:1.5;max-width:92ch}
+.vs-inh__head .num{color:var(--blue-dark);font-weight:800}
+.vs-inh__rows{display:grid;gap:6px;margin-top:14px}
+.vs-inh__row{display:grid;grid-template-columns:110px minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center}
+.vs-inh__row--head span{color:var(--muted);font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.vs-inh__row--head .is-enpf{color:var(--enpf-dark)}
+.vs-inh__row--head .is-ann{color:var(--green-dark)}
+.vs-inh__age{color:var(--blue-dark);font-size:13.5px;font-weight:800}
+.vs-inh__age small{display:block;color:var(--muted);font-size:10.5px;font-weight:700}
+.vs-inh__cell{position:relative;display:flex;align-items:center;min-height:32px;padding:0 10px;border-radius:9px;background:#F5F7F9;overflow:hidden}
+.vs-inh__cell i{position:absolute;left:0;top:0;bottom:0;border-radius:9px}
+.vs-inh__cell.is-enpf i{background:#DCE4EC}
+.vs-inh__cell.is-ann i{background:#DDEED8}
+.vs-inh__cell .num{position:relative;font-size:13px;font-weight:800}
+.vs-inh__cell.is-enpf .num{color:var(--enpf-dark)}
+.vs-inh__cell.is-ann .num{color:var(--green-dark)}
+
+/* по аннуитету — одна колонка сумм (ЕНПФ сумм наследования не показывает) */
+.vs-inh__row--sl{grid-template-columns:110px minmax(0,1fr)}
+@media(max-width:620px){.vs-inh__row--sl{grid-template-columns:76px minmax(0,1fr)}}
+
+/* как проверить на enpf.kz */
+.vs-check{margin-top:14px;padding:clamp(18px,2.2vw,26px)}
+.vs-check__head h3{font-size:clamp(17px,1.8vw,20px)}
+.vs-check__head p:not(.eyebrow){margin-top:8px;color:#5A6B7C;font-size:13.4px;line-height:1.5;max-width:92ch}
+.vs-check__cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:14px}
+.vs-check__col{padding:14px 16px;border-radius:14px;background:#F6F8FA}
+.vs-check__col h4{margin:0 0 6px;color:var(--enpf-dark);font-size:14px}
+.vs-check__col p{margin:6px 0;color:#4A5B6C;font-size:12.8px;line-height:1.5}
+.vs-check__col ol,.vs-check__col ul{margin:4px 0 6px;padding-left:18px;color:#33465C;font-size:12.6px;line-height:1.5}
+.vs-check__col b{color:var(--blue-dark);white-space:nowrap}
+.vs-check__small{color:var(--muted)!important;font-size:11.6px!important}
+
+/* что покажет ЕНПФ про аннуитет */
+.vs-kszh{margin-top:14px;padding:clamp(18px,2.2vw,26px)}
+.vs-kszh h3{font-size:clamp(17px,1.8vw,20px)}
+.vs-kszh p:not(.eyebrow){margin-top:8px;color:#4A5B6C;font-size:13.4px;line-height:1.55;max-width:96ch}
+.vs-kszh .num{color:var(--blue-dark);font-weight:800;white-space:nowrap}
+@media print{.vs-check,.vs-kszh{break-inside:avoid}}
+
+/* как посчитано */
+.vs-notes ol{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:12.4px;line-height:1.5}
+.vs-notes li+li{margin-top:5px}
+.vs-notes .num{white-space:normal;color:#4A5B6C;font-weight:800}
+
+@media(max-width:620px){
+  .vs-verdict{grid-template-columns:1fr;gap:10px}
+  .vs-verdict__ic{width:38px;height:38px}
+  .vs-verdict p:not(.eyebrow){font-size:13.6px}
+  .vs-inh__row{grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:7px}
+  .vs-inh__cell{padding:0 7px;min-height:30px}
+  .vs-inh__cell .num{font-size:11.6px}
+  .vs-inh__row--head span{font-size:9px;letter-spacing:.02em}
+  /* таблица на телефоне — карточка на каждый возраст: строка ЕНПФ и строка аннуитета */
+  .vs-scroll{overflow:visible}
+  .vs-tab{min-width:0;font-size:12px}
+  .vs-tab thead{display:none}
+  .vs-tab tbody,.vs-tab tr{display:block}
+  .vs-tab tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;padding:11px 10px;border-bottom:1px solid #EFF2F5}
+  .vs-tab tr:last-child{border-bottom:0}
+  .vs-tab td{display:block;padding:0;border:0;text-align:left;background:none!important}
+  .vs-tab td:first-child{grid-column:1/-1;font-size:13.5px}
+  .vs-tab td::before{content:attr(data-label);display:block;color:var(--muted);font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+  .vs-tab td:first-child::before{content:none}
+  .vs-tab tr.is-key{background:#F6F8FA;border-radius:10px}
+}
+@media print{
+  .vs-charts{grid-template-columns:1fr!important;gap:10px!important}
+  .vs-svg--wide{display:block!important;max-height:250px}
+  .vs-svg--narrow{display:none!important}
+  .vs-verdict,.vs-split-card .cmp-side,.vs-card,.vs-tab,.vs-facts,.vs-inh{break-inside:avoid}
+  .vs-split-card{break-inside:avoid}   /* «ЕНПФ» и «аннуитет» — на одной странице, иначе сравнение разрывается */
+  .vs-notes{break-inside:auto}
+  .vs-notes li{break-inside:avoid}
+  .vs-facts{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .vs-scroll{overflow:visible}
+  .vs-tab{min-width:0}
+  .vs-verdict,.vs-split-card .cmp-side{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .vs-inh__cell,.vs-inh__cell i{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }

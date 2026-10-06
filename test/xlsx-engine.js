@@ -36,6 +36,28 @@ K.loadCalculator(new Uint8Array(fs.readFileSync(file)), path.basename(file), inf
       f.map(function (k) { return '\n    ' + k[0] + ': LibreOffice ' + k[1] + ' ≠ файл ' + k[2]; }).join(''));
   });
 
+  /* правило продукта от 06.10.2026: дивиденд не уменьшает доплату — проверяем формулами самого файла.
+     Своих средств меньше порога: файл с «Взносом клиента» = доплата даёт статус «ok», а со взносом «доплата − дивиденд»
+     (как считал генератор раньше) — «недостаточно средств»: Excel дивиденд из премии не вычитает. */
+  var refCases = cases.map(function (c) { return { id: c.id, calc: c.calc, dob: c.dob, sex: c.sex, cat: c.cat, oppv: c.oppv, gp: c.gp, sav: c.sav, red: c.red }; })
+    .concat([{ id: 'эталон15', calc: '2026-09-18', dob: '1979-03-10', sex: 'мужской', cat: 'Стандартный', oppv: 'Нет', gp: 15, sav: 5800000, red: 0 }]);
+  refCases.forEach(function (c) {
+    var inp = { calcDate: c.calc, dob: c.dob, sex: c.sex, category: c.cat, oppv: c.oppv, guarantee: c.gp, savings: c.sav, redemption: c.red };
+    var r = E.compute(Object.assign({}, inp, { contribution: 0 })), own = c.sav + c.red, f = [];
+    if (r.mode === 'threshold') {
+      if (r.topup !== r.threshold - own) f.push('доплата ' + r.topup + ' ≠ порог − свои средства ' + (r.threshold - own));
+      var full = E.compute(Object.assign({}, inp, { contribution: r.topup }), { lite: true });
+      var net = E.compute(Object.assign({}, inp, { contribution: r.topup - r.dividend }), { lite: true });
+      if (full.excelStatus !== 'ok' && full.excelStatus !== 'не достигнут возраст') f.push('файл со взносом = доплата: «' + full.excelStatus + '»');
+      if (full.mode !== 'free' || full.topup !== r.topup) f.push('со взносом = доплата файл не считает договор оплаченным');
+      if (net.excelStatus !== 'недостаточно средств') f.push('файл со взносом «доплата − дивиденд»: «' + net.excelStatus + '» (ожидалось «недостаточно средств»)');
+    }
+    bad += f.length;
+    console.log((f.length ? '✗ ' : '✓ ') + ('правило ' + c.id).padEnd(17) + (r.mode === 'threshold'
+      ? ' доплата ' + r.topup + ' = ' + r.threshold + ' − ' + own + '; со взносом «доплата − дивиденд ' + r.dividend + '» файл: недостаточно средств'
+      : ' своих средств хватает') + f.map(function (m) { return '\n    ' + m; }).join(''));
+  });
+
   /* случайные клиенты: файл против встроенного движка */
   var seed = 20260924;
   function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }

@@ -254,13 +254,17 @@
     run(contribution);
     var threshold = read('threshold', 'минимальная премия');
     var excelStatus = txt(bk.get(m.status));
+    /* правило продукта от 06.10.2026: доплата = порог − свои средства, дивиденд её не уменьшает.
+       Так считает и сам файл: «Итого премия» (BP) = накопления + выкупная + «Взнос клиента», статус ok — только
+       при BP ≥ «Минимальная премия»; дивиденд (График!D3) — отдельно, справочно */
     var mode, premium, topup, dividend;
     if (own + contribution >= threshold) {
-      mode = 'free'; premium = own + contribution; dividend = xround(premium * rate); topup = contribution;
+      mode = 'free'; premium = own + contribution; topup = contribution;
     } else {
-      mode = 'threshold'; premium = threshold; dividend = xround(premium * rate); topup = Math.max(0, premium - own - dividend);
-      run(premium - own);
+      mode = 'threshold'; premium = threshold; topup = Math.max(0, premium - own);
+      run(topup);
     }
+    dividend = xround(premium * rate);
     var status = mode === 'free' ? excelStatus : txt(bk.get(m.status));
     var x = read('x', 'возраст');
     var x0 = m.x0 ? read('x0', 'возраст начала выплат') : read('x_0', 'возраст начала выплат');

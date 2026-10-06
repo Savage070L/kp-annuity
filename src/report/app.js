@@ -86,7 +86,7 @@
   var keyBtns = document.querySelectorAll('.stack-key [data-part]');
   function partOf(el) {
     if (el.getAttribute('data-part')) return el.getAttribute('data-part');
-    var m = /pie-(own|div|top)/.exec(el.getAttribute('class') || '');
+    var m = /pie-(own|top)/.exec(el.getAttribute('class') || '');
     return m ? m[1] : null;
   }
   function markPart(key) {
@@ -653,6 +653,38 @@
       tipShow(html, r.left + r.width / 2, r.top, 0);
     });
     svg.addEventListener('pointerleave', tipHide);
+  });
+
+  /* ── «ЕНПФ или аннуитет»: подсказка и курсор по возрасту под указателем ──
+     Графики раздела — статический SVG (видны и без скриптов); цифры для подсказки — CFG.enpf:
+     [возраст, аннуитет в месяц, ЕНПФ в месяц (калькулятор ЕНПФ), получено аннуитет, получено ЕНПФ, аннуитет в тенге того года, 0, разово] */
+  var ENPF_ROWS = {};
+  (CFG.enpf || []).forEach(function (r) { ENPF_ROWS[r[0]] = r; });
+  Array.prototype.forEach.call(document.querySelectorAll('.vs-hit'), function (hit) {
+    var a0 = +hit.getAttribute('data-a0'), a1 = +hit.getAttribute('data-a1');
+    var hx = +hit.getAttribute('x'), hw = +hit.getAttribute('width'), hy = +hit.getAttribute('y'), hh = +hit.getAttribute('height');
+    var cur = el('line', { class: 'vs-cursor', y1: hy, y2: hy + hh, x1: -10, x2: -10 });
+    hit.parentNode.insertBefore(cur, hit);
+    function show(e) {
+      var box = hit.getBoundingClientRect();
+      if (!box.width) return;
+      var age = Math.max(a0, Math.min(a1, a0 + Math.floor((e.clientX - box.left) / box.width * (a1 + 1 - a0))));
+      var r = ENPF_ROWS[age];
+      if (!r) return;
+      var cx = hx + (age - a0 + 0.5) / (a1 + 1 - a0) * hw;
+      cur.setAttribute('x1', cx); cur.setAttribute('x2', cx); cur.classList.add('is-on');
+      var d = r[3] - r[4];
+      tipShow('<b>' + age + ' ' + yearsWord(age) + ' · в ценах 2026 г.</b>' +
+        '<div class="row"><span>Аннуитет в месяц</span><i>' + (r[1] ? money(r[1]) : '—') + '</i></div>' +
+        '<div class="row"><span>ЕНПФ в месяц (калькулятор ЕНПФ)</span><i>' + (r[7] ? 'одной суммой' : r[2] ? money(r[2]) : '—') + '</i></div>' +
+        '<div class="row"><span>Получено: аннуитет</span><i>' + money(r[3]) + '</i></div>' +
+        '<div class="row"><span>Получено: ЕНПФ</span><i>' + money(r[4]) + '</i></div>' +
+        '<em>' + (Math.abs(d) < 1 ? 'получено поровну' : (d > 0 ? 'аннуитет впереди на ' : 'ЕНПФ впереди на ') + money(Math.abs(d))) + '</em>',
+        e.clientX, e.clientY - 6, 20);
+    }
+    hit.addEventListener('pointermove', show);
+    hit.addEventListener('pointerdown', show);
+    hit.addEventListener('pointerleave', function () { cur.classList.remove('is-on'); tipHide(); });
   });
 
   // печать и сохранение в PDF: раскрываем аккордеоны, чтобы ответы попали в документ

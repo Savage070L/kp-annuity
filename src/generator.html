@@ -114,6 +114,26 @@ button,input,select{font:inherit;color:inherit}
 .gdrop small{display:block;margin-top:4px;color:#DCE8F4;font-size:12.5px;font-weight:400}
 @media(max-width:420px){.gcalc__row{flex-wrap:wrap}.gcalc__name{flex-basis:100%}.gfile{flex:1;justify-content:center}}
 
+/* сравнение с ЕНПФ */
+.genpf__sum{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;padding:10px 12px;border-radius:var(--r-s);background:#F3F6F9;font-size:12.4px;line-height:1.4}
+.genpf__sum b{color:var(--blue-dark);font-size:13px}
+.genpf__sum span{color:#4F6680}
+.genpf__sum.is-warn{background:var(--warn-soft)}
+.genpf__sum.is-warn span{color:var(--warn)}
+.genpf__sum .genpf__warn{margin-top:4px;padding:6px 8px;border-radius:8px;background:var(--warn-soft);color:var(--warn)}
+.genpf__sum.is-off span{color:var(--muted)}
+.genpf__btn{width:100%;height:40px;font-size:13px}
+.genpf__btn svg{width:16px;height:16px}
+.genpf__live .gnote{margin:7px 2px 0}
+.genpf__live .gcalc__msg span b{font-weight:800}
+.genpf__stamp{display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-size:12.4px;cursor:pointer}
+.genpf__stamp[hidden]{display:none}
+.genpf__stamp input{margin-top:2px}
+.genpf__notes{margin-top:10px;font-size:12px;color:var(--muted)}
+.genpf__notes summary{cursor:pointer;font-weight:700}
+.genpf__notes ol{margin:8px 0 0;padding-left:18px;line-height:1.45}
+.genpf__notes li+li{margin-top:4px}
+
 @media(max-width:980px){
   .gwrap{grid-template-columns:1fr;padding:12px}
   .gpreview{position:static;height:78vh}
@@ -196,13 +216,34 @@ button,input,select{font:inherit;color:inherit}
       </div>
       <div class="grow">
         <div class="gfield"><label for="guarantee">Гарантированный период, лет</label><input id="guarantee" type="number" min="0" max="10" step="1" value="10"></div>
-        <div class="gfield"><label for="dividendRate">Дивиденд, % от премии</label><input id="dividendRate" type="number" min="0" max="20" step="0.1" value="11"></div>
+        <div class="gfield"><label for="dividendRate" title="Только справочно: возможный дивиденд по решению компании. Доплату он не уменьшает">Возможный дивиденд, % от премии</label><input id="dividendRate" type="number" min="0" max="20" step="0.1" value="11"></div>
       </div>
       <div class="gfield"><label for="savings">Накопления в ЕНПФ, ₸</label><input id="savings" class="money" inputmode="numeric" placeholder="5 800 000"></div>
       <div class="grow">
         <div class="gfield"><label for="redemption">Выкупная сумма КСЖ, ₸</label><input id="redemption" class="money" inputmode="numeric" placeholder="0"></div>
         <div class="gfield"><label for="contribution">Взнос клиента, ₸</label><input id="contribution" class="money" inputmode="numeric" placeholder="0"></div>
       </div>
+    </section>
+
+    <section class="gcard genpf" id="enpfCard">
+      <h2><i>4</i>Сравнение с ЕНПФ</h2>
+      <div class="grow">
+        <div class="gfield"><label>Блок в КП</label>
+          <div class="gseg"><input type="radio" name="enpfShow" id="es-on" value="on" checked><label for="es-on">показать</label><input type="radio" name="enpfShow" id="es-off" value="off"><label for="es-off">скрыть</label></div></div>
+        <div class="gfield"><label for="enpfScenario">Сценарий ЕНПФ</label><select id="enpfScenario"></select></div>
+      </div>
+      <div class="gfield"><label for="enpfInflation">Инфляция для пересчёта в сегодняшние деньги</label><select id="enpfInflation"></select></div>
+      <div class="genpf__sum" id="enpfSum" aria-live="polite"></div>
+      <div class="genpf__live">
+        <button type="button" class="gbtn gbtn--alt genpf__btn" id="enpfCheck">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg>
+          Сверить с ЕНПФ
+        </button>
+        <p class="gnote">Отправит в калькулятор ЕНПФ (mobile.enpf.kz) только пол, дату рождения и сумму накоплений — без имени и контактов. Нажимайте только с согласия клиента.</p>
+        <div class="gcalc__msg" id="enpfLive" hidden></div>
+        <label class="genpf__stamp" id="enpfStampBox" hidden><input type="checkbox" id="enpfStamp"><span id="enpfStampText">Указать в КП, что цифры сверены с калькулятором ЕНПФ</span></label>
+      </div>
+      <details class="genpf__notes"><summary>Допущения и источники расчёта</summary><ol id="enpfNotes"></ol></details>
     </section>
 
     <section class="gcard gsum" id="summary" aria-live="polite"></section>
@@ -364,7 +405,7 @@ button,input,select{font:inherit;color:inherit}
                   oppv: radio('oppv'), guarantee: gp, savings: num($('savings').value), redemption: num($('redemption').value),
                   contribution: num($('contribution').value), dividendRate: Math.max(0, +$('dividendRate').value || 0) / 100 };
     var client = { name: $('clientName').value.trim(), nameGen: $('clientGen').value.trim(), sex: input.sex,
-                   city: cityOf('clientCity', 'clientCityOther'), calcDate: input.calcDate };
+                   city: cityOf('clientCity', 'clientCityOther'), calcDate: input.calcDate, enpf: enpfForm() };
     var phone = $('agentPhone').value.trim();
     var agent = { name: $('agentName').value.trim(), sex: radio('agentSex'), city: cityOf('agentCity', 'agentCityOther'),
                   phone: phone, whatsapp: radio('waMode') === 'other' ? $('agentWa').value.trim() : phone,
@@ -379,7 +420,7 @@ button,input,select{font:inherit;color:inherit}
   function summary(st) {
     var box = $('summary');
     if (!st.ready) {
-      box.innerHTML = '<h2><i>4</i>Расчёт</h2><div class="gsum__status warn"><span><b>Нужны данные</b>' + st.msg + '</span></div>';
+      box.innerHTML = '<h2><i>5</i>Расчёт</h2><div class="gsum__status warn"><span><b>Нужны данные</b>' + st.msg + '</span></div>';
       return;
     }
     var c = st.calc, cls = '', head = '', text = '';
@@ -388,9 +429,9 @@ button,input,select{font:inherit;color:inherit}
       cls = 'bad'; head = 'Договор недоступен';
       text = 'Калькулятор: «' + c.status + '».' + (minStd ? ' Клиенту должно быть не меньше ' + minStd + ' лет (для категории «Стандартный»).' : '');
     }
-    else if (c.mode === 'threshold') { cls = 'warn'; head = 'Своих средств меньше порога'; text = 'КП оформится по порогу: клиенту нужно доплатить ' + T(c.topup) + (c.dividend > 0 ? ' (с учётом дивиденда)' : '') + '.'; }
+    else if (c.mode === 'threshold') { cls = 'warn'; head = 'Своих средств меньше порога'; text = 'КП оформится по порогу: клиенту нужно доплатить ' + T(c.topup) + ' (порог − свои средства; возможный дивиденд доплату не уменьшает).'; }
     var pay = st.model ? st.model.payback : null;
-    box.innerHTML = '<h2><i>4</i>Расчёт</h2>' +
+    box.innerHTML = '<h2><i>5</i>Расчёт</h2>' +
       (cls ? '<div class="gsum__status ' + cls + '"><span><b>' + head + '</b>' + text + '</span></div>' : '') +
       '<dl>' +
       '<dt>Возраст на дату расчёта</dt><dd>' + ageText(c.age) + '</dd>' +
@@ -400,8 +441,8 @@ button,input,select{font:inherit;color:inherit}
       '<hr>' +
       '<dt>Порог (мин. премия)</dt><dd>' + T(c.threshold) + '</dd>' +
       '<dt>Сумма перевода</dt><dd>' + T(c.premium) + '</dd>' +
-      (c.dividend ? '<dt>Возможный дивиденд</dt><dd>' + T(c.dividend) + '</dd>' : '') +
       (c.topup ? '<dt>' + (c.mode === 'threshold' ? 'Доплата клиента' : 'Взнос клиента') + '</dt><dd>' + T(c.topup) + '</dd>' : '') +
+      (c.dividend ? '<dt>Возможный дивиденд (отдельно, не в сумме)</dt><dd>' + T(c.dividend) + '</dd>' : '') +
       '<hr>' +
       '<dt>Первая выплата</dt><dd class="big">' + T(c.first) + '</dd>' +
       (pay ? '<dt>Окупаемость</dt><dd>к ' + pay.age + ' годам</dd>' : '') +
@@ -427,6 +468,127 @@ button,input,select{font:inherit;color:inherit}
     return { ready: true, calc: calc, form: f, model: model };
   }
 
+  /* ── сравнение с ЕНПФ: настройки блока, сводка и живая сверка ──
+     Всё считается здесь, в браузере (копия библиотеки «Калькулятор ЕНПФ»). В ЕНПФ уходит запрос только
+     по кнопке «Сверить с ЕНПФ»: пол, дата рождения, накопления — тело liveBody модели (без имени и контактов). */
+  var ENPF_KEY = 'kp-enpf-v1', enpfLive = null;   // enpfLive — последняя живая сверка {key, date, ok, diffs, decoded, fetchedAt}
+  (function () {
+    var P = K.enpfPresets;
+    $('enpfScenario').innerHTML = P.scenarios.map(function (s) { return '<option value="' + s.key + '" title="доходность ЕНПФ: ' + s.short + '">' + s.label + ' · ' + s.tag + '</option>'; }).join('');
+    $('enpfInflation').innerHTML = P.inflation.map(function (s) { return '<option value="' + s.key + '">' + s.label + '</option>'; }).join('');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(ENPF_KEY) || '{}') || {}; } catch (e) {}
+    $('enpfScenario').value = P.scenarios.some(function (s) { return s.key === saved.scenario; }) ? saved.scenario : 'realist';
+    $('enpfInflation').value = P.inflation.some(function (s) { return s.key === saved.inflation; }) ? saved.inflation : 'enpf';
+    $(saved.show === false ? 'es-off' : 'es-on').checked = true;
+  })();
+  function enpfForm() {
+    var f = { show: radio('enpfShow') !== 'off', scenario: $('enpfScenario').value, inflation: $('enpfInflation').value };
+    try { localStorage.setItem(ENPF_KEY, JSON.stringify(f)); } catch (e) {}
+    // после сверки цифры ЕНПФ в КП берутся из ответа ЕНПФ (модель проверит, что данные те же); отметка о сверке —
+    // по галочке агента, а если ЕНПФ ответил иначе, чем копия методики, — всегда («цифры — из ответа ЕНПФ»)
+    if (enpfLive && enpfLive.data) f.live = { key: enpfLive.key, date: enpfLive.date, data: enpfLive.data, stamp: !enpfLive.ok || $('enpfStamp').checked };
+    return f;
+  }
+  function mln(v) { return String(Math.round(v / 1e5) / 10).replace('.', ',') + ' млн ₸'; }
+  /* дата и итог последней сверки с ЕНПФ в этом браузере (без данных клиента) */
+  var ENPF_CHECK_KEY = 'kp-enpf-lastcheck';
+  function enpfLastCheck() { try { var v = JSON.parse(localStorage.getItem(ENPF_CHECK_KEY) || 'null'); return v && v.date ? v : null; } catch (e) { return null; } }
+  function enpfSaveCheck(date, changed) { try { localStorage.setItem(ENPF_CHECK_KEY, JSON.stringify({ date: date, changed: !!changed })); } catch (e) {} }
+  /* после «с»/«до»: 63 лет, 61 года, 61,5 года; срок: 17 лет, 21 год, 4 года */
+  function ageGen(a) { var r = Math.round(a * 10) / 10; return ageText(r) + (r === Math.round(r) && !(r % 10 === 1 && r % 100 !== 11) ? ' лет' : ' года'); }
+  function yearsRu(n) { n = +n; var d = n % 10, h = n % 100; return n + ' ' + (d === 1 && h !== 11 ? 'год' : d >= 2 && d <= 4 && (h < 12 || h > 14) ? 'года' : 'лет'); }
+  function enpfMsg(cls, lines) {
+    var box = $('enpfLive');
+    box.hidden = !lines;
+    if (lines) { box.className = 'gcalc__msg ' + cls; box.innerHTML = lines.map(function (l) { return '<span>' + l + '</span>'; }).join(''); }
+  }
+  function enpfPanel(st) {
+    var sum = $('enpfSum'), ec = st.ready && st.calc && st.calc.status === 'ok' ? K.enpfComparison(st.calc, st.form.client) : null;
+    var notes = ec && ec.cmp ? ec.cmp.notes : [];
+    $('enpfNotes').innerHTML = notes.map(function (n) { return '<li>' + escHtml(n) + '</li>'; }).join('');
+    // сверка устарела, если изменились данные, которые уходят в ЕНПФ
+    if (enpfLive && (!ec || ec.liveKey !== enpfLive.key)) { enpfLive = null; $('enpfStamp').checked = false; enpfMsg('', null); $('enpfStampBox').hidden = true; }
+    $('enpfCheck').disabled = !(ec && ec.liveBody && (ec.status === 'ok' || ec.status === 'off'));
+    if (!ec) { sum.className = 'genpf__sum is-off'; sum.innerHTML = '<span>Сравнение появится, когда расчёт будет готов.</span>'; return; }
+    if (ec.status === 'mismatch' || ec.status === 'error' || ec.status === 'none') {
+      sum.className = 'genpf__sum is-warn'; sum.innerHTML = '<span>' + escHtml(ec.message || 'Сравнение недоступно.') + '</span>'; return;
+    }
+    var V = ec.view || null, C = ec.cmp, S = C.sl, M = C.metrics;
+    var ev = C.enpf.asInEnpfCalculator, eb = ev.byScenario[C.assumptions.enpfScenario] || ev.byScenario.realist;
+    var ref = C.rows.filter(function (r) { return r.age === (V ? V.refAge : 80); })[0] || C.rows[C.rows.length - 1];
+    var lines = [];
+    lines.push('<b>' + escHtml(V ? V.title : 'Блок скрыт — в КП его не будет') + '</b>');
+    lines.push('<span>ЕНПФ (' + (ev.source === 'live' ? 'ответ калькулятора ЕНПФ' : ev.source === 'rule' ? 'формула Правил' : 'как на enpf.kz') + '): ' +
+      (eb.lumpSum ? 'одной суммой ' + T(eb.lumpSumReal || eb.monthlyReal) : T(eb.monthlyReal) + ' в месяц × ' + yearsRu(eb.years) + (eb.fromAge != null ? ', с ' + ageGen(eb.fromAge) : '')) + ' — в ценах 2026 г.</span>');
+    lines.push('<span>Аннуитет: ' + (S.immediate ? 'сразу' : 'с ' + ageGen(S.startAge)) + ' — ' + T(S.firstPayment) + ' в месяц по договору, пожизненно</span>');
+    lines.push('<span>К ' + ref.age + ' годам: аннуитет ' + mln(ref.slCumReal) + ', ЕНПФ ' + mln(ref.enpfCalcCum) + ' — в ценах 2026 г.</span>');
+    /* напоминание: давно ли сверялись с ЕНПФ в этом браузере; ЕНПФ может поменять методику */
+    var lc = enpfLastCheck(), today = iso(new Date());
+    var ageDays = lc ? Math.round((Date.parse(today) - Date.parse(lc.date)) / 864e5) : null;
+    if (ev.source !== 'live') {
+      if (lc && lc.changed) lines.push('<span class="genpf__warn">Последняя сверка (' + K.dateRu(lc.date) + ') показала, что ЕНПФ изменил методику. Пока генератор не обновлён, перед отправкой КП нажмите «Сверить с ЕНПФ» — тогда в КП будут цифры из ответа ЕНПФ.</span>');
+      else if (ageDays == null || ageDays > 7) lines.push('<span class="genpf__warn">' + (lc ? 'С калькулятором ЕНПФ в этом браузере сверялись ' + K.dateRu(lc.date) : 'В этом браузере ещё не сверялись с калькулятором ЕНПФ') +
+        '. ЕНПФ может изменить методику — перед отправкой КП нажмите «Сверить с ЕНПФ».</span>');
+    }
+    sum.className = 'genpf__sum' + (V ? '' : ' is-off');
+    sum.innerHTML = lines.join('');
+  }
+  /* живая сверка: только по кнопке, только на сегодня, через общую очередь библиотеки (≥ 0,7 с между запросами) */
+  $('enpfCheck').addEventListener('click', function () {
+    var st = last;
+    if (!st || !st.ready) return;
+    var ec = K.enpfComparison(st.calc, st.form.client);
+    if (!ec || !ec.liveBody) { enpfMsg('warn', ['Для этого клиента сверка невозможна: ' + escHtml((ec && ec.cmp && ec.cmp.enpf.asInEnpfCalculator.apiMessage) || 'нет данных для калькулятора ЕНПФ') + '.']); return; }
+    if (st.form.input.calcDate !== iso(new Date())) { enpfMsg('warn', ['Калькулятор ЕНПФ считает на сегодняшнюю дату — для сверки выберите дату расчёта «сегодня».']); return; }
+    var b = ec.liveBody;
+    if (!window.confirm('Отправить в калькулятор ЕНПФ (mobile.enpf.kz)?\n\nПол: ' + (b.Sex === 'M' ? 'мужской' : 'женский') + '\nДата рождения: ' + b.BirthDate +
+      '\nНакопления ОПВ: ' + fmt(+b.SumOPV) + ' ₸' + (+b.SumOPPV ? '\nНакопления ОППВ: ' + fmt(+b.SumOPPV) + ' ₸' : '') +
+      '\n\nИмя, ИИН и контакты не отправляются. Отправляйте только с согласия клиента.')) return;
+    var btn = $('enpfCheck'), key = ec.liveKey, cmp = ec.cmp, kb = ec.kszhBody;
+    btn.disabled = true;
+    enpfMsg('info', ['Запрашиваю калькуляторы ЕНПФ…']);
+    var today = st.form.input.calcDate, data = { forecast: null, forecast2: null, kszh: null, fetchedAt: null };
+    /* 1) прогноз (то, что клиент увидит на enpf.kz), 2) «пожизненный аннуитет» прогноза, 3) калькулятор аннуитета — тот же договор */
+    K.enpf.fetchForecast(b, { today: today }).then(function (r) {
+      if (r.code !== '0') throw { enpf: true, r: r };
+      data.forecast = r.decoded; data.fetchedAt = r.fetchedAt;
+      return K.enpf.fetchForecast(Object.assign({}, b, { CalcType: '2' }), { today: today }).then(function (r2) {
+        if (r2.code === '0') data.forecast2 = r2.decoded;
+        return kb ? K.enpf.fetchKszh(kb, {}) : null;
+      }).then(function (k) { if (k && k.ok) data.kszh = k.data; });
+    }).then(function () {
+      var date = iso(new Date());
+      /* пересчёт по ответам ЕНПФ: библиотека сама сравнит их с копией методики */
+      var lc = K.enpfComparison(st.calc, Object.assign({}, st.form.client, { enpf: Object.assign({}, st.form.client.enpf, { live: { key: key, date: date, data: data, stamp: true } }) }));
+      var C2 = lc && lc.cmp, ev = C2 ? C2.enpf.asInEnpfCalculator : null;
+      var diffs = ev ? (ev.methodologyDiffs || []).concat(C2.sl.enpfKszhView && C2.sl.enpfKszhView.source === 'live' ? C2.sl.enpfKszhView.methodologyDiffs || [] : []) : [];
+      enpfLive = { key: key, date: date, ok: diffs.length === 0, diffs: diffs, data: data, fetchedAt: data.fetchedAt };
+      enpfSaveCheck(date, diffs.length > 0);
+      var sc = ['Pessimist', 'Realist', 'Optimist'], names = { Pessimist: 'пессимистичный', Realist: 'реалистичный', Optimist: 'оптимистичный' };
+      var got = sc.map(function (k) {
+        var x = data.forecast['EnpfCalculator' + k] || {};
+        return names[k] + ' — ' + fmt(+x.EnpfPensionOPV + (+x.EnpfPensionOPPV || 0)) + ' ₸ × ' + yearsRu(x.NumOfYearsBeforeExhAccumOPV);
+      });
+      var kz = data.kszh ? 'калькулятор аннуитета: первая выплата ' + fmt(+data.kszh.nominalOutParams.firstMonthPayment) + ' ₸' : 'калькулятор аннуитета не ответил';
+      if (!diffs.length) {
+        enpfMsg('ok', ['<b>Калькуляторы ЕНПФ ' + K.dateRu(date) + ' совпадают с расчётом КП.</b>', 'В ценах 2026 г.: ' + got.join('; ') + '; ' + kz + '.']);
+        $('enpfStampText').textContent = 'Указать в КП: «сверено с калькулятором ЕНПФ ' + K.dateRu(date) + '»';
+        $('enpfStampBox').hidden = false;
+      } else {
+        $('enpfStamp').checked = false; $('enpfStampBox').hidden = true;
+        enpfMsg('warn', ['<b>ЕНПФ ответил иначе, чем копия методики в генераторе — похоже, ЕНПФ изменил методику.</b> В КП будут цифры из ответа ЕНПФ (так их увидит клиент на enpf.kz), с отметкой «цифры ЕНПФ — из ответа калькулятора ЕНПФ ' + K.dateRu(date) + '». Сообщите тому, кто обновляет генератор.',
+          'ЕНПФ: ' + got.join('; ') + '; ' + kz + '.',
+          'Отличия: ' + diffs.slice(0, 6).map(function (d) { return escHtml(d.path) + ': было ' + escHtml(JSON.stringify(d.replica)) + ', ЕНПФ ' + escHtml(JSON.stringify(d.live)); }).join('; ') + (diffs.length > 6 ? '…' : '')]);
+      }
+    }).catch(function (e) {
+      enpfLive = null;
+      if (e && e.enpf) enpfMsg('bad', [(e.r.kind === 'validation' ? 'Запрос не отправлен — ' : 'ЕНПФ: ') + escHtml(e.r.message || 'нет ответа') + (e.r.error ? ' (' + escHtml(e.r.error) + ')' : '')]);
+      else enpfMsg('bad', ['Не удалось обратиться к ЕНПФ: ' + escHtml(e && e.message || String(e)) + '. В КП остаются цифры копии методики ЕНПФ.']);
+    }).then(function () { btn.disabled = false; schedule(); });
+  });
+  $('enpfStamp').addEventListener('change', schedule);
+
   var timer = null;
   function schedule() { clearTimeout(timer); timer = setTimeout(update, 350); }
   function update() {
@@ -434,6 +596,7 @@ button,input,select{font:inherit;color:inherit}
     var st = recompute();
     last = st;
     summary(st);
+    enpfPanel(st);
     var ok = st.ready && st.calc.status === 'ok';
     $('btnDownload').disabled = !ok; $('btnPrint').disabled = !ok;
     if (!ok) { $('pvState').textContent = st.ready ? 'договор недоступен по калькулятору' : ''; return; }
@@ -640,7 +803,7 @@ button,input,select{font:inherit;color:inherit}
 
   /* для автоматических проверок */
   window.__kp = { buildFinal: buildFinal, recompute: recompute, fileName: fileName, loadCalc: loadCalc, parseDay: parseDay,
-                  engine: function () { return ENGINE; } };
+                  engine: function () { return ENGINE; }, enpfLive: function () { return enpfLive; } };
 
   loadAgent();
   syncExtras();

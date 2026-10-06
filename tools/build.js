@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /*
  * Сборка генератора КП.
- *   dist/report-kit.js — всё, что нужно для отчёта: расчёт, модель, шаблоны, стили, скрипты
+ *   dist/report-kit.js — всё, что нужно для отчёта: расчёт, модель, шаблоны, стили, скрипты,
+ *                        библиотека «Калькулятор ЕНПФ» (src/enpf — копия, её делает tools/sync-enpf.js)
  *   index.html         — страница генератора (одним файлом, работает без интернета)
  */
 'use strict';
@@ -13,15 +14,29 @@ var SRC = path.join(ROOT, 'src');
 var REP = path.join(SRC, 'report');
 function read(p) { return fs.readFileSync(p, 'utf8'); }
 
-/* разделы отчёта → функции-шаблоны */
+/* разделы отчёта → функции-шаблоны.
+   Первая строка <!--@if ВЫРАЖЕНИЕ--> — раздел выводится, только если выражение истинно (например, M.enpfCmp) */
 function sectionsJs() {
   var files = fs.readdirSync(path.join(REP, 'sections')).filter(function (f) { return /\.html$/.test(f); }).sort();
   var fns = files.map(function (f) {
     var html = read(path.join(REP, 'sections', f));
     if (html.indexOf('`') >= 0) throw new Error('обратная кавычка в ' + f);
+    var cond = /^<!--@if ([^>]*?)-->\r?\n/.exec(html);
+    if (cond) {
+      html = html.slice(cond[0].length);
+      return '  /* ' + f + ' */\n  function (M, B, T, H, Y, X, E) { return (' + cond[1] + ') ? `' + html + '` : ""; }';
+    }
     return '  /* ' + f + ' */\n  function (M, B, T, H, Y, X, E) { return `' + html + '`; }';
   });
   return '[\n' + fns.join(',\n') + '\n]';
+}
+
+/* библиотека «Калькулятор ЕНПФ» (копия в src/enpf, её делает tools/sync-enpf.js) — по порядку имён */
+function enpfJs() {
+  var dir = path.join(SRC, 'enpf');
+  if (!fs.existsSync(dir)) return '';
+  return fs.readdirSync(dir).filter(function (f) { return /\.js$/.test(f); }).sort()
+    .map(function (f) { return read(path.join(dir, f)); }).join('\n');
 }
 
 function kit() {
@@ -44,6 +59,7 @@ function kit() {
     read(path.join(SRC, 'xlsx.js')),
     read(path.join(SRC, 'formula.js')),
     read(path.join(SRC, 'calc-xlsx.js')),
+    enpfJs(),
     read(path.join(SRC, 'report-model.js')),
     blocks,
     '(function (root) {',
@@ -68,6 +84,8 @@ function kit() {
     '  function plan(input, engine) {',
     '    var run = function (inp, lite) { return engine ? engine.compute(inp, { lite: lite }) : root.AnnuityEngine.compute(inp, MORT); };',
     '    var calc = run(input, false);',
+    '    /* вход клиента — для блока «ЕНПФ или аннуитет»: модель КП сравнивает по тем же данным */',
+    '    if (calc && typeof calc === "object") calc.input = Object.assign({}, input);',
     '    if (!calc || (calc.errors && calc.errors.length) || !calc.rows) return calc;',
     '    try {',
     '      var max = calc.tariff.maxGuarantee, gps = [0, 5, 10];',
@@ -80,13 +98,14 @@ function kit() {
     '      var d = root.AnnuityEngine.parseDate(input.calcDate);',
     '      var nx = run(Object.assign({}, input, { calcDate: root.AnnuityEngine.isoDate(new Date(d.getFullYear() + 1, d.getMonth(), d.getDate())) }), true);',
     '      if (nx && !(nx.errors && nx.errors.length)) calc.next = { threshold: nx.threshold, first: nx.first };',
-    '      /* пороги по категориям калькулятора (льготы: ОППВ, инвалидность) — для того же клиента, без доплаты */',
+    '      /* пороги по категориям калькулятора (льготы: ОППВ, инвалидность) — для того же клиента, без доплаты;',
+    '         своих средств меньше порога категории — доплата = порог − свои средства (дивиденд её не уменьшает) */',
     '      var cats = engine ? engine.lists.categories : Object.keys(root.AnnuityEngine.CATEGORIES);',
     '      if (cats && cats.length > 1) calc.cats = cats.map(function (c) {',
     '        var own = c === calc.category;',
     '        var r = run(Object.assign({}, input, { category: c, oppv: own ? input.oppv : "Нет", contribution: calc.mode === "free" ? input.contribution : 0 }), true);',
     '        return r && r.ok && isFinite(r.threshold) ? { name: c, own: own, threshold: r.threshold, start: r.startAge, deferral: r.deferral,',
-    '          first: own ? calc.first : r.mode === "free" || !(r.topup > 0) ? r.first : null, topup: own ? calc.topup : r.topup, mode: own ? calc.mode : r.mode } : null;',
+    '          first: own ? calc.first : r.mode === "free" ? r.first : null, topup: own ? calc.topup : r.topup, mode: own ? calc.mode : r.mode } : null;',
     '      }).filter(Boolean);',
     '      /* накоплений больше порога: можно перевести только порог, остаток оставить в ЕНПФ */',
     '      var need = Math.max(0, calc.threshold - calc.redemption);',
@@ -101,7 +120,9 @@ function kit() {
     '    compute: function (input) { return root.AnnuityEngine.compute(input, MORT); }, MORT: MORT,',
     '    loadCalculator: function (bytes, name, inflate) { return root.XlsxCalculator.load(bytes, name, inflate); },',
     '    tariff: root.AnnuityEngine.TARIFF, categories: Object.keys(root.AnnuityEngine.CATEGORIES),',
-    '    fonts: ASSETS.fonts, genitive: root.ReportModel.genitiveName, dateRu: root.ReportModel.dateRu };',
+    '    fonts: ASSETS.fonts, genitive: root.ReportModel.genitiveName, dateRu: root.ReportModel.dateRu,',
+    '    /* сравнение с ЕНПФ: библиотека (реплики, живой клиент) и модель блока для генератора */',
+    '    enpf: root.EnpfLib, enpfComparison: root.ReportModel.enpfComparison, enpfPresets: root.ReportModel.ENPF_PRESETS };',
     '})(typeof window !== "undefined" ? window : globalThis);',
     ''
   ].join('\n');

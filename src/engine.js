@@ -136,7 +136,8 @@
 
   /*
    * input: { calcDate, dob, sex ('мужской'|'женский'), category, oppv ('Да'|'Нет'),
-   *          guarantee (лет), savings, redemption, contribution, dividendRate }
+   *          guarantee (лет), savings, redemption, contribution,
+   *          dividendRate — ставка возможного дивиденда: только справочная сумма dividend, на доплату не влияет }
    * mort:  таблицы смертности (см. mortality.js)
    */
   function compute(input, mort, tariff) {
@@ -187,24 +188,24 @@
     var contribution = Math.max(0, xround(+input.contribution || 0));
     var dividendRate = input.dividendRate == null ? T.dividendNet : +input.dividendRate;
 
-    /* Сценарий как в отчёте: если своих средств не хватает до порога,
-       клиент доплачивает, а возможный дивиденд уменьшает доплату. */
+    /* Сценарий как в отчёте: если своих средств не хватает до порога, клиент доплачивает до порога.
+       Правило продукта от 06.10.2026: возможный дивиденд доплату НЕ уменьшает — премия вносится целиком
+       (как в Excel: ввод!G19 BP = накопления + выкупная + взнос клиента ≥ минимальной премии), а дивиденд
+       (График!D3) — отдельный негарантированный бонус по решению компании, в премию не входит. */
     var own = savings + redemption;
     var premium, topup, dividend, mode;
     if (own + contribution >= threshold) {
-      /* клиент переводит свою сумму: премия = накопления + выкупная + взнос,
-         дивиденд — отдельно, в премию не входит */
+      /* клиент переводит свою сумму: премия = накопления + выкупная + взнос */
       mode = 'free';
       premium = own + contribution;
-      dividend = xround(premium * dividendRate);
       topup = contribution;
     } else {
-      /* своих средств меньше порога: оформляем по порогу, дивиденд уменьшает доплату */
+      /* своих средств меньше порога: оформляем по порогу, доплата = порог − свои средства */
       mode = 'threshold';
       premium = threshold;
-      dividend = xround(premium * dividendRate);
-      topup = Math.max(0, premium - own - dividend);
+      topup = Math.max(0, premium - own);
     }
+    dividend = xround(premium * dividendRate);   // справочно: возможный дивиденд, на доплату не влияет
 
     var pay0 = xround(premium) / nax;                                     // calc!F2
     var first = xround(xround(pay0) * Math.pow(1 + T.ind, d));            // calc!F3

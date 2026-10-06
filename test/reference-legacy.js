@@ -1,5 +1,7 @@
 /* Эталонный отчёт: посчитан сторонним калькулятором (47 лет, старт 55, гарантия 15 лет).
-   Собираем тот же расчёт вручную — по нему проверяется шаблон. */
+   Собираем тот же расчёт вручную — по нему проверяется шаблон.
+   Доплата — по правилу продукта от 06.10.2026: порог − накопления = 9 837 712 − 5 800 000 = 4 037 712
+   (в стороннем отчёте было 2 955 564 — за вычетом дивиденда 1 082 148; так больше не считаем). */
 function legacyCalc() {
   var first = 65886, ind = 0.08, rows = [], cum = 0;
   for (var age = 55, n = 0; age <= 100; age++, n++) {
@@ -8,7 +10,7 @@ function legacyCalc() {
   }
   return { ok: true, status: 'ok', tariff: { ind: ind }, mode: 'threshold', ageInt: 47, startAge: 55, startAgeInt: 55, deferral: 8,
     guarantee: 15, first: first, threshold: 9837712, premium: 9837712, savings: 5800000, redemption: 0,
-    contribution: 0, dividend: 1082148, dividendRate: 0.11, topup: 2955564, rows: rows };
+    contribution: 0, dividend: 1082148, dividendRate: 0.11, topup: 4037712, rows: rows };
 }
 var client = { name: 'Арман Сейтов', nameGen: 'Армана Сейтова', sex: 'мужской', city: 'Алматы', calcDate: '2026-09-18' };
 var agent = { name: 'Тимур Агентов', phone: '+7 700 000 00 00', email: 'agent@example.kz', city: 'Алматы' };

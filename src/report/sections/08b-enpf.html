@@ -1,0 +1,69 @@
+<!--@if M.enpfCmp-->
+  <!-- ══ ЕНПФ или аннуитет: те же накопления, два пути ══ -->
+  <section class="section page" id="enpf">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Сравнение с ЕНПФ <span class="who"><i>${E(M.initials)}</i>ваш сценарий</span></p>
+        <h2>Оставить в ЕНПФ или перевести в аннуитет</h2>
+      </div>
+      <p class="intro">${M.enpfCmp.intro}</p>
+    </div>
+
+    <article class="card vs-verdict vs-verdict--${M.enpfCmp.tone}">
+      <span class="vs-verdict__ic">${B.enpfIcon('scale')}</span>
+      <div>
+        <p class="eyebrow">Коротко</p>
+        <h3>${M.enpfCmp.title}</h3>
+        <p>${M.enpfCmp.text}</p>
+        ${M.enpfCmp.live ? '<p class="vs-stamp"><span class="vs-stamp__ic">' + B.enpfIcon('check') + '</span>' + M.enpfCmp.live.text + '</p>' : ''}
+      </div>
+    </article>
+
+${B.enpfCards()}
+
+    <div class="vs-charts">
+      <article class="card chart-card vs-card">
+        <h3>Сколько приходит в месяц</h3>
+        <p class="chart-note">${M.enpfCmp.monthNote}</p>
+        <div class="vs-chart">
+${B.enpfChart('month')}
+        </div>
+        <div class="legend">
+          <span><i class="l-green"></i>аннуитет Standard Life</span>
+          <span><i class="l-enpf"></i>ЕНПФ — ${M.enpfCmp.fromCalc ? 'калькулятор ЕНПФ' : 'формула Правил выплат'}, ${M.enpfCmp.scenarioLabel} сценарий</span>
+          <span><i class="l-enpf-band"></i>ЕНПФ: сценарии ${M.enpfCmp.fromCalc ? 'калькулятора ЕНПФ' : 'доходности'}</span>
+        </div>
+      </article>
+      <article class="card chart-card vs-card">
+        <h3>Сколько получено всего к возрасту</h3>
+        <p class="chart-note">Сумма всех выплат к каждому возрасту, в ценах 2026&nbsp;г. — если дожить до этого возраста. ЕНПФ — ${M.enpfCmp.fromCalc ? 'по таблице калькулятора ЕНПФ' : 'по формуле Правил выплат'}, аннуитет — выплаты по договору в ценах 2026&nbsp;г. (наша оценка).</p>
+        <div class="vs-chart">
+${B.enpfChart('cum')}
+        </div>
+        <div class="legend">
+          <span><i class="l-green"></i>аннуитет Standard Life</span>
+          <span><i class="l-enpf"></i>ЕНПФ — ${M.enpfCmp.fromCalc ? 'калькулятор ЕНПФ' : 'формула Правил выплат'}, ${M.enpfCmp.scenarioLabel} сценарий</span>
+          <span><i class="l-enpf-band"></i>ЕНПФ: сценарии ${M.enpfCmp.fromCalc ? 'калькулятора ЕНПФ' : 'доходности'}</span>
+        </div>
+      </article>
+    </div>
+
+    <article class="card vs-tab-card">
+      <div class="vs-tab-card__head">
+        <h3>По возрастам</h3>
+        <p class="chart-note">Выплата в месяц в этом возрасте и сколько всего получено по этот возраст включительно — в ценах 2026&nbsp;г. ЕНПФ — ${M.enpfCmp.fromCalc ? 'как в калькуляторе ЕНПФ' : 'по формуле Правил выплат'}; у аннуитета мелко — выплата по договору в тенге того года.</p>
+      </div>
+${B.enpfTable()}
+    </article>
+
+${B.enpfFacts()}
+
+${B.enpfCheck()}
+
+${B.enpfAnnuityCalc()}
+
+${B.enpfInherit()}
+
+${B.enpfNotes()}
+${B.enpfSnapshot()}
+  </section>

@@ -83,7 +83,6 @@
       return '        <svg width="300" height="300" class="pie" viewBox="0 0 300 300" role="img" aria-label="' + aria + '">\n' +
         '          <defs>\n' +
         '            <linearGradient id="pieOwn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6FA85F"/><stop offset="1" stop-color="#37742E"/></linearGradient>\n' +
-        '            <linearGradient id="pieDiv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#CBDE5C"/><stop offset="1" stop-color="#9DB82C"/></linearGradient>\n' +
         '            <linearGradient id="pieTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A709A"/><stop offset="1" stop-color="#1D3650"/></linearGradient>\n' +
         '          </defs>\n' +
         '          <g class="pie-ring">\n' + segs + '          </g>\n' + labels +
@@ -99,7 +98,9 @@
           '            <span class="val num"><span class="cnt" data-count="' + p.value + '">' + H(p.value) + '</span>&#160;₸</span>\n' +
           '            <span class="ds">' + p.note + '</span>\n' +
           '          </button>';
-      }).join('\n') + '\n        </div>';
+      }).join('\n') + '\n        </div>' +
+        /* возможный дивиденд — не доля суммы: отдельной строкой (правило продукта от 06.10.2026) */
+        (M.divNote ? '\n        <p class="stack-note">' + M.divNote + '</p>' : '');
     };
 
     B.metrics = function () {
@@ -172,34 +173,36 @@
       var cards = [];
       if (M.earlyYears > 0) {
         var rows = [], empty = [];
-        for (var a = M.s0; a < M.enpf; a++) {
-          var r = M.at(a);
-          var e = '', f = '';
+        /* годы договора до начала выплат ЕНПФ; в последнем неполном году — только месяцы до этой даты (M.early по датам) */
+        M.early.rows.forEach(function (r) {
+          var a = r.age, e = '', f = '';
           for (var k = 0; k < 12; k++) {
+            if (k >= r.n) { e += '<i class="is-out" aria-hidden="true"></i>'; f += '<i class="is-out" aria-hidden="true"></i>'; continue; }
             e += '<i title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · в ЕНПФ выплат нет" data-age="' + a + '" data-mon="' + MON[k] + '" data-m3="' + MON3[k] + '" data-none="1"><b>0</b></i>';
             f += '<i title="' + a + ' ' + M.yearsWord(a) + ' · ' + MON[k] + ' · ' + plain(r.m) + ' ₸" data-age="' + a + '" data-mon="' + MON[k] + '" data-m3="' + MON3[k] + '" data-sum="' + plain(r.m) + ' ₸" data-year="' + plain(r.y) + ' ₸"><b>' + cellSum(r.m) + '</b></i>';
           }
           empty.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + e + '<span class="waffle__sum">0' + NBSP + '₸</span></div>');
           rows.push('          <div class="waffle__row"><span class="waffle__year">' + a + '</span>' + f + '<span class="waffle__sum">' + nb(r.y) + NBSP + '₸</span></div>');
-        }
-        var n = M.earlyYears * 12, after = M.at(M.enpf);
+        });
+        var n = M.early.payments, after = M.at(M.enpf);
         cards.push('      <article class="card cmp cmp--wide">\n' +
           '        <p class="eyebrow">Ранний старт</p>\n' +
           '        <h3>' + M.earlyTitle + '</h3>\n' +
-          '        <p>В ЕНПФ деньги ждут ' + M.genYears(M.enpf) + '. По аннуитету они приходят каждый месяц ' + (M.immediate ? 'сразу' : 'уже с ' + M.startNum) + '.</p>\n' +
+          '        <p>В ЕНПФ деньги ждут ' + M.enpfGen + '. По аннуитету они приходят каждый месяц ' + (M.immediate ? 'сразу' : 'уже с ' + M.startNum) + '.</p>\n' +
           '        <p class="waffle-legend"><span class="waffle-legend__key"><i></i>в ячейке — выплата за месяц, ₸</span><span>строка — год, колонка — месяц</span><span>справа — сумма за год</span></p>\n\n' +
           '        <div class="cmp-split cmp-split--sums">\n          <div class="cmp-side">\n            <div class="cmp-side__head">\n' +
           '              <span class="cmp-side__tag">Если оставить в ЕНПФ</span>\n              <b class="cmp-side__big num">0' + NBSP + '₸</b>\n' +
-          '              <span class="cmp-side__note">за ' + Y(M.earlyYears) + ' — с ' + M.s0 + ' до ' + M.enpf + ' лет выплат нет</span>\n            </div>\n' +
+          '              <span class="cmp-side__note">за ' + M.earlyText + ' — ' + (M.immediate ? 'с оформления' : 'с ' + M.startNum) + ' до ' + M.enpfGen + ' выплат нет</span>\n            </div>\n' +
           '            <div class="waffle waffle--sums waffle--zero">\n' + waffleHead('за год') + empty.join('\n') + '\n            </div>\n          </div>\n' +
           '          <div class="cmp-side cmp-side--ann">\n            <div class="cmp-side__head">\n' +
           '              <span class="cmp-side__tag">По вашему аннуитету</span>\n' +
           '              <b class="cmp-side__big num"><span class="cnt" data-count="' + M.early.cum + '">' + H(M.early.cum) + '</span>' + NBSP + '₸</b>\n' +
-          '              <span class="cmp-side__note">придёт за те же ' + Y(M.earlyYears) + ' — ' + n + ' ' + word(n, 'ежемесячная выплата', 'ежемесячные выплаты', 'ежемесячных выплат') + '</span>\n            </div>\n' +
+          /* срок — полные месяцы, а выплат может быть на одну больше (3 месяца и 22 дня — 4 выплаты): тогда без «за те же …» */
+          '              <span class="cmp-side__note">придёт ' + (n === M.early.months ? 'за те же ' + M.earlyText : 'до начала выплат ЕНПФ') + ' — ' + n + ' ' + word(n, 'ежемесячная выплата', 'ежемесячные выплаты', 'ежемесячных выплат') + '</span>\n            </div>\n' +
           '            <div class="waffle waffle--sums">\n' + waffleHead('за год') + rows.join('\n') + '\n            </div>\n          </div>\n        </div>\n\n' +
           (after && after.age >= M.enpf
             ? '        <div class="cmp-next">\n          <b class="num">от ' + T(after.m) + '</b>\n' +
-              '          <span>в месяц с ' + M.genYears(M.enpf) + ' — и дальше выплаты продолжаются пожизненно, каждый год +' + M.indPct + '%</span>\n        </div>\n'
+              '          <span>в месяц с ' + M.enpfGen + ' — и дальше выплаты продолжаются пожизненно, каждый год +' + M.indPct + '%</span>\n        </div>\n'
             : '') +
           '      </article>');
       }
@@ -487,7 +490,7 @@
         '</span><span class="cats__thr">порог</span><span class="cats__pay">первая выплата</span></div>';
       var rows = C.map(function (c) {
         var pay = c.own ? '<b class="num">' + T(c.first) + '</b><small class="cats__me">ваш расчёт</small>'
-          : c.first != null ? '<b class="num">' + T(c.first) + '</b><small class="cats__ok">' + (c.viaDiv ? 'хватает с дивидендом' : 'хватает') + '</small>'
+          : c.first != null ? '<b class="num">' + T(c.first) + '</b><small class="cats__ok">хватает</small>'
           : '<small class="cats__no">доплата ' + T(c.topup) + '</small>';
         return '        <div class="cats__row' + (c.own ? ' is-own' : '') + (c.enough ? ' is-ok' : '') + '">' +
           '<div class="cats__name"><b>' + E(c.label) + '</b><small>' + (c.hint ? E(c.hint) + ' · ' : '') + c.from + '</small></div>' +
@@ -589,6 +592,322 @@
           '<td data-label="Получено всего, ₸">' + nb(d.cum) + '</td>' +
           '<td data-label="Выкупная сумма">' + left + '</td></tr>';
       }).join('');
+    };
+
+    /* ════ «ЕНПФ или аннуитет» (раздел 08b-enpf): всё — в сегодняшних деньгах, данные — M.enpfCmp ════ */
+    var V = M.enpfCmp;
+    var EN_IC = {
+      info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5h.01"/></svg>',
+      scale: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M7 6.4h10"/><path d="M7 6.4 4.2 12.6h5.6ZM17 6.4l-2.8 6.2h5.6Z"/><path d="M8.6 20h6.8"/></svg>',
+      check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.2 2.4 2.4 4.8-5"/></svg>'
+    };
+    /* число с ключом для сверки с библиотекой (см. report-model kv) */
+    function K(key, v, f, cls, tag) { return V.kv(key, v, f, cls, tag); }
+    function ageWord(a) { return a + NBSP + M.yearsWord(a); }
+    function ageGen(a) { return a + NBSP + (a % 10 === 1 && a % 100 !== 11 ? 'года' : 'лет'); }
+
+    /* возраст с дробью: 63 → «63 лет», 62,5 → «62,5 года» (после «с»/«до») */
+    function ageGenX(a) {
+      if (Math.abs(a - Math.round(a)) < 1e-9) return ageGen(Math.round(a));
+      return String(r1(a)).replace('.', ',') + NBSP + 'года';
+    }
+    function ageWordX(a) { return Math.abs(a - Math.round(a)) < 1e-9 ? ageWord(Math.round(a)) : String(r1(a)).replace('.', ',') + NBSP + 'года'; }
+    /* первый возраст без выплаты ЕНПФ (после последней строки таблицы ЕНПФ) */
+    function enpfZeroAge() { var e = V.enpf; return e.lump || e.endExact == null ? null : Math.ceil(e.endExact + 1 - 1e-9); }
+
+    /* ── Две карточки: что даёт каждый путь. ЕНПФ — ровно цифры калькулятора ЕНПФ ── */
+    B.enpfCards = function () {
+      var e = V.enpf, s = V.sl;
+      var eBig = e.lump ? K('c.enpf.lump', e.lumpReal, 't', 'cmp-side__big') : K('c.enpf.first', e.firstReal, 't', 'cmp-side__big');
+      var eNote = e.lump ? 'одной суммой ' + (e.retired ? 'сразу' : 'в ' + ageWord(e.start)) + ' · в ценах 2026' + NBSP + 'г.'
+        : (V.fromCalc ? 'в месяц (ОПВ) · в ценах 2026' + NBSP + 'г. — как на enpf.kz' : 'в месяц · по формуле Правил выплат');
+      var eList = [];
+      if (!e.retired) eList.push('выход на пенсию по ЕНПФ — ' + e.startDateText + ' (' + ageWordX(e.startExact) + ')');
+      if (e.lump) eList.push('накоплений к пенсии не больше 12 минимальных пенсий — ЕНПФ выплатит их сразу, ежемесячных выплат не будет');
+      else if (e.years) eList.push('выплаты ' + e.rangeText + ', затем 0' + NBSP + '₸');
+      if (V.fromCalc && !e.lump) {
+        if (Math.abs(e.pes.monthly - e.opt.monthly) >= 1)
+          eList.push('по сценариям калькулятора ЕНПФ — от ' + K('c.enpf.pes', e.pes.monthly, 't', '', 'span') + ' до ' + K('c.enpf.opt', e.opt.monthly, 't', '', 'span') + ' в месяц');
+        else if (e.pes.years !== e.opt.years)
+          eList.push('по сценариям калькулятора ЕНПФ — от ' + Y(e.pes.years) + ' до ' + Y(e.opt.years) + ' выплат');
+      }
+      if (!V.fromCalc) eList.push('размер назначает ЕНПФ по заявлению');
+      eList.push('остаток на счёте наследуется полностью');
+      if (V.live) eList.push('сверено с калькулятором ЕНПФ ' + V.live.dateText + ' — совпадает');
+      var sList = [
+        'выплаты ' + s.startText + (s.immediate ? ' после оформления' : ' (' + s.startDateText + ')') + ' — пожизненно',
+        'по договору ' + K('c.sl.firstN', s.firstNominal, 't', '', 'span') + ' в месяц в ' + s.startYear + NBSP + 'г., дальше +' + M.pctNum(s.ind) + NBSP + '% каждый год',
+        'размер и рост выплаты закреплены договором — от доходности не зависят'
+      ];
+      if (s.gp > 0) sList.push('гарантийный период ' + Y(s.gp) + ': невыплаченное за эти годы получат близкие');
+      function list(L) { return '          <ul class="vs-list">\n' + L.map(function (t) { return '            <li>' + t + '</li>'; }).join('\n') + '\n          </ul>\n'; }
+      return '    <article class="card cmp cmp--wide vs-split-card">\n' +
+        '      <div class="cmp-split vs-split">\n' +
+        '        <div class="cmp-side cmp-side--enpf">\n          <div class="cmp-side__head">\n' +
+        '            <span class="cmp-side__tag">Если оставить в ЕНПФ</span>\n            ' + eBig + '\n' +
+        '            <span class="cmp-side__note">' + eNote + '</span>\n          </div>\n' + list(eList) +
+        '        </div>\n' +
+        '        <div class="cmp-side cmp-side--ann">\n          <div class="cmp-side__head">\n' +
+        '            <span class="cmp-side__tag">Если перевести в аннуитет Standard Life</span>\n            ' + K('c.sl.first', s.firstReal, 't', 'cmp-side__big') + '\n' +
+        '            <span class="cmp-side__note">в месяц ' + s.startText + ' · в ценах 2026' + NBSP + 'г. (по договору — ' + K('c.sl.firstN2', s.firstNominal, 't', '', 'span') + ')</span>\n          </div>\n' + list(sList) +
+        '        </div>\n      </div>\n    </article>';
+    };
+
+    /* ── Как проверить на enpf.kz: точный ввод и строки, которые надо читать ── */
+    B.enpfCheck = function () {
+      var e = V.enpf, kz = V.kszh;
+      function li(L) { return L.map(function (t) { return '            <li>' + t + '</li>'; }).join('\n'); }
+      var left;
+      if (V.fromCalc) {
+        var inputs = e.siteInputs.map(function (p) { return '«' + E(p[0]) + '» — <b>' + E(p[1]) + '</b>'; });
+        var read = e.lump
+          ? ['«В том числе: ОПВ» — <b>' + plain(e.lumpReal) + NBSP + '₸</b> (одна выплата)']
+          : ['«В том числе: ОПВ» — <b>' + plain(e.firstReal) + NBSP + '₸</b> в месяц',
+             '«Количество лет до исчерпания накоплений по ОПВ» — <b>' + e.years + '</b>',
+             '«Возраст и дата выхода на пенсию» — <b>' + String(r1(e.startExact)).replace('.', ',') + ', ' + E(e.startDateText) + '</b>'];
+        left = '        <div class="vs-check__col">\n          <h4>Прогнозный пенсионный калькулятор</h4>\n' +
+          '          <p>enpf.kz → «Онлайн сервисы» → «Прогнозный пенсионный калькулятор». Введите:</p>\n          <ol>\n' + li(inputs) + '\n          </ol>\n' +
+          '          <p>Нажмите «Рассчитать», на вопрос об изъятии ответьте «Нет». Сценарий «Реалистичный», «Без перевода в УИП». Смотрите:</p>\n          <ul>\n' + li(read) + '\n          </ul>\n' +
+          '          <p class="vs-check__small">Цифры ЕНПФ — по калькулятору ЕНПФ на ' + V.calcDateText.replace(/\.$/, '') + '. Они зависят от даты расчёта (в другие дни могут отличаться на несколько тенге), а ЕНПФ может изменить методику расчёта. Если на enpf.kz сейчас другие цифры — попросите агента обновить расчёт.</p>\n' +
+          '        </div>\n';
+      } else {
+        left = '        <div class="vs-check__col">\n          <h4>Выплата из ЕНПФ</h4>\n' +
+          '          <p>Прогнозный калькулятор ЕНПФ не считает тех, кто уже достиг пенсионного возраста. Выплата посчитана по формуле Правил выплат: 6,5' + NBSP + '% накоплений в год, но не меньше 70' + NBSP + '% прожиточного минимума. Точный размер назначает ЕНПФ (1418).</p>\n' +
+          '        </div>\n';
+      }
+      var right = '';
+      if (kz) {
+        var b = kz.body;
+        var kin = ['«Пол» — <b>' + (b.sex === '1' ? 'Мужской' : 'Женский') + '</b>', '«Дата рождения» — <b>' + E(b.birthday) + '</b>',
+          '«Общая сумма пенсионных накоплений / размер выплаты» — <b>пенсионные накопления, ' + plain(+b.totalPension) + '</b>',
+          '«Гарантийный период» — <b>' + E(b.warrPeriod) + '</b>',
+          '«Выбор договора пенсионного аннуитета» — <b>' + (b.pensann === '1' ? 'Отложенный аннуитет' : 'Немедленный аннуитет') + '</b>',
+          '«Наличие уплаты ОППВ в совокупности не менее 60 календарных месяцев» — <b>' + (b.paymentOppv === '1' ? 'Да' : 'Нет') + '</b>',
+          '«Возраст начала страховых (аннуитетных) выплат, лет» — <b>' + E(b.insStartDay) + '</b>',
+          '«Группа инвалидности» — <b>' + ({ '1': 'Инв. 1 гр.', '2': 'Инв. 2 гр.', '3': 'Инв. 3 гр.' }[b.disability] || 'Нет') + '</b>'];
+        right = '        <div class="vs-check__col">\n          <h4>Калькулятор аннуитета ЕНПФ</h4>\n' +
+          '          <p>enpf.kz → «Калькулятор по расчёту страховой премии и страховой выплаты из страховой организации». Введите:</p>\n          <ol>\n' + li(kin) + '\n          </ol>\n' +
+          '          <p>Покажет (в тенге, без пересчёта в «текущие цены»): первую выплату <b>' + plain(kz.firstPayment) + NBSP + '₸</b>' +
+          (kz.threshold > +b.totalPension ? ' и минимальную сумму для договора <b>' + plain(kz.threshold) + NBSP + '₸</b>' : '') + '.</p>\n' +
+          '        </div>\n';
+      }
+      return '    <article class="card vs-check">\n' +
+        '      <div class="vs-check__head">\n        <p class="eyebrow">Проверьте сами</p>\n        <h3>Как проверить цифры ЕНПФ на enpf.kz</h3>\n' +
+        '        <p>Будущие взносы не вводим (зарплата 1' + NBSP + '₸): они продолжают поступать в ЕНПФ в обоих вариантах и выплачиваются ЕНПФ отдельно. Если указать свою зарплату, ЕНПФ покажет больше — за счёт этих будущих взносов.</p>\n      </div>\n' +
+        '      <div class="vs-check__cols">\n' + left + right + '      </div>\n    </article>';
+    };
+
+    /* ── Калькуляторы аннуитета на enpf.kz: их точные цифры и чем они отличаются от нашего договора ── */
+    B.enpfAnnuityCalc = function () {
+      var kz = V.kszh, offer = V.offer, s = V.sl, parts = [];
+      if (kz) {
+        var v = kz.vsSl || {}, d = Math.round(kz.firstPayment - s.firstNominal);
+        var p = 'Для такого же договора калькулятор аннуитета ЕНПФ покажет первую выплату ' + K('a.kszh.first', kz.firstPayment, 't', '', 'span') +
+          ' с ' + E(kz.firstPeriod) + ' (у нас — ' + K('a.sl.first', s.firstNominal, 't', '', 'span') + ' с ' + s.startDateText + ')';
+        if (kz.threshold > s.premium) p += ', причём посчитает её на сумму ' + K('a.kszh.prem', kz.threshold, 't', '', 'span') + ' — это его минимум для такого договора (у нас договор на ' + K('a.sl.prem', s.premium, 't', '', 'span') + ')';
+        p += '. ';
+        if (d > 0) {
+          p += 'Это на ' + K('a.diff', d, 't', '', 'span') + ' больше нашей первой выплаты. ';
+          var ma = v.enpfMonthlyAhead, ca = v.enpfCumAhead;
+          p += 'Но у ЕНПФ выплата растёт на 7' + NBSP + '% в год, у нас — на ' + M.pctNum(s.ind) + NBSP + '%' +
+            (ma ? ': ежемесячная выплата по нашему договору больше с ' + ageGenX(ma.toAge + 1) : '') + '. ' +
+            (ca ? 'По сумме полученного ЕНПФ впереди с ' + ca.fromAge + ' до ' + ageGenX(ca.toAge + 1) + ', дальше — наш договор.' : 'По сумме полученного наш договор впереди всё время.');
+        } else if (d < 0) {
+          p += 'Наша первая выплата больше на ' + K('a.diff', -d, 't', '', 'span') + ' и растёт быстрее: +' + M.pctNum(s.ind) + NBSP + '% в год против 7' + NBSP + '%.';
+        } else p += 'Первые выплаты равны; наша растёт быстрее: +' + M.pctNum(s.ind) + NBSP + '% в год против 7' + NBSP + '%.';
+        parts.push(p);
+        parts.push('Почему цифры отличаются: калькулятор ЕНПФ считает по параметрам до 2026' + NBSP + 'г. — доходность 8' + NBSP + '%, индексация 7' + NBSP + '%; по действующей Методике АРРФР №' + NBSP + '45 (ред. 27.01.2026) индексация — не ниже 8' + NBSP + '%, по ней считает Standard Life. ' +
+          'Кроме того, у калькулятора ЕНПФ договор начинается со следующего дня рождения (' + kz.contractYear + NBSP + 'г.), и минимальную выплату он берёт по прожиточному минимуму того года.');
+      }
+      if (offer && offer.monthly > 0) {
+        parts.push('Прогнозный калькулятор ЕНПФ после расчёта сам предложит «пожизненный аннуитет»: ' + K('a.offer', offer.monthly, 't', '', 'span') + ' в месяц с ' + ageGenX(offer.fromAge) +
+          ' (в ценах 2026' + NBSP + 'г., дальше +2' + NBSP + '% в год). Это аннуитет, купленный в возрасте ' + ageWordX(offer.fromAge) + ' на накопления, выросшие к тому времени в ЕНПФ; по нашему договору выплаты идут ' + s.startText + '.');
+      }
+      if (!parts.length) return '';
+      return '    <article class="card vs-kszh">\n' +
+        '      <p class="eyebrow">Калькуляторы аннуитета на enpf.kz</p>\n' +
+        '      <h3>Что покажет ЕНПФ про аннуитет</h3>\n' +
+        parts.map(function (t) { return '      <p>' + t + '</p>'; }).join('\n') + '\n    </article>';
+    };
+
+    /* ── Графики: в месяц и нарастающим итогом (широкий и узкий рисунок, как «По годам») ── */
+    function niceTop(v, n) {
+      var raw = Math.max(v, 1) / n, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), fr = raw / p;
+      var step = (fr <= 1 ? 1 : fr <= 2 ? 2 : fr <= 2.5 ? 2.5 : fr <= 5 ? 5 : 10) * p;
+      return { step: step, top: Math.ceil(v * 1.06 / step) * step || step };
+    }
+    function axisMoney(v, cum) {
+      if (!v) return '0';
+      if (cum || v >= 1e6) { var m = v / 1e6; return (m >= 10 ? String(Math.round(m)) : String(r1(m)).replace('.', ',')) + ' млн'; }
+      return Math.round(v / 1e3) + ' тыс';
+    }
+    /* подпись значения на графике: всегда с десятыми — «13,1 млн», чтобы близкие суммы не сливались */
+    function capMln(v) { return String(Math.round(v / 1e5) / 10).replace('.', ',') + ' млн'; }
+    function vsSvg(kind, W, H, narrow) {
+      var S = V.series, cum = kind === 'cum';
+      var a0 = S[0].age, a1 = S[S.length - 1].age;
+      var X0 = narrow ? 46 : 62, X1 = W - (narrow ? 8 : 14), Y1 = narrow ? 46 : 50, Y0 = H - (narrow ? 30 : 34);
+      var key = cum ? { s: 'sc', e: 'ec', p: 'ecp', o: 'eco' } : { s: 's', e: 'e', p: 'ep', o: 'eo' };
+      var vmax = 0;
+      S.forEach(function (r) { vmax = Math.max(vmax, r[key.s], r[key.e], r[key.p], r[key.o]); });
+      var sc = niceTop(vmax, narrow ? 4 : 5);
+      var x = function (a) { return X0 + (a - a0) / (a1 + 1 - a0) * (X1 - X0); };
+      var y = function (v) { return Y0 - v / sc.top * (Y0 - Y1); };
+      var f1 = function (v) { return v.toFixed(1); };
+      var refRow = S.filter(function (r) { return r.age === V.refAge; })[0];
+      var aria = cum
+        ? 'Получено всего к возрасту, в ценах 2026 года' + (refRow ? ': к ' + V.refAge + ' годам аннуитет ' + plain(refRow.sc) + ' тенге, ЕНПФ ' + plain(refRow.ec) + ' тенге' : '')
+        : 'Выплата в месяц, в ценах 2026 года: аннуитет ' + V.sl.startText + ' пожизненно, ЕНПФ ' + V.enpf.rangeText;
+      var out = '        <svg class="vs-svg ' + (narrow ? 'vs-svg--narrow' : 'vs-svg--wide') + '" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + aria + '">\n';
+      for (var t = 0; t <= sc.top + sc.step / 2; t += sc.step) {
+        out += '        <line class="vs-grid' + (t ? '' : ' vs-grid--0') + '" x1="' + X0 + '" y1="' + f1(y(t)) + '" x2="' + X1 + '" y2="' + f1(y(t)) + '"/>\n' +
+          '        <text class="vs-y" x="' + (X0 - 7) + '" y="' + f1(y(t) + 4) + '" text-anchor="end">' + axisMoney(t, cum) + '</text>\n';
+      }
+      var every = narrow ? 10 : 5;
+      S.forEach(function (r, k) {
+        if (k === 0 || (r.age % every === 0 && r.age - a0 >= (narrow ? 4 : 3)))
+          out += '        <text class="vs-x" x="' + f1(x(r.age)) + '" y="' + (Y0 + 18) + '" text-anchor="middle">' + r.age + '</text>\n';
+      });
+      /* линии: в месяц — ступеньки (выплата постоянна весь год), итог — точки на конец каждого года */
+      function stepPath(get) {
+        var d = '', on = false;
+        S.forEach(function (r) {
+          var v = get(r);
+          if (v > 0.5) {
+            d += (on ? 'L' : 'M') + f1(x(r.age)) + ' ' + f1(y(v)) + 'L' + f1(x(r.age + 1)) + ' ' + f1(y(v));
+            on = true;
+          } else if (on) { d += 'L' + f1(x(r.age)) + ' ' + f1(y(0)); on = false; }
+        });
+        return d;
+      }
+      function cumPath(get) {
+        var d = 'M' + f1(x(a0)) + ' ' + f1(y(0));
+        S.forEach(function (r) { d += 'L' + f1(x(r.age + 1)) + ' ' + f1(y(get(r))); });
+        return d;
+      }
+      var band = '';
+      if (cum) {
+        var up = 'M' + f1(x(a0)) + ' ' + f1(y(0)), dn = '';
+        S.forEach(function (r) { up += 'L' + f1(x(r.age + 1)) + ' ' + f1(y(Math.max(r.ecp, r.eco))); });
+        for (var j = S.length - 1; j >= 0; j--) dn += 'L' + f1(x(S[j].age + 1)) + ' ' + f1(y(Math.min(S[j].ecp, S[j].eco)));
+        band = up + dn + 'L' + f1(x(a0)) + ' ' + f1(y(0)) + 'Z';
+      } else {
+        S.forEach(function (r) {
+          var hi = Math.max(r.ep, r.eo), lo = Math.min(r.ep, r.eo);
+          if (hi > 0.5) band += 'M' + f1(x(r.age)) + ' ' + f1(y(hi)) + 'L' + f1(x(r.age + 1)) + ' ' + f1(y(hi)) + 'L' + f1(x(r.age + 1)) + ' ' + f1(y(lo)) + 'L' + f1(x(r.age)) + ' ' + f1(y(lo)) + 'Z';
+        });
+      }
+      if (band) out += '        <path class="vs-band" d="' + band + '"/>\n';
+      var sPath = cum ? cumPath(function (r) { return r.sc; }) : stepPath(function (r) { return r.s; });
+      if (sPath) {
+        var sFrom = cum ? x(a0) : x(Math.max(a0, V.sl.start));
+        out += '        <path class="vs-area" d="' + sPath + 'L' + f1(x(a1 + 1)) + ' ' + f1(y(0)) + 'L' + f1(sFrom) + ' ' + f1(y(0)) + 'Z"/>\n' +
+          '        <path class="vs-sl" d="' + sPath + '"/>\n';
+      }
+      var ePath = cum ? cumPath(function (r) { return r.ec; }) : stepPath(function (r) { return r.e; });
+      if (ePath) out += '        <path class="vs-enpf" d="' + ePath + '"/>\n';
+      /* отметки: старт аннуитета, старт ЕНПФ, конец выплат ЕНПФ */
+      var marks = [];
+      if (V.sl.start >= a0) marks.push({ a: V.sl.start, cls: 'vs-mark--sl', t: (narrow ? 'аннуитет · ' : 'аннуитет: старт · ') + V.sl.startLabel });
+      if (V.enpf.start >= a0) marks.push({ a: V.enpf.start, cls: 'vs-mark--enpf', t: (V.enpf.lump ? (narrow ? 'ЕНПФ разово · ' : 'ЕНПФ: одной суммой · ') : (narrow ? 'ЕНПФ · ' : 'ЕНПФ: старт · ')) + V.enpf.startLabel });
+      var z = enpfZeroAge();
+      if (z != null && z <= a1) marks.push({ a: z, cls: 'vs-mark--enpf', t: narrow ? 'ЕНПФ: 0 · ' + z : 'ЕНПФ: выплаты закончились · ' + z });
+      marks.sort(function (p, q) { return p.a - q.a; });
+      marks.forEach(function (m, k) {
+        var mx = x(m.a), ty = Y1 - 30 + (k % 2) * 14, right = mx > X0 + (X1 - X0) * 0.62;
+        out += '        <line class="vs-mark ' + m.cls + '" x1="' + f1(mx) + '" y1="' + f1(ty + 4) + '" x2="' + f1(mx) + '" y2="' + Y0 + '"/>\n' +
+          '        <text class="vs-mcap ' + m.cls + '" x="' + f1(mx + (right ? -5 : 5)) + '" y="' + f1(ty) + '" text-anchor="' + (right ? 'end' : 'start') + '">' + m.t + '</text>\n';
+      });
+      if (cum && refRow) {
+        var rx = x(V.refAge + 1), ys = y(refRow.sc), ye = y(refRow.ec), slUp = ys <= ye, gap = Math.abs(ys - ye) < 18;
+        out += '        <circle class="vs-dot vs-dot--sl" cx="' + f1(rx) + '" cy="' + f1(ys) + '" r="4.5"/>\n' +
+          '        <circle class="vs-dot vs-dot--enpf" cx="' + f1(rx) + '" cy="' + f1(ye) + '" r="4.5"/>\n' +
+          '        <text class="vs-vcap vs-vcap--sl" x="' + f1(rx - 8) + '" y="' + f1(slUp ? ys - 9 : ys + 17 + (gap ? 6 : 0)) + '" text-anchor="end">' + capMln(refRow.sc) + '</text>\n' +
+          '        <text class="vs-vcap vs-vcap--enpf" x="' + f1(rx - 8) + '" y="' + f1(slUp ? ye + 17 + (gap ? 6 : 0) : ye - 9) + '" text-anchor="end">' + capMln(refRow.ec) + '</text>\n';
+      }
+      /* поле подсказки: возраст под курсором считает скрипт КП, цифры — CFG.enpf (без скрипта — общая подпись) */
+      out += '        <rect class="vs-hit" x="' + X0 + '" y="' + Y1 + '" width="' + (X1 - X0) + '" height="' + (Y0 - Y1) + '" data-a0="' + a0 + '" data-a1="' + a1 +
+        '"><title>' + (cum ? 'Получено всего к возрасту' : 'Выплата в месяц') + ', в сегодняшних деньгах: аннуитет — зелёная линия, ЕНПФ — пунктир</title></rect>\n';
+      out += '        <line class="vs-axis" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X1 + '" y2="' + Y0 + '"/>\n' +
+        (narrow ? '' : '        <text class="vs-unit" x="' + X1 + '" y="' + (H - 4) + '" text-anchor="end">возраст, лет</text>\n') +
+        '        </svg>';
+      return out;
+    }
+    B.enpfChart = function (kind) { return vsSvg(kind, 560, 330, false) + '\n' + vsSvg(kind, 420, 300, true); };
+
+    /* ── Таблица по возрастам ── */
+    B.enpfTable = function () {
+      var rows = V.table.map(function (r) {
+        var eCell = r.enpfLump > 0 ? '<span class="vs-tab__lump">одной суммой</span>'
+          : r.enpfM > 0.5 ? K('t.' + r.age + '.em', r.enpfM, 't') : '<span class="vs-tab__none">—</span>';
+        var sCell = r.slM > 0.5 ? K('t.' + r.age + '.sm', r.slM, 't') + '<small>' + K('t.' + r.age + '.smn', r.slMN, 't', '', 'span') + ' по договору</small>' : '<span class="vs-tab__none">—</span>';
+        return '          <tr' + (r.key ? ' class="is-key"' : '') + '><td>' + ageWord(r.age) + '</td>' +
+          '<td class="is-enpf" data-label="ЕНПФ в месяц">' + eCell + '</td><td class="is-enpf" data-label="ЕНПФ: получено всего">' + K('t.' + r.age + '.ec', r.enpfCum, 't') + '</td>' +
+          '<td class="is-ann" data-label="Аннуитет в месяц">' + sCell + '</td><td class="is-ann" data-label="Аннуитет: получено всего">' + K('t.' + r.age + '.sc', r.slCum, 't') + '</td></tr>';
+      }).join('\n');
+      return '      <div class="vs-scroll"><table class="vs-tab">\n' +
+        '        <thead><tr><th rowspan="2">Возраст</th><th colspan="2" class="is-enpf">Оставить в ЕНПФ</th><th colspan="2" class="is-ann">Аннуитет Standard Life</th></tr>\n' +
+        '          <tr><th class="is-enpf">в месяц</th><th class="is-enpf">получено всего</th><th class="is-ann">в месяц</th><th class="is-ann">получено всего</th></tr></thead>\n' +
+        '        <tbody>\n' + rows + '\n        </tbody>\n' +
+        '      </table></div>';
+    };
+
+    /* ── Три факта ── */
+    B.enpfFacts = function () {
+      var f = [], e = V.enpf, s = V.sl;
+      if (V.early > 0) f.push('<div class="fact"><b>на ' + V.earlyText + '</b><span>раньше начинаются выплаты: ' + s.startText + ', а не ' + e.startText + '</span></div>');
+      /* клиент уже достиг пенсионного возраста ЕНПФ: выигрыша во времени нет — так и пишем, а не «на 0 лет раньше» */
+      else f.push('<div class="fact"><b>' + s.startText + '</b><span>начинаются выплаты аннуитета' +
+        (e.retired ? (V.early === 0 ? ' — ЕНПФ тоже платит сразу: пенсионный возраст уже наступил' : '; ЕНПФ платит сразу: пенсионный возраст уже наступил')
+          : V.early === 0 ? ' — как и в ЕНПФ' : '') + '</span></div>');
+      f.push('<div class="fact"><b>пожизненно</b><span>платит аннуитет; ЕНПФ — ' + (e.lump ? 'одной суммой' : e.years ? Y(e.years) + (V.fromCalc ? ' (по калькулятору ЕНПФ)' : ' (по формуле Правил)') : '—') + '</span></div>');
+      var ahead = V.diff >= 0;
+      f.push('<div class="fact' + (ahead ? ' fact--accent' : '') + '">' + K('f.diff', Math.abs(V.diff), 'm') +
+        '<span>' + (ahead ? 'больше получите по аннуитету' : 'больше даст ЕНПФ') + ' к ' + V.refAge + ' годам — в ценах 2026' + NBSP + 'г.' +
+        /* взнос клиента входит только в аннуитет: без оговорки разница выглядела бы чистым выигрышем */
+        (s.topUp > 0 ? (ahead ? ', до вычета вашего взноса ' : '; ваш взнос ') + K('v.topup', s.topUp, 't', '', 'span') + (ahead ? '' : ' остаётся у вас и сюда не входит') : '') +
+        '</span></div>');
+      return '    <div class="facts-strip vs-facts">\n      ' + f.join('\n      ') + '\n    </div>';
+    };
+
+    /* ── Если клиента не станет: по аннуитету — суммы договора; по ЕНПФ — остаток наследуется полностью (сумм ЕНПФ не показывает) ── */
+    B.enpfInherit = function () {
+      var I = V.inherit, s = V.sl;
+      var top = Math.max.apply(null, I.map(function (r) { return r.sl || 0; }).concat([1]));
+      var rows = I.map(function (r) {
+        return '        <div class="vs-inh__row vs-inh__row--sl">' +
+          '<span class="vs-inh__age">' + ageWord(r.age) + (r.now ? '<small>сейчас</small>' : '') + '</span>' +
+          '<span class="vs-inh__cell is-ann"><i style="width:' + r1((r.sl || 0) / top * 100) + '%"></i>' + K('i.' + r.age + '.s', r.sl || 0, 't') + '</span></div>';
+      }).join('\n');
+      var how = (s.immediate ? '' : 'до начала выплат — выкупная сумма, ') +
+        (s.gp > 0 ? 'после старта — невыплаченные выплаты гарантийного периода (' + Y(s.gp) + '), после него — ничего'
+                  : 'после старта — ничего (гарантийный период не выбран)');
+      return '    <article class="card vs-inh">\n' +
+        '      <div class="vs-inh__head">\n        <p class="eyebrow">Если вас не станет</p>\n        <h3>Что достанется близким</h3>\n' +
+        '        <p>В ЕНПФ весь остаток на счёте наследуется полностью. По аннуитету ' + how + '; кроме того, близким — выплата на погребение не меньше 35 МРП (' +
+        K('i.burial', s.burial, 't', '', 'span') + '). Суммы по аннуитету — по договору, в тенге.' +
+        (s.topUp > 0 ? ' В варианте ЕНПФ ваш взнос ' + K('i.topup', s.topUp, 't', '', 'span') + ' остаётся у вас и тоже достанется близким.' : '') +
+        '</p>\n      </div>\n' +
+        '      <div class="vs-inh__rows">\n' +
+        '        <div class="vs-inh__row vs-inh__row--head vs-inh__row--sl"><span>возраст</span><span class="is-ann">по аннуитету получат близкие</span></div>\n' +
+        rows + '\n      </div>\n' +
+        '    </article>';
+    };
+
+    /* ── Как посчитано: допущения и источники ── */
+    B.enpfNotes = function () {
+      return '    <div class="note-card vs-notes">\n' +
+        '      <span class="note-card__ic">' + EN_IC.info + '</span>\n' +
+        '      <div>\n        <b>Как посчитано</b>\n        <ol>\n' +
+        V.notes.map(function (n) { return '          <li>' + n + '</li>'; }).join('\n') +
+        '\n        </ol>\n      </div>\n    </div>';
+    };
+    B.enpfIcon = function (k) { return EN_IC[k] || ''; };
+
+    /* ── Слепок: что показывал ЕНПФ на дату расчёта (запросы и цифры) — невидимые данные в КП, для подтверждения позже ── */
+    B.enpfSnapshot = function () {
+      if (!V.snapshot) return '';
+      return '    <script type="application/json" id="enpf-snapshot">' + JSON.stringify(V.snapshot).replace(/</g, '\\u003c') + '</script>';
     };
 
     return B;
